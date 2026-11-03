@@ -1,10 +1,12 @@
 name: Release
 
-# Push a tag v<versionName> (for example v0.0.1) to build the APK with the release key
-# and attach it to a draft GitHub Release. The owner reviews the draft and publishes it.
+# Build the APK with the release key and attach it to a draft GitHub Release, which the
+# owner reviews and publishes. Start it by pushing a tag v<versionName> (for example v0.0.1),
+# or with "Run workflow" on main, which tags the commit it built.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,7 +21,8 @@ jobs:
     permissions:
       contents: write   # create the draft release
     env:
-      TAG: ${{ github.ref_name }}
+      EVENT: ${{ github.event_name }}
+      REF_NAME: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -31,14 +34,19 @@ jobs:
           gradle_code=$(sed -nE 's/^ *versionCode = ([0-9]+).*/\1/p' build.gradle.kts)
           sh_name=$(sed -nE 's/^VERSION_NAME=(.+)$/\1/p' build.sh)
           sh_code=$(sed -nE 's/^VERSION_CODE=([0-9]+)$/\1/p' build.sh)
-          echo "Gradle: $gradle_name ($gradle_code), build.sh: $sh_name ($sh_code), tag: $TAG"
+          echo "Gradle: $gradle_name ($gradle_code), build.sh: $sh_name ($sh_code), ref: $REF_NAME ($EVENT)"
           if [ "$gradle_name" != "$sh_name" ] || [ "$gradle_code" != "$sh_code" ]; then
             echo "::error::build.gradle.kts and build.sh have different versions."; exit 1
           fi
-          if [ "$TAG" != "v$gradle_name" ]; then
-            echo "::error::Tag $TAG does not match versionName $gradle_name. Tag the release v$gradle_name."; exit 1
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ "$REF_NAME" != "main" ]; then
+              echo "::error::Run the release workflow on main, not $REF_NAME."; exit 1
+            fi
+          elif [ "$REF_NAME" != "v$gradle_name" ]; then
+            echo "::error::Tag $REF_NAME does not match versionName $gradle_name. Tag the release v$gradle_name."; exit 1
           fi
           echo "VERSION=$gradle_name" >> "$GITHUB_ENV"
+          echo "TAG=v$gradle_name" >> "$GITHUB_ENV"
 
       # A release is never signed with a debug key: stop if a secret is missing.
       - name: Release key from secrets
@@ -106,6 +114,21 @@ jobs:
           cp build/outputs/apk/release/wow-addons.apk "dist/runeloader-$VERSION.apk"
           (cd dist && sha256sum "runeloader-$VERSION.apk" > "runeloader-$VERSION.apk.sha256")
           cat dist/*.sha256
+
+      # A manual run tags the built commit. A tag made with the workflow token starts no
+      # new workflow run, so the release is not built twice.
+      - name: Tag the commit (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if existing=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" -q .object.sha 2>/dev/null); then
+            if [ "$existing" != "$GITHUB_SHA" ]; then
+              echo "::error::Tag $TAG already points at $existing. Bump the version for a new release."; exit 1
+            fi
+          else
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$TAG" -f sha="$GITHUB_SHA" > /dev/null
+          fi
 
       - name: Draft GitHub Release
         env:
