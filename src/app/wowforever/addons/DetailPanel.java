@@ -249,6 +249,16 @@ final class DetailPanel extends Screen {
         final View focusTarget = primary != null ? primary : del;
         if (app.landscape) focusTarget.post(focusTarget::requestFocus);
 
+        if (e != null && !Model.SRC_ZIP.equals(e.source) && app.store.autoMode() != UpdatePolicy.MODE_OFF) {
+            LinearLayout pin = Ui.button(app, s(e.pinned ? R.string.auto_unpin : R.string.auto_pin), R.drawable.ic_upgrade, Ui.Kind.GHOST, v -> {
+                e.pinned = !e.pinned;
+                app.store.put(e);
+                renderDetail();
+            });
+            col.addView(pin, Ui.margins(Ui.lp(-1, Ui.dp(40)), 0, 0, 0, 12));
+            if (e.pinned) noteCard(col, s(R.string.auto_pinned_note), Ui.TEXT2, Ui.SURFACE2);
+        }
+
         if (!r.compatible && !r.missing) {
             noteCard(col, s(R.string.note_not_forever), Ui.ORANGE, Ui.ORANGE_SOFT);
         }

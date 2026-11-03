@@ -279,4 +279,46 @@
     <string name="sum_broker">Набор информеров: золото, FPS, задержка, друзья, гильдия, прочность и многое другое.</string>
     <string name="sum_bugsack">Собирает ошибки Lua в «мешок», чтобы они не мешали играть.</string>
     <string name="note_bugsack">Ошибки перехватывает !BugGrabber — его можно найти на CurseForge или WoWInterface.</string>
+
+    <!-- Background auto-update (settings, detail panel, notifications) -->
+    <string name="auto_title">Автообновление</string>
+    <string name="auto_text">Проверяет обновления аддонов в фоне, даже когда приложение закрыто. Точное время выбирает Android, поэтому проверка может задержаться на несколько часов.</string>
+    <string name="auto_mode_off">Выкл</string>
+    <string name="auto_mode_notify">Только уведомлять</string>
+    <string name="auto_mode_install">Ставить автоматически</string>
+    <string name="auto_frequency">Как часто</string>
+    <string name="auto_every_hours">Каждые %1$d ч</string>
+    <string name="auto_conditions">Когда</string>
+    <string name="auto_wifi_only">Только по Wi-Fi</string>
+    <string name="auto_charging_only">Только на зарядке</string>
+    <string name="auto_no_notifications">Уведомления выключены, поэтому обновления проходят молча. Разрешите уведомления для Runeloader в настройках системы, чтобы их видеть.</string>
+    <string name="auto_battery_text">Некоторые телефоны останавливают фоновую работу ради батареи. Если проверки не происходят, отключите для Runeloader оптимизацию батареи.</string>
+    <string name="auto_battery_action">Настройки батареи</string>
+    <string name="auto_status_never">Фоновых проверок ещё не было.</string>
+    <string name="auto_status_none">Последняя проверка: %1$s. Всё актуально.</string>
+    <string name="auto_status_found">Последняя проверка: %1$s. Найдено обновлений: %2$d.</string>
+    <string name="auto_status_updated">Последняя проверка: %1$s. Обновлено аддонов: %2$d.</string>
+    <string name="auto_status_error">Последняя проверка: %1$s. %2$s</string>
+    <string name="auto_channel">Обновления аддонов</string>
+    <string name="auto_channel_text">Что нашло и установило фоновое автообновление.</string>
+    <string name="auto_err_title">Автообновление не запустилось</string>
+    <string name="auto_err_access">У Runeloader больше нет «Доступа ко всем файлам». Откройте приложение и выдайте его снова.</string>
+    <string name="auto_err_game">Папка игры не найдена. Откройте приложение и выберите её заново.</string>
+    <string name="auto_err_update">Не удалось обновить аддоны</string>
+    <string name="auto_reload_hint">Если игра запущена, введите /reload.</string>
+    <string name="auto_pin">Не обновлять автоматически</string>
+    <string name="auto_unpin">Обновлять автоматически</string>
+    <string name="auto_pinned_note">Автообновление пропускает этот аддон. Обновить его вручную по-прежнему можно.</string>
+    <plurals name="auto_found">
+        <item quantity="one">Доступно %d обновление аддонов</item>
+        <item quantity="few">Доступно %d обновления аддонов</item>
+        <item quantity="many">Доступно %d обновлений аддонов</item>
+        <item quantity="other">Доступно %d обновления аддонов</item>
+    </plurals>
+    <plurals name="auto_updated">
+        <item quantity="one">Обновлён %d аддон</item>
+        <item quantity="few">Обновлено %d аддона</item>
+        <item quantity="many">Обновлено %d аддонов</item>
+        <item quantity="other">Обновлено %d аддона</item>
+    </plurals>
 </resources>
