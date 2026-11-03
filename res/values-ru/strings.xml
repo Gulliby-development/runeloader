@@ -29,7 +29,10 @@
     <string name="action_from_zip">Из ZIP</string>
     <string name="action_check">Проверить</string>
     <string name="action_checking">Проверка…</string>
-    <string name="action_update_all">Обновить все · %1$d</string>
+    <string name="library_title">Библиотека</string>
+    <string name="action_update_all_plain">Обновить все</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s: %2$s</string>
     <string name="installed_empty_title">Аддонов пока нет</string>
     <string name="installed_empty_text">Откройте каталог: там собраны аддоны со сборкой для WoW Forever — Questie, Bartender4, DBM, Plater и другие.</string>
     <string name="action_open_catalog">Открыть каталог</string>

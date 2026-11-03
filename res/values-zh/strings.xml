@@ -30,7 +30,10 @@
     <string name="action_from_zip">从 ZIP</string>
     <string name="action_check">检查</string>
     <string name="action_checking">检查中…</string>
-    <string name="action_update_all">全部更新 · %1$d</string>
+    <string name="library_title">插件库</string>
+    <string name="action_update_all_plain">全部更新</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s：%2$s</string>
     <string name="installed_empty_title">还没有插件</string>
     <string name="installed_empty_text">打开目录：这里收录了有 WoW Forever 版本的插件，例如 Questie、Bartender4、DBM、Plater 等。</string>
     <string name="action_open_catalog">打开目录</string>

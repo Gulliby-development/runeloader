@@ -29,7 +29,10 @@
     <string name="action_from_zip">Z pliku ZIP</string>
     <string name="action_check">Sprawdź</string>
     <string name="action_checking">Sprawdzanie…</string>
-    <string name="action_update_all">Aktualizuj wszystko · %1$d</string>
+    <string name="library_title">Biblioteka</string>
+    <string name="action_update_all_plain">Aktualizuj wszystko</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s: %2$s</string>
     <string name="installed_empty_title">Brak dodatków</string>
     <string name="installed_empty_text">Otwórz katalog: są w nim dodatki z wersją dla WoW Forever, takie jak Questie, Bartender4, DBM, Plater i inne.</string>
     <string name="action_open_catalog">Otwórz katalog</string>

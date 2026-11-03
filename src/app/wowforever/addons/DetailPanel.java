@@ -1,7 +1,13 @@
 package app.wowforever.addons;
 
+import android.graphics.Color;
+import android.graphics.Outline;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -59,7 +65,14 @@ final class DetailPanel extends Screen {
         ScrollView sv = new ScrollView(app);
         sv.setFillViewport(true);
         LinearLayout col = Ui.vbox(app);
-        col.setPadding(Ui.dp(20), Ui.dp(app.landscape ? 18 : 12), Ui.dp(20), Ui.dp(96));
+        col.setPadding(Ui.dp(18), Ui.dp(app.landscape ? 18 : 12), Ui.dp(18), Ui.dp(96));
+        // A faint mint light from the top, like the glow of the rune.
+        GradientDrawable tint = new GradientDrawable();
+        tint.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+        tint.setColors(new int[]{Ui.GREEN_SOFT, Color.TRANSPARENT});
+        tint.setGradientCenter(0.3f, 0f);
+        tint.setGradientRadius(Ui.dp(240));
+        col.setBackground(tint);
         sv.addView(col);
         if (!app.layout.docked) {
             LinearLayout back = Ui.button(app, s(R.string.action_back), R.drawable.ic_back, Ui.Kind.GHOST, v -> closeDetailSheet());
@@ -97,33 +110,52 @@ final class DetailPanel extends Screen {
         return box;
     }
 
-    private void detailHeader(LinearLayout col, String icon, String name, String author, View... pills) {
+    /** Hero: logo with a mint glow, name, author and source, then the status pills. */
+    private void detailHeader(LinearLayout col, String icon, String name, String byline, View... pills) {
         LinearLayout h = Ui.hbox(app);
-        h.setGravity(Gravity.TOP);
-        h.addView(avatar(icon, name, 64));
+        // Let the glow spill past the hero row.
+        h.setClipChildren(false);
+        col.setClipChildren(false);
+        ImageView av = avatar(icon, name, 60);
+        final float radius = Ui.dp(60) * 0.26f;
+        av.setBackground(Ui.round(Ui.SURFACE, 16, Ui.STROKE, 1f));
+        av.setOutlineProvider(new ViewOutlineProvider() {
+            @Override public void getOutline(View v, Outline o) { o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), radius); }
+        });
+        av.setElevation(Ui.dp(10));
+        av.setOutlineAmbientShadowColor(Ui.GREEN);
+        av.setOutlineSpotShadowColor(Ui.GREEN);
+        h.addView(av, Ui.margins(Ui.lp(Ui.dp(60), Ui.dp(60)), 2, 2, 0, 2));
         LinearLayout tb = Ui.vbox(app);
-        TextView t = Ui.text(app, name, 19, Ui.TEXT, Ui.BOLD);
-        t.setMaxLines(2);
-        tb.addView(t);
-        if (author != null && !author.isEmpty()) tb.addView(Ui.oneLine(Ui.text(app, author, 13, Ui.TEXT2, Ui.REGULAR)), Ui.margins(Ui.lp(-2, -2), 0, 5, 0, 0));
-        LinearLayout pr = Ui.hbox(app);
-        for (View p : pills) pr.addView(p, Ui.margins(Ui.lp(-2, -2), 0, 0, 6, 0));
-        tb.addView(pr, Ui.margins(Ui.lp(-2, -2), 0, 8, 0, 0));
+        tb.addView(Ui.text(app, name, 18.5f, Ui.TEXT, Ui.BOLD));
+        if (byline != null && !byline.isEmpty()) tb.addView(Ui.text(app, byline, 12.5f, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-2, -2), 0, 4, 0, 0));
         h.addView(tb, Ui.margins(Ui.lpw(0, -2, 1), 14, 0, 0, 0));
-        col.addView(h, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 16));
+        col.addView(h, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 12));
+        if (pills.length > 0) {
+            Ui.FlowRow badges = new Ui.FlowRow(app, 6, 6);
+            for (View p : pills) badges.addView(p);
+            col.addView(badges, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 16));
+        }
     }
 
-    private void infoRow(LinearLayout col, String label, String value) {
+    private static String byline(String author, String source) {
+        if (author == null || author.isEmpty()) return source;
+        return author + "  ·  " + source;
+    }
+
+    /** One key/value line: label on the left, value on the right; versions in monospace. */
+    private void infoRow(LinearLayout col, String label, String value) { infoRow(col, label, value, false); }
+
+    private void infoRow(LinearLayout col, String label, String value, boolean mono) {
         if (value == null || value.isEmpty()) return;
         LinearLayout r = Ui.hbox(app);
         r.setGravity(Gravity.TOP);
-        r.setPadding(0, Ui.dp(7), 0, Ui.dp(7));
-        r.addView(Ui.text(app, label, 13, Ui.TEXT3, Ui.REGULAR), Ui.lp(Ui.dp(110), -2));
-        TextView v = Ui.text(app, value, 13, Ui.TEXT, Ui.MEDIUM);
-        v.setTextIsSelectable(false);
-        r.addView(v, Ui.lpw(0, -2, 1));
+        r.setPadding(0, Ui.dp(5), 0, Ui.dp(5));
+        r.addView(Ui.text(app, label, 12.5f, Ui.TEXT3, Ui.REGULAR), Ui.lp(-2, -2));
+        TextView v = Ui.text(app, value, mono ? 12 : 12.5f, Ui.TEXT, mono ? Typeface.MONOSPACE : Ui.MEDIUM);
+        v.setGravity(Gravity.END);
+        r.addView(v, Ui.margins(Ui.lpw(0, -2, 1), 14, 0, 0, 0));
         col.addView(r);
-        col.addView(Ui.divider(app));
     }
 
     private void noteCard(LinearLayout col, String text, int fg, int bg) {
@@ -136,36 +168,49 @@ final class DetailPanel extends Screen {
         col.addView(n, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 12));
     }
 
-    private LinearLayout actionRow(LinearLayout col) {
-        LinearLayout a = Ui.hbox(app);
-        col.addView(a, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 16));
-        return a;
+    /** The main action, full width. */
+    private void primaryAction(LinearLayout col, View b) {
+        col.addView(b, Ui.margins(Ui.lp(-1, Ui.dp(44)), 0, 0, 0, 8));
+    }
+
+    /** Secondary and danger actions below the main one; they wrap instead of shrinking. */
+    private Ui.FlowRow secondaryActions(LinearLayout col) {
+        Ui.FlowRow f = new Ui.FlowRow(app, 8, 8);
+        col.addView(f, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 16));
+        return f;
+    }
+
+    private void addSecondary(Ui.FlowRow f, LinearLayout b) {
+        b.setMinimumHeight(Ui.dp(40));
+        f.addView(b, new ViewGroup.LayoutParams(-2, Ui.dp(40)));
     }
 
     private void buildItemDetail(LinearLayout col, final Model.Item it) {
-        View src = Ui.pill(app, sourceName(it.source), Ui.TEXT2, Ui.SURFACE3);
-        View fv = it.foreverVerified ? Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT) : Ui.pill(app, s(R.string.pill_forever_unverified), Ui.ORANGE, Ui.ORANGE_SOFT);
-        detailHeader(col, it.iconUrl, it.name, it.author, src, fv);
-
         final Model.Entry e = app.store.entry(it.key());
-        LinearLayout actions = actionRow(col);
+        List<View> pills = new ArrayList<>();
+        if (e != null) pills.add(LibraryScreen.iconPill(app, s(R.string.pill_installed), R.drawable.ic_check, Ui.GREEN, Ui.GREEN_SOFT));
+        pills.add(it.foreverVerified ? Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT) : Ui.pill(app, s(R.string.pill_forever_unverified), Ui.ORANGE, Ui.ORANGE_SOFT));
+        detailHeader(col, it.iconUrl, it.name, byline(it.author, sourceName(it.source)), pills.toArray(new View[0]));
+
         if (app.busy.containsKey(it.key())) {
             LinearLayout b = Ui.button(app, app.busy.get(it.key()), 0, Ui.Kind.SECONDARY, null);
             b.setEnabled(false);
-            actions.addView(b, Ui.lpw(0, Ui.dp(44), 1));
+            primaryAction(col, b);
         } else if (it.distributionOff) {
-            actions.addView(Ui.button(app, s(R.string.action_download_site), R.drawable.ic_open, Ui.Kind.PRIMARY, v -> app.openUrl(it.pageUrl)), Ui.lpw(0, Ui.dp(44), 1));
+            primaryAction(col, Ui.button(app, s(R.string.action_download_site), R.drawable.ic_open, Ui.Kind.PRIMARY, v -> app.openUrl(it.pageUrl)));
         } else {
             String label = s(e == null ? R.string.action_install : R.string.action_reinstall);
             LinearLayout b = Ui.button(app, label, R.drawable.ic_download, e == null ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
-            actions.addView(b, Ui.lpw(0, Ui.dp(44), 1));
+            primaryAction(col, b);
             if (app.landscape) b.post(b::requestFocus);
         }
-        if (it.pageUrl != null) {
-            actions.addView(Ui.button(app, null, R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl(it.pageUrl)), Ui.margins(Ui.lp(-2, Ui.dp(44)), 8, 0, 0, 0));
-        }
-        if (e != null && !app.busy.containsKey(it.key())) {
-            actions.addView(Ui.button(app, null, R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemoveEntry(e)), Ui.margins(Ui.lp(-2, Ui.dp(44)), 8, 0, 0, 0));
+        boolean canRemove = e != null && !app.busy.containsKey(it.key());
+        if (it.pageUrl != null || canRemove) {
+            Ui.FlowRow more = secondaryActions(col);
+            if (it.pageUrl != null) addSecondary(more, Ui.button(app, s(R.string.action_page), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl(it.pageUrl)));
+            if (canRemove) addSecondary(more, Ui.button(app, s(R.string.action_remove), R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemoveEntry(e)));
+        } else {
+            col.addView(Ui.space(app, 1, 8));
         }
 
         if (it.note != null) noteCard(col, it.note, Ui.ORANGE, Ui.ORANGE_SOFT);
@@ -186,8 +231,8 @@ final class DetailPanel extends Screen {
             });
         }
 
-        if (e != null) infoRow(col, s(R.string.info_installed), e.version);
-        if (it.version != null && !Model.SRC_CURSE.equals(it.source)) infoRow(col, s(R.string.info_version), it.version);
+        if (e != null) infoRow(col, s(R.string.info_installed), e.version, true);
+        if (it.version != null && !Model.SRC_CURSE.equals(it.source)) infoRow(col, s(R.string.info_version), it.version, true);
         if (!it.category.isEmpty()) infoRow(col, s(R.string.info_category), it.category);
         if (it.downloads > 0) infoRow(col, s(R.string.info_downloads), Ui.formatCount(it.downloads));
         if (it.updated > 0) infoRow(col, s(R.string.info_updated), Ui.formatDate(it.updated));
@@ -204,18 +249,25 @@ final class DetailPanel extends Screen {
         final Model.Entry e = r.entry;
         String icon = e != null ? e.iconUrl : (r.catalogMatch != null ? r.catalogMatch.iconUrl : null);
         List<View> pills = new ArrayList<>();
-        pills.add(Ui.pill(app, e != null ? sourceName(e.source) : s(R.string.pill_manual), Ui.TEXT2, Ui.SURFACE3));
-        if (r.missing) pills.add(Ui.pill(app, s(R.string.pill_folders_missing), Ui.RED, Ui.RED_SOFT));
-        else if (r.compatible) pills.add(Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT));
-        else pills.add(Ui.pill(app, s(R.string.pill_not_forever), Ui.ORANGE, Ui.ORANGE_SOFT));
-        detailHeader(col, icon, r.title, r.author, pills.toArray(new View[0]));
-
         String busyKey = e != null ? e.key : (r.catalogMatch != null ? r.catalogMatch.key() : null);
-        LinearLayout actions = actionRow(col);
+        boolean busy = busyKey != null && app.busy.containsKey(busyKey);
+        if (busy) pills.add(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
+        else if (r.missing) pills.add(Ui.pill(app, s(R.string.pill_folders_missing), Ui.RED, Ui.RED_SOFT));
+        else if (e != null && e.updateAvailable) pills.add(LibraryScreen.iconPill(app, s(R.string.action_update_to, shortVer(e.latest)), R.drawable.ic_upgrade, Ui.ACCENT, Ui.ACCENT_SOFT));
+        else if (e != null && e.checkError != null) pills.add(Ui.pill(app, s(R.string.pill_unchecked), Ui.TEXT2, Ui.SURFACE3));
+        else if (e != null && e.latest != null) pills.add(LibraryScreen.iconPill(app, s(R.string.pill_up_to_date), R.drawable.ic_check, Ui.GREEN, Ui.GREEN_SOFT));
+        else if (e == null && r.catalogMatch != null) pills.add(Ui.pill(app, s(R.string.pill_in_catalog), Ui.BLUE, Ui.BLUE_SOFT));
+        else if (e == null) pills.add(Ui.pill(app, s(R.string.pill_manual), Ui.TEXT2, Ui.SURFACE3));
+        if (!r.missing) {
+            if (r.compatible) pills.add(Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT));
+            else pills.add(Ui.pill(app, s(R.string.pill_not_forever), Ui.ORANGE, Ui.ORANGE_SOFT));
+        }
+        detailHeader(col, icon, r.title, byline(r.author, e != null ? sourceName(e.source) : s(R.string.pill_manual)), pills.toArray(new View[0]));
+
         LinearLayout primary = null;
-        if (busyKey != null && app.busy.containsKey(busyKey)) {
+        if (busy) {
             LinearLayout b = Ui.button(app, app.busy.get(busyKey), 0, Ui.Kind.SECONDARY, null);
-            actions.addView(b, Ui.lpw(0, Ui.dp(44), 1));
+            primaryAction(col, b);
         } else if (e != null && !Model.SRC_ZIP.equals(e.source)) {
             if (e.updateAvailable) {
                 primary = Ui.button(app, s(R.string.action_update_to, shortVer(e.latest)), R.drawable.ic_upgrade, Ui.Kind.PRIMARY, v -> app.manager.update(e));
@@ -224,28 +276,24 @@ final class DetailPanel extends Screen {
             } else {
                 primary = Ui.button(app, s(R.string.action_check_update), R.drawable.ic_refresh, Ui.Kind.SECONDARY, v -> app.manager.checkOne(e));
             }
-            actions.addView(primary, Ui.lpw(0, Ui.dp(44), 1));
         } else if (e == null && r.catalogMatch != null) {
             primary = Ui.button(app, s(R.string.action_track_catalog), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.install(r.catalogMatch, null));
-            actions.addView(primary, Ui.lpw(0, Ui.dp(44), 1));
         } else if (e == null && r.main() != null && r.main().curseId != null && Sources.hasCurseKey()) {
             final String cid = r.main().curseId;
             primary = Ui.button(app, s(R.string.action_track_curse), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.adoptCurse(cid, r));
-            actions.addView(primary, Ui.lpw(0, Ui.dp(44), 1));
         } else if (e == null && r.main() != null && r.main().wowiId != null) {
             final String wid = r.main().wowiId;
             primary = Ui.button(app, s(R.string.action_track_wowi), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.adoptWowi(wid, r));
-            actions.addView(primary, Ui.lpw(0, Ui.dp(44), 1));
         }
+        if (primary != null) primaryAction(col, primary);
+        Ui.FlowRow more = secondaryActions(col);
         String page = e != null ? e.pageUrl : (r.catalogMatch != null ? r.catalogMatch.pageUrl : (r.main() != null ? r.main().website : null));
         if (page != null) {
             final String p = page;
-            actions.addView(Ui.button(app, primary == null ? s(R.string.action_page) : null, R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl(p)), Ui.margins(Ui.lp(primary == null ? 0 : -2, Ui.dp(44)), primary == null ? 0 : 8, 0, 0, 0));
-            if (primary == null) ((LinearLayout.LayoutParams) actions.getChildAt(actions.getChildCount() - 1).getLayoutParams()).weight = 1;
+            addSecondary(more, Ui.button(app, s(R.string.action_page), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl(p)));
         }
-        LinearLayout del = Ui.button(app, primary == null && page == null ? s(R.string.action_remove) : null, R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemove(r));
-        actions.addView(del, Ui.margins(Ui.lp(primary == null && page == null ? 0 : -2, Ui.dp(44)), actions.getChildCount() == 0 ? 0 : 8, 0, 0, 0));
-        if (primary == null && page == null) ((LinearLayout.LayoutParams) del.getLayoutParams()).weight = 1;
+        LinearLayout del = Ui.button(app, s(R.string.action_remove), R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemove(r));
+        addSecondary(more, del);
         final View focusTarget = primary != null ? primary : del;
         if (app.landscape) focusTarget.post(focusTarget::requestFocus);
 
@@ -260,10 +308,10 @@ final class DetailPanel extends Screen {
         if (r.notes != null && !r.notes.isEmpty()) {
             col.addView(Ui.text(app, r.notes, 14, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 14));
         }
-        infoRow(col, s(R.string.info_version), r.version);
-        if (e != null && e.latest != null) infoRow(col, s(R.string.info_latest), e.latest);
+        infoRow(col, s(R.string.info_version), r.version, true);
+        if (e != null && e.latest != null) infoRow(col, s(R.string.info_latest), e.latest, true);
         if (e != null && e.installedAt > 0) infoRow(col, s(R.string.info_installed_at), Ui.formatDate(e.installedAt));
-        if (r.main() != null) infoRow(col, s(R.string.info_interface), r.main().interfaceVersion);
+        if (r.main() != null) infoRow(col, s(R.string.info_interface), r.main().interfaceVersion, true);
         List<String> fs = new ArrayList<>();
         for (Model.LocalAddon a : r.folders) fs.add(a.folder);
         if (fs.isEmpty() && e != null) fs.addAll(e.folders);

@@ -29,7 +29,10 @@
     <string name="action_from_zip">Aus ZIP</string>
     <string name="action_check">Prüfen</string>
     <string name="action_checking">Prüfe…</string>
-    <string name="action_update_all">Alle aktualisieren · %1$d</string>
+    <string name="library_title">Bibliothek</string>
+    <string name="action_update_all_plain">Alle aktualisieren</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s: %2$s</string>
     <string name="installed_empty_title">Noch keine Addons</string>
     <string name="installed_empty_text">Öffne den Katalog: Dort findest du Addons mit einem Build für WoW Forever, etwa Questie, Bartender4, DBM, Plater und mehr.</string>
     <string name="action_open_catalog">Katalog öffnen</string>
