@@ -62,11 +62,14 @@ final class BrowseScreen extends Screen {
         ensureResults(false);
     }
 
+    /** Below this list width the subtitle gets its own line, as on 4:3. */
+    private static final int INLINE_SUBTITLE_DP = 600;
+
     private int gutter() { return app.landscape ? 20 : 16; }
 
-    /** Header with the title and subtitle on one line when the window is low. */
+    /** Header with the title and subtitle on one line when the window is low and wide enough. */
     private LinearLayout browseHeader(String title, String subtitle) {
-        if (!app.layout.compactHeight) return header(title, subtitle);
+        if (!app.layout.compactHeight || app.layout.listDp < INLINE_SUBTITLE_DP) return header(title, subtitle);
         LinearLayout h = Ui.hbox(app);
         h.setPadding(Ui.dp(gutter()), Ui.dp(10), Ui.dp(app.landscape ? 16 : 12), Ui.dp(6));
         LinearLayout tbox = Ui.hbox(app);

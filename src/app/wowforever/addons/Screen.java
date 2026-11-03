@@ -26,7 +26,9 @@ abstract class Screen {
         TextView tt = Ui.oneLine(Ui.text(app, title, compact ? 19 : app.landscape ? 21 : 22, Ui.TEXT, Ui.BOLD));
         tbox.addView(tt);
         if (subtitle != null) {
-            TextView st = Ui.oneLine(Ui.text(app, subtitle, 12.5f, Ui.TEXT3, Ui.REGULAR));
+            TextView st = Ui.text(app, subtitle, 12.5f, Ui.TEXT3, Ui.REGULAR);
+            st.setMaxLines(2);
+            st.setEllipsize(android.text.TextUtils.TruncateAt.END);
             tbox.addView(st, Ui.margins(Ui.lp(-2, -2), 0, compact ? 2 : 4, 0, 0));
         }
         h.addView(tbox, Ui.lpw(0, -2, 1));
