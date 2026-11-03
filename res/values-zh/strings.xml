@@ -14,6 +14,9 @@
     <string name="perm_text">要把插件安装到游戏文件夹，应用需要“所有文件访问权限”，与 WoW Forever 客户端本身相同。</string>
     <string name="perm_grant">允许访问</string>
     <string name="perm_settings_hint">打开 设置 → 应用 → %1$s → 所有文件访问权限</string>
+    <string name="setup_step_access">文件访问权限</string>
+    <string name="setup_step_folder">游戏文件夹</string>
+    <string name="setup_step_curse">连接 CurseForge（可选）</string>
     <string name="game_not_set">未选择游戏文件夹</string>
     <string name="game_where_title">WoW Forever 装在哪里？</string>
     <string name="game_where_text">通常是内部存储或 SD 卡上的“WoW Forever”。请选择包含 .build.info 和 _forever_ 的文件夹。</string>

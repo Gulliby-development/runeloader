@@ -74,15 +74,17 @@ final class GameFolder extends Screen {
         if (st != null) for (File v : st) if (!v.getName().equals("emulated") && !v.getName().equals("self") && v.isDirectory()) vols.add(v);
         for (final File v : vols) {
             boolean internal = v.equals(Environment.getExternalStorageDirectory());
-            LinearLayout b = Ui.button(app, internal ? s(R.string.picker_internal) : s(R.string.picker_sd, v.getName()), internal ? R.drawable.ic_folder : R.drawable.ic_sd, Ui.Kind.GHOST, x -> { pickerDir = v; app.closeModal(); showPicker(); });
+            boolean here = pickerDir.equals(v) || pickerDir.getPath().startsWith(v.getPath() + "/");
+            LinearLayout b = Ui.button(app, internal ? s(R.string.picker_internal) : s(R.string.picker_sd, v.getName()), internal ? R.drawable.ic_folder : R.drawable.ic_sd, here ? Ui.Kind.SECONDARY : Ui.Kind.GHOST, x -> { pickerDir = v; app.closeModal(); showPicker(); });
             roots.addView(b, Ui.margins(Ui.lp(-2, Ui.dp(38)), 0, 0, 8, 0));
         }
         hs.addView(roots);
         col.addView(hs, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 10));
 
         LinearLayout pathRow = Ui.hbox(app);
-        pathRow.setBackground(Ui.round(Ui.SURFACE2, 10));
-        pathRow.setPadding(Ui.dp(12), Ui.dp(8), Ui.dp(8), Ui.dp(8));
+        pathRow.setBackground(Ui.round(Ui.SURFACE2, 12, Ui.STROKE, 1));
+        pathRow.setPadding(Ui.dp(12), Ui.dp(6), Ui.dp(6), Ui.dp(6));
+        pathRow.setMinimumHeight(Ui.dp(44));
         TextView p = Ui.text(app, pickerDir.getPath(), 13, Ui.TEXT, Ui.MEDIUM);
         p.setSingleLine(true);
         p.setEllipsize(android.text.TextUtils.TruncateAt.START);
@@ -95,8 +97,13 @@ final class GameFolder extends Screen {
 
         File detected = Store.normalizeRoot(pickerDir);
         if (detected != null) {
+            LinearLayout found = Ui.hbox(app);
+            found.setBackground(Ui.round(Ui.GREEN_SOFT, 12));
+            found.setPadding(Ui.dp(12), Ui.dp(8), Ui.dp(12), Ui.dp(8));
+            found.addView(Ui.icon(app, R.drawable.ic_check, Ui.GREEN, 16));
             TextView ok = Ui.text(app, s(R.string.picker_found, detected.getName()), 12.5f, Ui.GREEN, Ui.MEDIUM);
-            col.addView(ok, Ui.margins(Ui.lp(-1, -2), 2, 0, 0, 8));
+            found.addView(ok, Ui.margins(Ui.lpw(0, -2, 1f), 8, 0, 0, 0));
+            col.addView(found, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 8));
         }
 
         final List<File> dirs = new ArrayList<>();
@@ -109,7 +116,7 @@ final class GameFolder extends Screen {
         });
         ListView lv = new ListView(app);
         lv.setDivider(null);
-        lv.setDividerHeight(Ui.dp(4));
+        lv.setDividerHeight(Ui.dp(6));
         lv.setSelector(new android.graphics.drawable.ColorDrawable(0));
         lv.setAdapter(new BaseAdapter() {
             @Override public int getCount() { return dirs.size(); }
@@ -119,20 +126,21 @@ final class GameFolder extends Screen {
                 File d = dirs.get(i);
                 LinearLayout row = Ui.hbox(app);
                 StateListShell(row, false);
-                row.setPadding(Ui.dp(12), Ui.dp(10), Ui.dp(12), Ui.dp(10));
+                row.setPadding(Ui.dp(12), Ui.dp(10), Ui.dp(10), Ui.dp(10));
+                row.setMinimumHeight(Ui.dp(48));
                 row.setLayoutParams(new AbsListView.LayoutParams(-1, -2));
                 boolean wow = Store.normalizeRoot(d) != null;
                 row.addView(Ui.icon(app, R.drawable.ic_folder, wow ? Ui.ACCENT : Ui.TEXT3, 20));
                 TextView t = Ui.oneLine(Ui.text(app, d.getName(), 14, Ui.TEXT, Ui.MEDIUM));
                 row.addView(t, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 0, 0));
-                if (wow) row.addView(Ui.pill(app, "WoW Forever", Ui.GREEN, Ui.GREEN_SOFT));
+                if (wow) row.addView(Ui.pill(app, "WoW Forever", Ui.GREEN, Ui.GREEN_SOFT), Ui.margins(Ui.lp(-2, -2), 8, 0, 4, 0));
                 row.addView(Ui.icon(app, R.drawable.ic_chevron, Ui.TEXT3, 18));
                 return row;
             }
         });
         lv.setOnItemClickListener((pa, v, pos, id) -> { pickerDir = dirs.get(pos); app.closeModal(); showPicker(); });
         int screenH = app.getResources().getDisplayMetrics().heightPixels;
-        int h = app.landscape ? Math.max(Ui.dp(110), screenH - Ui.dp(detected != null ? 300 : 276)) : (int) (screenH * 0.5f);
+        int h = app.landscape ? Math.max(Ui.dp(110), screenH - Ui.dp(detected != null ? 316 : 276)) : (int) (screenH * 0.5f);
         col.addView(lv, Ui.lp(-1, h));
         if (dirs.isEmpty()) {
             TextView empty = Ui.text(app, s(R.string.picker_empty), 13, Ui.TEXT3, Ui.REGULAR);
