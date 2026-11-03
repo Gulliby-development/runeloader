@@ -8,3 +8,5 @@ wow-addons.apk
 # Signing keys stay out of the repository (see AGENTS.md).
 *.keystore
 *.jks
+# Output of scripts/screenshots.sh.
+screenshots/
