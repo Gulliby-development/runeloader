@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
     final GameFolder gameFolder = new GameFolder(this);
 
     static final int TAB_INSTALLED = 0, TAB_BROWSE = 1, TAB_SETTINGS = 2;
-    static final int SRC_CATALOG = 0, SRC_CURSE = 1, SRC_WOWI = 2, SRC_GITHUB = 3;
+    static final int SRC_GITHUB = 0, SRC_CATALOG = 1, SRC_WOWI = 2;
     private static final int REQ_ZIP = 41, REQ_PERM = 42;
     static final int REQ_NOTIFY = 43;
 
@@ -121,6 +121,14 @@ public class MainActivity extends Activity {
         buildShell();
         manager.rescan();
         AutoUpdate.apply(this);
+        // Refresh the GitHub index in the background; manual installs it recognizes get an update source.
+        net.execute(() -> {
+            try {
+                Index.items(false);
+                main.post(() -> { if (!isDestroyed()) manager.rescan(); });
+            } catch (Exception ignored) {
+            }
+        });
     }
 
     @Override protected void onSaveInstanceState(Bundle out) {

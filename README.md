@@ -2,7 +2,7 @@
 
 Addon manager for the [WoW Forever Android client](https://github.com/jaredgei/wow-forever-android). It installs, updates and removes addons in `<game folder>/_forever_/Interface/AddOns`.
 
-Sources: the Forever catalog (GitHub releases built for Forever), CurseForge (with your own API key) and WoWInterface.
+Addons come from GitHub releases built for Forever, found through the nightly [Runeloader index](https://github.com/Gulliby-development/runeloader-index) or added by link, plus WoWInterface. No accounts or API keys.
 
 Optional background auto-update (Settings → Auto-update): checks every 6–24 hours, also when the app is closed, and either notifies you or installs the updates.
 

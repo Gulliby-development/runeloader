@@ -21,21 +21,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-/** The three places addons come from: GitHub releases, CurseForge (user key) and WoWInterface. */
+/** Where addons come from: GitHub releases (found through Index, the catalog or a link) and WoWInterface. */
 final class Sources {
 
-    static final int CURSE_FOREVER_TYPE = 88568;   // CurseForge gameVersionTypeId of WoW Forever
     static final String[] FOREVER_FLAVORS = {"forever", "camelot"};
     private static final String[] OTHER_FLAVOR_MARKS = {"classic", "bcc", "tbc", "wrath", "wotlk", "cata", "mists", "vanilla", "titan", "mainline", "retail"};
 
     static File cacheDir;
-    static String curseKey = "";
     static String githubToken = "";
 
-    static boolean hasCurseKey() { return curseKey != null && curseKey.trim().length() > 10; }
-
     static Model.Release latest(Model.Item item) throws IOException {
-        if (Model.SRC_CURSE.equals(item.source)) return Curse.latest(item.id);
         if (Model.SRC_WOWI.equals(item.source)) return Wowi.latest(item.id);
         return GitHub.latest(item.id);
     }
@@ -216,124 +211,6 @@ final class Sources {
         String n = fileName.replaceFirst("(?i)\\.zip$", "");
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("v?\\d+(\\.\\d+)+[^\\s]*").matcher(n);
         return m.find() ? m.group() : n;
-    }
-
-    // ───────────────────────────── CurseForge ─────────────────────────────
-
-    static final class Curse {
-        static final String API = "https://api.curseforge.com/v1";
-
-        private static Map<String, String> headers() {
-            return Http.headers("x-api-key", curseKey == null ? null : curseKey.trim(), "Accept", "application/json");
-        }
-
-        static List<Model.Item> search(String query, int index) throws IOException {
-            if (!hasCurseKey()) throw new IOException(Lang.s(R.string.err_curse_key_needed));
-            String url = API + "/mods/search?gameId=1&gameVersionTypeId=" + CURSE_FOREVER_TYPE
-                    + "&sortField=2&sortOrder=desc&pageSize=40&index=" + index
-                    + (query == null || query.trim().isEmpty() ? "" : "&searchFilter=" + Http.enc(query.trim()));
-            List<Model.Item> out = new ArrayList<>();
-            try {
-                JSONArray data = new JSONObject(get(url)).optJSONArray("data");
-                if (data != null) for (int i = 0; i < data.length(); i++) {
-                    Model.Item it = fromMod(data.optJSONObject(i));
-                    if (it != null) out.add(it);
-                }
-            } catch (org.json.JSONException e) {
-                throw new IOException(Lang.s(R.string.err_curse_unexpected));
-            }
-            return out;
-        }
-
-        private static String get(String url) throws IOException {
-            try {
-                return Http.get(url, headers());
-            } catch (Http.HttpException e) {
-                if (e.code == 401 || e.code == 403) throw new IOException(Lang.s(R.string.err_curse_key_rejected, e.code));
-                throw e;
-            }
-        }
-
-        static Model.Item fromMod(JSONObject m) {
-            if (m == null) return null;
-            Model.Item it = new Model.Item();
-            it.source = Model.SRC_CURSE;
-            it.id = String.valueOf(m.optLong("id"));
-            it.name = m.optString("name");
-            it.summary = m.optString("summary", "");
-            it.downloads = m.optLong("downloadCount", -1);
-            JSONObject logo = m.optJSONObject("logo");
-            if (logo != null) it.iconUrl = logo.optString("thumbnailUrl", null);
-            JSONArray authors = m.optJSONArray("authors");
-            if (authors != null && authors.length() > 0) it.author = authors.optJSONObject(0).optString("name", "");
-            JSONObject links = m.optJSONObject("links");
-            if (links != null) it.pageUrl = links.optString("websiteUrl", null);
-            it.updated = parseIso(m.optString("dateModified"));
-            it.distributionOff = m.has("allowModDistribution") && !m.optBoolean("allowModDistribution", true);
-            JSONArray idx = m.optJSONArray("latestFilesIndexes");
-            if (idx != null) for (int i = 0; i < idx.length(); i++) {
-                JSONObject f = idx.optJSONObject(i);
-                if (f != null && f.optInt("gameVersionTypeId") == CURSE_FOREVER_TYPE) {
-                    it.foreverVerified = true;
-                    if (it.version == null) it.version = f.optString("filename", null);
-                }
-            }
-            JSONArray cats = m.optJSONArray("categories");
-            if (cats != null && cats.length() > 0) it.category = cats.optJSONObject(0).optString("name", "");
-            return it;
-        }
-
-        static Model.Item mod(String id) throws IOException {
-            try {
-                return fromMod(new JSONObject(get(API + "/mods/" + id)).optJSONObject("data"));
-            } catch (org.json.JSONException e) {
-                throw new IOException(Lang.s(R.string.err_curse_unexpected));
-            }
-        }
-
-        static Model.Release latest(String id) throws IOException {
-            if (!hasCurseKey()) throw new IOException(Lang.s(R.string.err_curse_key_needed));
-            JSONArray files;
-            try {
-                files = new JSONObject(get(API + "/mods/" + id + "/files?gameVersionTypeId=" + CURSE_FOREVER_TYPE + "&pageSize=50"))
-                        .optJSONArray("data");
-            } catch (org.json.JSONException e) {
-                throw new IOException(Lang.s(R.string.err_curse_unexpected));
-            }
-            if (files == null || files.length() == 0) throw new IOException(Lang.s(R.string.err_curse_no_files));
-            List<JSONObject> list = new ArrayList<>();
-            for (int i = 0; i < files.length(); i++) if (files.optJSONObject(i) != null) list.add(files.optJSONObject(i));
-            Collections.sort(list, (a, b) -> Long.compare(parseIso(b.optString("fileDate")), parseIso(a.optString("fileDate"))));
-            JSONObject pick = null;
-            for (JSONObject f : list) if (f.optInt("releaseType") == 1) { pick = f; break; }
-            if (pick == null) pick = list.get(0);
-            Model.Release r = new Model.Release();
-            r.version = pick.optString("displayName", pick.optString("fileName"));
-            r.fileName = pick.optString("fileName");
-            String dl = pick.optString("downloadUrl", "");
-            if (dl.isEmpty() || "null".equals(dl)) {
-                throw new IOException(Lang.s(R.string.err_curse_site_only));
-            }
-            r.url = dl;
-            r.headers = headers();
-            JSONArray hashes = pick.optJSONArray("hashes");
-            if (hashes != null) for (int i = 0; i < hashes.length(); i++) {
-                JSONObject h = hashes.optJSONObject(i);
-                if (h != null && h.optInt("algo") == 2) r.md5 = h.optString("value", null);
-            }
-            JSONArray deps = pick.optJSONArray("dependencies");
-            if (deps != null) for (int i = 0; i < deps.length(); i++) {
-                JSONObject d = deps.optJSONObject(i);
-                if (d != null && d.optInt("relationType") == 3) {
-                    Model.Item dep = new Model.Item();
-                    dep.source = Model.SRC_CURSE;
-                    dep.id = String.valueOf(d.optLong("modId"));
-                    dep.name = "CurseForge #" + dep.id;
-                    r.deps.add(dep);
-                }
-            }
-            return r;
-        }
     }
 
     // ───────────────────────────── WoWInterface ─────────────────────────────
