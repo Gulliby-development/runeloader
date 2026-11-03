@@ -8,8 +8,8 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 PACKAGE=app.wowforever.addons
-VERSION_CODE=1
-VERSION_NAME=0.0.1
+VERSION_CODE=2
+VERSION_NAME=0.0.2
 
 SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}}"
 BT="${BUILD_TOOLS:-$( (ls -d "$SDK"/build-tools/* 2>/dev/null || true) | sort -V | tail -1)}"
