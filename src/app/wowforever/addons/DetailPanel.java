@@ -11,36 +11,37 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-/** The addon detail panel: docked on the right in landscape, full screen in portrait. */
+/** The addon detail panel: docked on the right when it fits, otherwise a side sheet or full screen. */
 final class DetailPanel extends Screen {
 
     DetailPanel(MainActivity app) { super(app); }
 
     void select(Object o) {
         app.selected = o;
-        if (!app.landscape) {
-            if (o != null) { app.portraitDetailOpen = true; app.portraitDetail.setVisibility(View.VISIBLE); }
-            else closePortraitDetail();
+        if (!app.layout.docked) {
+            if (o != null) app.showDetailSheet(true);
+            else closeDetailSheet();
         }
         app.refreshList();
         renderDetail();
     }
 
-    void closePortraitDetail() {
-        app.portraitDetailOpen = false;
+    void closeDetailSheet() {
+        app.detailSheetOpen = false;
         app.selected = null;
-        if (app.portraitDetail != null) { app.portraitDetail.removeAllViews(); app.portraitDetail.setVisibility(View.GONE); }
+        if (app.detailSheet != null) app.detailSheet.removeAllViews();
+        app.showDetailSheet(false);
         app.refreshList();
-        if (app.landscape) renderDetail();
+        if (app.layout.docked) renderDetail();
     }
 
     void renderDetail() {
-        FrameLayout target = app.landscape ? app.detailBox : app.portraitDetail;
+        FrameLayout target = app.layout.docked ? app.detailBox : app.detailSheet;
         if (target == null) return;
         target.removeAllViews();
-        if (!app.landscape && !app.portraitDetailOpen) return;
+        if (!app.layout.docked && !app.detailSheetOpen) return;
         if (app.selected == null) {
-            if (app.landscape) target.addView(detailPlaceholder());
+            if (app.layout.docked) target.addView(detailPlaceholder());
             return;
         }
         // Keep "Installed" rows fresh after a rescan.
@@ -52,7 +53,7 @@ final class DetailPanel extends Screen {
                 else if (s.entry == null && r.entry == null && r.main() != null && s.main() != null && r.main().folder.equals(s.main().folder)) fresh = r;
                 else if (s.entry == null && r.entry != null && s.catalogMatch != null && r.entry.key.equals(s.catalogMatch.key())) fresh = r;
             }
-            if (fresh == null && app.tab == MainActivity.TAB_INSTALLED) { app.selected = null; if (app.landscape) target.addView(detailPlaceholder()); else closePortraitDetail(); return; }
+            if (fresh == null && app.tab == MainActivity.TAB_INSTALLED) { app.selected = null; if (app.layout.docked) target.addView(detailPlaceholder()); else closeDetailSheet(); return; }
             if (fresh != null) app.selected = fresh;
         }
         ScrollView sv = new ScrollView(app);
@@ -60,8 +61,8 @@ final class DetailPanel extends Screen {
         LinearLayout col = Ui.vbox(app);
         col.setPadding(Ui.dp(20), Ui.dp(app.landscape ? 18 : 12), Ui.dp(20), Ui.dp(96));
         sv.addView(col);
-        if (!app.landscape) {
-            LinearLayout back = Ui.button(app, "Назад", R.drawable.ic_back, Ui.Kind.GHOST, v -> closePortraitDetail());
+        if (!app.layout.docked) {
+            LinearLayout back = Ui.button(app, "Назад", R.drawable.ic_back, Ui.Kind.GHOST, v -> closeDetailSheet());
             col.addView(back, Ui.margins(Ui.lp(-2, Ui.dp(38)), 0, 0, 0, 14));
         }
         if (app.selected instanceof Model.Item) buildItemDetail(col, (Model.Item) app.selected);

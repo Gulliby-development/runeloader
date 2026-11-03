@@ -62,6 +62,7 @@ public class MainActivity extends Activity {
     // ── UI state ──
     int tab = TAB_INSTALLED;
     boolean landscape;
+    LayoutSpec layout;
     final Map<Integer, List<Model.Item>> results = new HashMap<>();
 
     List<Model.Installed> installed = new ArrayList<>();
@@ -70,7 +71,7 @@ public class MainActivity extends Activity {
     boolean checkedOnce = false;
 
     Object selected;                 // Model.Item or Model.Installed
-    boolean portraitDetailOpen = false;
+    boolean detailSheetOpen = false;
     final Map<String, String> busy = new LinkedHashMap<>();   // key -> status text
 
     // ── views ──
@@ -78,7 +79,10 @@ public class MainActivity extends Activity {
     LinearLayout headerBox;
     FrameLayout bodyBox;
     FrameLayout detailBox;
-    FrameLayout portraitDetail;
+    FrameLayout detailSheet;
+    private FrameLayout detailOverlay;
+    private View rail;
+    private LinearLayout shell;
     LinearLayout progressCard;
     TextView progressTitle, progressText;
     ProgressBar progressBar;
@@ -96,6 +100,9 @@ public class MainActivity extends Activity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         Ui.density = getResources().getDisplayMetrics().density;
+        android.view.WindowManager.LayoutParams wl = getWindow().getAttributes();
+        wl.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        getWindow().setAttributes(wl);
         ImageLoader.dir = new File(getCacheDir(), "img");
         ImageLoader.dir.mkdirs();
         store = new Store(this);
@@ -162,8 +169,8 @@ public class MainActivity extends Activity {
 
     @Override public void onBackPressed() {
         if (modalLayer != null && modalLayer.getChildCount() > 0) { closeModal(); return; }
-        if (portraitDetailOpen) { detail.closePortraitDetail(); return; }
-        if (landscape && selected != null) { detail.select(null); return; }
+        if (detailSheetOpen) { detail.closeDetailSheet(); return; }
+        if (layout.docked && selected != null) { detail.select(null); return; }
         if (tab != TAB_INSTALLED) { switchTab(TAB_INSTALLED); return; }
         super.onBackPressed();
     }
@@ -180,12 +187,14 @@ public class MainActivity extends Activity {
     // ─────────────────────────── shell ───────────────────────────
 
     private void buildShell() {
-        landscape = isLandscape();
+        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
+        layout = new LayoutSpec(Math.round(dm.widthPixels / dm.density), Math.round(dm.heightPixels / dm.density));
+        landscape = layout.rail;
         root = new FrameLayout(this);
         root.setBackgroundColor(Ui.BG);
         navItems.clear();
 
-        LinearLayout shell = new LinearLayout(this);
+        shell = new LinearLayout(this);
         shell.setOrientation(landscape ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         root.addView(shell, new FrameLayout.LayoutParams(-1, -1));
 
@@ -195,30 +204,47 @@ public class MainActivity extends Activity {
         mainCol.addView(headerBox, Ui.lp(-1, -2));
         mainCol.addView(bodyBox, Ui.lpw(-1, 0, 1));
 
+        detailBox = null;
+        detailSheet = null;
+        detailOverlay = null;
+        rail = null;
         if (landscape) {
-            shell.addView(buildRail(), Ui.lp(Ui.dp(84), -1));
+            rail = buildRail();
+            shell.addView(rail, Ui.lp(Ui.dp(LayoutSpec.RAIL_DP), -1));
             shell.addView(mainCol, Ui.lpw(0, -1, 1));
+        } else {
+            shell.addView(mainCol, Ui.lpw(-1, 0, 1));
+            shell.addView(buildBottomNav(), Ui.lp(-1, Ui.dp(64)));
+        }
+        if (layout.docked) {
             detailBox = new FrameLayout(this);
             GradientDrawable dbg = new GradientDrawable();
             dbg.setColor(Ui.SURFACE);
             detailBox.setBackground(dbg);
-            int w = getResources().getDisplayMetrics().widthPixels - Ui.dp(84);
-            int dw = Math.max(Ui.dp(290), Math.min(Ui.dp(460), (int) (w * 0.40f)));
             View edge = new View(this);
             edge.setBackgroundColor(Ui.STROKE);
             shell.addView(edge, Ui.lp(Math.max(1, Ui.dp(1)), -1));
-            shell.addView(detailBox, Ui.lp(dw, -1));
-            portraitDetail = null;
-            portraitDetailOpen = false;
+            shell.addView(detailBox, Ui.lp(Ui.dp(layout.detailDp), -1));
+            detailSheetOpen = false;
         } else {
-            shell.addView(mainCol, Ui.lpw(-1, 0, 1));
-            shell.addView(buildBottomNav(), Ui.lp(-1, Ui.dp(64)));
-            detailBox = null;
-            portraitDetail = new FrameLayout(this);
-            portraitDetail.setBackgroundColor(Ui.SURFACE);
-            portraitDetail.setVisibility(portraitDetailOpen ? View.VISIBLE : View.GONE);
-            portraitDetail.setClickable(true);
-            root.addView(portraitDetail, new FrameLayout.LayoutParams(-1, -1));
+            // Not enough room to dock: the detail opens over the list, as a side sheet
+            // next to the rail or full screen in portrait.
+            detailOverlay = new FrameLayout(this);
+            detailSheet = new FrameLayout(this);
+            detailSheet.setBackgroundColor(Ui.SURFACE);
+            detailSheet.setClickable(true);
+            if (layout.sheet) {
+                View scrim = new View(this);
+                scrim.setBackgroundColor(0x9E030807);
+                scrim.setOnClickListener(v -> detail.closeDetailSheet());
+                detailOverlay.addView(scrim, new FrameLayout.LayoutParams(-1, -1));
+                detailSheet.setElevation(Ui.dp(16));
+                detailOverlay.addView(detailSheet, Ui.flp(Ui.dp(layout.detailDp), -1, Gravity.END));
+            } else {
+                detailOverlay.addView(detailSheet, new FrameLayout.LayoutParams(-1, -1));
+            }
+            detailOverlay.setVisibility(detailSheetOpen ? View.VISIBLE : View.GONE);
+            root.addView(detailOverlay, new FrameLayout.LayoutParams(-1, -1));
         }
 
         // progress card
@@ -256,10 +282,37 @@ public class MainActivity extends Activity {
         modalLayer = new FrameLayout(this);
         root.addView(modalLayer, new FrameLayout.LayoutParams(-1, -1));
 
+        root.setOnApplyWindowInsetsListener((v, insets) -> {
+            applyCutout(insets.getDisplayCutout());
+            return insets;
+        });
         setContentView(root);
         applyImmersive();
         render();
         manager.updateProgressCard();
+    }
+
+    /** Shows or hides the detail sheet; only used when the detail is not docked. */
+    void showDetailSheet(boolean show) {
+        detailSheetOpen = show;
+        if (detailOverlay != null) detailOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * The window draws under the camera cutout (see onCreate). The rail grows into the cutout
+     * on the left; the content keeps clear of a cutout on the right.
+     */
+    private void applyCutout(android.view.DisplayCutout c) {
+        int l = c == null ? 0 : c.getSafeInsetLeft();
+        int r = c == null ? 0 : c.getSafeInsetRight();
+        if (rail != null) {
+            rail.setPadding(l, rail.getPaddingTop(), 0, rail.getPaddingBottom());
+            rail.getLayoutParams().width = Ui.dp(LayoutSpec.RAIL_DP) + l;
+            rail.requestLayout();
+            shell.setPadding(0, 0, r, 0);
+        } else {
+            shell.setPadding(l, 0, r, 0);
+        }
     }
 
     private View buildRail() {
@@ -313,7 +366,7 @@ public class MainActivity extends Activity {
         if (t == tab) return;
         tab = t;
         selected = null;
-        portraitDetailOpen = false;
+        detailSheetOpen = false;
         hideKeyboard();
         buildShell();
         if (t == TAB_BROWSE) browse.ensureResults(false);

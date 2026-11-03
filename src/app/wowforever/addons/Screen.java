@@ -20,13 +20,14 @@ abstract class Screen {
 
     LinearLayout header(String title, String subtitle) {
         LinearLayout h = Ui.hbox(app);
-        h.setPadding(Ui.dp(app.landscape ? 20 : 16), Ui.dp(app.landscape ? 14 : 16), Ui.dp(app.landscape ? 16 : 12), Ui.dp(10));
+        boolean compact = app.layout.compactHeight;
+        h.setPadding(Ui.dp(app.landscape ? 20 : 16), Ui.dp(compact ? 10 : app.landscape ? 14 : 16), Ui.dp(app.landscape ? 16 : 12), Ui.dp(compact ? 6 : 10));
         LinearLayout tbox = Ui.vbox(app);
-        TextView tt = Ui.oneLine(Ui.text(app, title, app.landscape ? 21 : 22, Ui.TEXT, Ui.BOLD));
+        TextView tt = Ui.oneLine(Ui.text(app, title, compact ? 19 : app.landscape ? 21 : 22, Ui.TEXT, Ui.BOLD));
         tbox.addView(tt);
         if (subtitle != null) {
             TextView st = Ui.oneLine(Ui.text(app, subtitle, 12.5f, Ui.TEXT3, Ui.REGULAR));
-            tbox.addView(st, Ui.margins(Ui.lp(-2, -2), 0, 4, 0, 0));
+            tbox.addView(st, Ui.margins(Ui.lp(-2, -2), 0, compact ? 2 : 4, 0, 0));
         }
         h.addView(tbox, Ui.lpw(0, -2, 1));
         app.headerBox.addView(h);
@@ -34,8 +35,14 @@ abstract class Screen {
     }
 
     void addHeaderButton(LinearLayout h, String label, int icon, Ui.Kind kind, View.OnClickListener l) {
-        LinearLayout b = Ui.button(app, app.landscape || label == null ? label : null, icon, kind, l);
-        if (!app.landscape && label != null) b.setContentDescription(label);
+        // Labels only where the list column is wide enough; otherwise an icon with a tooltip,
+        // so the title is never squeezed.
+        boolean labeled = app.layout.listDp >= LayoutSpec.LABELED_HEADER_DP;
+        LinearLayout b = Ui.button(app, labeled ? label : null, icon, kind, l);
+        if (!labeled && label != null) {
+            b.setContentDescription(label);
+            b.setTooltipText(label);
+        }
         h.addView(b, Ui.margins(Ui.lp(-2, Ui.dp(40)), 8, 0, 0, 0));
     }
 
