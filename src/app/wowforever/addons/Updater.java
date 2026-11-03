@@ -5,8 +5,10 @@ import android.content.Context;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,6 +33,23 @@ final class Updater {
     static String latestVersion(Model.Entry e) throws IOException {
         Model.Release r = Sources.latest(Sources.itemFor(e));
         return r.version;
+    }
+
+    /** The GitHub index as "github:owner/repo" (lower case) to item; empty when it cannot be loaded. */
+    static Map<String, Model.Item> indexByKey(boolean refresh) {
+        Map<String, Model.Item> m = new HashMap<>();
+        try {
+            for (Model.Item it : Index.items(refresh)) m.put(it.key().toLowerCase(Locale.ROOT), it);
+        } catch (Exception ignored) {
+            // no index and no cache: every addon falls back to the direct check
+        }
+        return m;
+    }
+
+    /** The index entry that answers the update check for e, or null to ask the source directly. */
+    static Model.Item indexHit(Map<String, Model.Item> index, Model.Entry e) {
+        Model.Item ix = index.get(e.key.toLowerCase(Locale.ROOT));
+        return ix != null && ix.version != null && !ix.version.isEmpty() ? ix : null;
     }
 
     /** Installs an item and its missing dependencies; adds the installed names to done. */

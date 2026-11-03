@@ -102,6 +102,17 @@
     <string name="info_installed">Installiert</string>
     <string name="info_version">Version</string>
     <string name="info_category">Kategorie</string>
+    <string name="info_stars">Sterne</string>
+    <string name="detail_description">Beschreibung</string>
+    <string name="detail_screenshots">Screenshots</string>
+    <string name="detail_screenshot_n">Screenshot %1$d</string>
+    <string name="detail_whats_new">Neuigkeiten</string>
+    <string name="detail_whats_new_in">Neu in %1$s</string>
+    <string name="detail_versions">Versionen</string>
+    <string name="detail_all_releases">Alle Releases</string>
+    <string name="pill_beta">Beta</string>
+    <string name="show_more">Mehr anzeigen</string>
+    <string name="show_less">Weniger anzeigen</string>
     <string name="info_downloads">Downloads</string>
     <string name="info_updated">Aktualisiert</string>
     <string name="info_folders">Ordner</string>

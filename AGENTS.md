@@ -54,6 +54,8 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - A new addon source goes into `Sources.java` with its own section in `README.md`. It declares which TOC field (`X-WoWI-ID`, `X-Wago-ID`, ...) holds its id.
 - The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
 - A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
+- The GitHub index (runeloader-index) is a hint for search, metadata and update checks. An install always resolves the asset from GitHub directly (`Sources.latest`), because the index can be a day old. If the index is unreachable, the update check falls back to the per-addon check.
+- The indexer owns icon conversion (TGA/BLP to PNG); the app only shows a ready PNG and keeps the letter icon until it loads. A new optional index key is mapped in `IndexFields.java`, with a case in `test/IndexFieldsTest.java`; the app must work when the key is missing.
 - A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the Forever client uses. Add a case for it to `test/InstallTest.java`.
 - Keep comments short and about intent that the code does not show.
 - Do not commit build output (`build/`, `*.apk`, `*.idsig`) or `local.properties`.

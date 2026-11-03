@@ -228,8 +228,14 @@ final class DetailPanel extends Screen {
             });
         }
 
+        Model.Item meta = indexMeta(it.source, it.id, it);
+        DetailExtras.screenshots(app, col, meta.screenshots);
+        DetailExtras.description(app, col, meta.description);
+        DetailExtras.changelog(app, col, it.version, meta.changelog, false);
+
         if (e != null) infoRow(col, s(R.string.info_installed), e.version, true);
         if (it.version != null) infoRow(col, s(R.string.info_version), it.version, true);
+        if (meta.stars >= 0) infoRow(col, s(R.string.info_stars), Ui.formatCount(meta.stars));
         if (!it.category.isEmpty()) infoRow(col, s(R.string.info_category), it.category);
         if (it.downloads > 0) infoRow(col, s(R.string.info_downloads), Ui.formatCount(it.downloads));
         if (it.updated > 0) infoRow(col, s(R.string.info_updated), Ui.formatDate(it.updated));
@@ -240,6 +246,15 @@ final class DetailPanel extends Screen {
             infoRow(col, s(R.string.info_dependencies), s(R.string.info_dependencies_auto, String.join(", ", names)));
         }
         infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(it.source) ? "github.com/" + it.id : sourceName(it.source) + " #" + it.id);
+        DetailExtras.releases(app, col, meta.releases, e != null ? e.version : null, Model.SRC_GITHUB.equals(it.source) ? it.id : null);
+    }
+
+    /** The index entry for a GitHub addon, so catalog and installed cards get its metadata too. */
+    private static Model.Item indexMeta(String source, String id, Model.Item fallback) {
+        if (fallback != null && !fallback.description.isEmpty()) return fallback;
+        Model.Item ix = Model.SRC_GITHUB.equals(source) && id != null ? Index.item(id) : null;
+        if (ix != null) return ix;
+        return fallback != null ? fallback : new Model.Item();
     }
 
     private void buildInstalledDetail(LinearLayout col, final Model.Installed r) {
@@ -312,6 +327,13 @@ final class DetailPanel extends Screen {
         if (r.notes != null && !r.notes.isEmpty()) {
             col.addView(Ui.text(app, r.notes, 14, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 14));
         }
+        Model.Item meta = e != null ? indexMeta(e.source, e.id, null)
+                : (r.catalogMatch != null ? indexMeta(r.catalogMatch.source, r.catalogMatch.id, r.catalogMatch) : new Model.Item());
+        String news = e != null && e.changelog != null && !e.changelog.isEmpty() ? e.changelog : meta.changelog;
+        String newsVer = e != null && e.latest != null ? e.latest : (meta.releases.isEmpty() ? null : meta.releases.get(0).version);
+        DetailExtras.changelog(app, col, newsVer, news, e != null && e.updateAvailable);
+        DetailExtras.screenshots(app, col, meta.screenshots);
+        DetailExtras.description(app, col, meta.description);
         infoRow(col, s(R.string.info_version), r.version, true);
         if (e != null && e.latest != null) infoRow(col, s(R.string.info_latest), e.latest, true);
         if (e != null && e.installedAt > 0) infoRow(col, s(R.string.info_installed_at), Ui.formatDate(e.installedAt));
@@ -321,6 +343,7 @@ final class DetailPanel extends Screen {
         if (fs.isEmpty() && e != null) fs.addAll(e.folders);
         infoRow(col, s(R.string.info_folders), joinShort(fs, 8));
         if (e != null && !Model.SRC_ZIP.equals(e.source)) infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(e.source) ? "github.com/" + e.id : sourceName(e.source) + " #" + e.id);
+        DetailExtras.releases(app, col, meta.releases, r.version, e != null && Model.SRC_GITHUB.equals(e.source) ? e.id : null);
     }
 
     private static String shortVer(String v) {
