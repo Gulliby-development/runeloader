@@ -106,8 +106,15 @@ For a UI change, install the debug APK on an emulator or a device (`adb install 
 adb shell cmd window user-rotation lock 1   # landscape
 adb shell wm size 1080x1440                 # 4:3
 adb shell wm size 1080x1920                 # 16:9
+adb shell wm size 1080x2400                 # 20:9
 adb shell wm size reset                     # the device's own ratio
 adb shell cmd window user-rotation free     # rotation back to normal
+```
+
+`scripts/screenshots.sh` does all of this for you: it sets each ratio (4:3, 16:9 and 20:9 landscape, then portrait), captures every tab into `screenshots/<preset>-<tab>.png` and restores the size and rotation. When you add a tab, add it to the script's `TABS` list.
+
+```sh
+scripts/screenshots.sh --apk build/outputs/apk/debug/wow-addons-debug.apk
 ```
 
 Attach screenshots of the changed screens at 4:3 and 16:9 landscape to the pull request. Say what you checked and on which Android version. Report any check that failed or that you could not run.
