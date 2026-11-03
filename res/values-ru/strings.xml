@@ -232,6 +232,8 @@
     <string name="cat_map">Карта</string>
     <string name="cat_tools">Утилиты</string>
     <string name="cat_other">Другое</string>
+    <string name="cat_gamepad">Геймпад и портативные</string>
+    <string name="tag_gamepad">Геймпад</string>
     <string name="browse_mode_popular">Популярные</string>
     <string name="browse_mode_categories">Категории</string>
     <string name="browse_all_categories">Все категории</string>

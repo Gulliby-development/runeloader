@@ -232,6 +232,8 @@
     <string name="cat_map">Mapa</string>
     <string name="cat_tools">Narzędzia</string>
     <string name="cat_other">Inne</string>
+    <string name="cat_gamepad">Pad i handheldy</string>
+    <string name="tag_gamepad">Pad</string>
     <string name="browse_mode_popular">Popularne</string>
     <string name="browse_mode_categories">Kategorie</string>
     <string name="browse_all_categories">Wszystkie kategorie</string>

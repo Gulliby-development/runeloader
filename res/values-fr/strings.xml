@@ -228,6 +228,8 @@
     <string name="cat_map">Carte</string>
     <string name="cat_tools">Utilitaires</string>
     <string name="cat_other">Autres</string>
+    <string name="cat_gamepad">Manette et portables</string>
+    <string name="tag_gamepad">Manette</string>
     <string name="browse_mode_popular">Populaires</string>
     <string name="browse_mode_categories">Catégories</string>
     <string name="browse_all_categories">Toutes les catégories</string>

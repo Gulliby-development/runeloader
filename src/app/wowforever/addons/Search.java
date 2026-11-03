@@ -83,6 +83,7 @@ final class Search {
         for (Model.Item it : all) {
             String k = Categories.of(it);
             n.put(k, n.get(k) + 1);
+            for (String t : Categories.TAGS) if (it.tags.contains(t)) n.put(t, n.get(t) + 1);
         }
         return n;
     }
