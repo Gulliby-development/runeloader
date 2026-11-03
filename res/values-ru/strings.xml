@@ -57,6 +57,7 @@
     <string name="browse_title">Обзор аддонов</string>
     <string name="browse_subtitle">Только сборки для WoW Forever · интерфейс %1$s</string>
     <string name="browse_hint_github">Поиск или ссылка github.com/owner/repo</string>
+    <string name="browse_hint_category">Поиск в категории</string>
     <string name="browse_set_folder">Выбрать папку</string>
     <string name="browse_no_game">Папка игры не выбрана. Установка недоступна.</string>
     <string name="load_failed">Не удалось загрузить</string>

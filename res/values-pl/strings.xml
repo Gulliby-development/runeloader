@@ -57,6 +57,7 @@
     <string name="browse_title">Przeglądaj dodatki</string>
     <string name="browse_subtitle">Tylko wersje dla WoW Forever · interfejs %1$s</string>
     <string name="browse_hint_github">Szukaj lub wklej link github.com/owner/repo</string>
+    <string name="browse_hint_category">Szukaj w tej kategorii</string>
     <string name="browse_set_folder">Ustaw folder</string>
     <string name="browse_no_game">Nie ustawiono folderu gry. Instalacja wyłączona.</string>
     <string name="load_failed">Nie udało się wczytać</string>

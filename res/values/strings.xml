@@ -64,6 +64,7 @@
     <string name="browse_title">Browse addons</string>
     <string name="browse_subtitle">WoW Forever builds only · interface %1$s</string>
     <string name="browse_hint_github">Search, or paste a github.com/owner/repo link</string>
+    <string name="browse_hint_category">Search this category</string>
     <string name="browse_set_folder">Set folder</string>
     <string name="browse_no_game">Game folder not set. Installing is off.</string>
     <string name="load_failed">Could not load</string>

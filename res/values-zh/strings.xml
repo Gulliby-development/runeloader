@@ -58,6 +58,7 @@
     <string name="browse_title">浏览插件</string>
     <string name="browse_subtitle">仅限 WoW Forever 版本 · 界面 %1$s</string>
     <string name="browse_hint_github">搜索，或粘贴 github.com/owner/repo 链接</string>
+    <string name="browse_hint_category">在此分类中搜索</string>
     <string name="browse_set_folder">设置文件夹</string>
     <string name="browse_no_game">未设置游戏文件夹，无法安装。</string>
     <string name="load_failed">加载失败</string>
