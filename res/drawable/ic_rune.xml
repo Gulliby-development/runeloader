@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app rune mark: the launcher rune cropped to its ring, with heavier strokes for small sizes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp" android:height="40dp"
+    android:viewportWidth="66" android:viewportHeight="66">
+    <group android:translateX="-21" android:translateY="-21">
+        <path android:strokeColor="#2EF2C46A" android:strokeWidth="5"
+            android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0" />
+        <path android:strokeColor="#D9A441" android:strokeWidth="2"
+            android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0" />
+        <path android:strokeColor="#F3EAD6" android:strokeWidth="3.6"
+            android:strokeLineCap="round" android:strokeLineJoin="round"
+            android:pathData="M54,32 V69 M45.5,39.8 L54,47.5 M63.2,43.8 L54,52" />
+        <path android:strokeColor="#D9A441" android:strokeWidth="3.8"
+            android:strokeLineCap="round" android:strokeLineJoin="round"
+            android:pathData="M48.6,66.4 L54,72.2 L59.4,66.4" />
+    </group>
+</vector>
