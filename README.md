@@ -21,7 +21,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 
 ## Features
 
-- **Search in one place.** Runeloader searches addons built for Forever on GitHub and WoWInterface. No accounts, no API keys.
+- **Search in one place.** Runeloader searches addons built for Forever on GitHub and WoWInterface. No accounts, no API keys. The most popular addons come first.
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
 - **One-tap install.** The app finds the right folder and the right files for you.
 - **Updates.** See which addons are out of date and update them all at once.

@@ -172,8 +172,10 @@ final class BrowseScreen extends Screen {
         LinearLayout mid = Ui.vbox(app);
         mid.addView(Ui.oneLine(Ui.text(app, it.name, 14, Ui.TEXT, Ui.MEDIUM)), Ui.lp(-1, -2));
         StringBuilder meta = new StringBuilder();
-        if (!it.author.isEmpty()) meta.append(it.author);
+        // The numbers behind the popularity order come first, so a long author list cannot cut them off.
+        if (it.stars > 0) meta.append("★ ").append(Ui.formatCount(it.stars));
         if (it.downloads > 0) { if (meta.length() > 0) meta.append(" · "); meta.append("↓ ").append(Ui.formatCount(it.downloads)); }
+        if (!it.author.isEmpty()) { if (meta.length() > 0) meta.append(" · "); meta.append(it.author); }
         if (meta.length() == 0 && !it.summary.isEmpty()) meta.append(it.summary);
         // Where the addon comes from, as a tag in front of the details.
         LinearLayout metaRow = Ui.hbox(app);
