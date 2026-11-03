@@ -11,7 +11,9 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 
 ## How the app works
 
-- `MainActivity.java` holds the UI: the tabs (installed, browse, settings), the list and detail panel, the folder picker, installs, updates and gamepad input.
+- `MainActivity.java` is the shell: lifecycle, the rail or bottom navigation, tab switching, gamepad keys, permissions, and the shared overlays (modal, confirm, snackbar, progress card). It holds the state that several screens share.
+- Each tab is a `Screen` subclass: `LibraryScreen` (installed addons), `BrowseScreen` (catalog and search), `SettingsScreen`. `SetupScreen` shows the storage permission and game folder prompts, `DetailPanel` the addon details, `GameFolder` finds and picks the game folder. `Screen.java` has the helpers they share (headers, rows, empty states).
+- `AddonManager.java` scans the AddOns folder and installs, updates and removes addons.
 - `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, CurseForge (the user's own key) and WoWInterface.
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
 - `Toc.java` picks the TOC file the same way the Forever client does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
@@ -42,6 +44,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Bump `versionCode` and `versionName` in both build files for every release. Android refuses an install over a newer `versionCode`.
 - Never commit a signing key or its passwords. A release build gets the key from the `SIGNING_KEYSTORE`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS` and `SIGNING_KEY_PASSWORD` environment variables (CI secrets, see [Releases](#releases)); without them, both build paths sign with a debug key. Only the release key makes an APK that installs over a published one.
 - Build the UI in code through the helpers in `Ui.java` (palette, buttons, pills, icons). Do not add XML layouts.
+- Put a new screen in its own `Screen` subclass, and work that changes addons on disk in `AddonManager`. Keep `MainActivity` to the shell and the state that screens share.
 - Landscape is the main layout: most players hold the device sideways, as in the game. Every screen must work in landscape at 4:3, 16:9 and 20:9, and also in portrait, by touch and by gamepad. Text must not be cut mid-word, and buttons must not leave the screen. Check all of them when you change a screen (see [Verification](#verification)).
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check that keeps the CurseForge key on CurseForge hosts.
@@ -74,7 +77,8 @@ A new secret for the app build (for example a CurseForge key) goes into both `ci
 
 ## Navigation
 
-- `src/app/wowforever/addons/`: all app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes).- `res/`: the adaptive launcher icon and vector icons.
+- `src/app/wowforever/addons/`: all app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes).
+- `res/`: the adaptive launcher icon and vector icons.
 - `stubs/`: lambda bootstrap stubs for `javac` with a trimmed `android.jar` (used only by `build.sh`).
 - `test/`: JVM tests for the installer, TOC and network paths.
 - `AndroidManifest.xml`, `build.gradle.kts`, `build.sh`: the manifest and the two build paths.
