@@ -42,7 +42,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Keep the source compatible with Java 8 language level. `build.sh` compiles with `-source 8 -target 8`, and Gradle with Java 17. Code that compiles only in one of them breaks the other build.
 - There are two build paths, Gradle (`build.gradle.kts`) and `build.sh`. They must produce the same app. When you change the package, the version, an SDK level, a permission or the signing setup, change both files in the same pull request. CI builds both and compares their package, version, SDK levels and permissions.
 - Bump `versionCode` and `versionName` in both build files for every release. Android refuses an install over a newer `versionCode`.
-- Never commit a signing key or its passwords. A release build gets the key from the `SIGNING_KEYSTORE`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS` and `SIGNING_KEY_PASSWORD` environment variables (CI secrets); without them, both build paths sign with a debug key. Only the release key makes an APK that installs over a published one.
+- Never commit a signing key or its passwords. A release build gets the key from the `SIGNING_KEYSTORE`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS` and `SIGNING_KEY_PASSWORD` environment variables (CI secrets, see [Releases](#releases)); without them, both build paths sign with a debug key. Only the release key makes an APK that installs over a published one.
 - Build the UI in code through the helpers in `Ui.java` (palette, buttons, pills, icons). Do not add XML layouts.
 - Put a new screen in its own `Screen` subclass, and work that changes addons on disk in `AddonManager`. Keep `MainActivity` to the shell and the state that screens share.
 - Layout decisions come from `LayoutSpec` (window size in dp): rail or bottom bar, a docked detail panel or a sheet, compact headers on low screens. Screens read `app.layout` instead of comparing width and height themselves. When you change its thresholds, update `test/LayoutSpecTest.java`.
@@ -53,6 +53,22 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the Forever client uses. Add a case for it to `test/InstallTest.java`.
 - Keep comments short and about intent that the code does not show.
 - Do not commit build output (`build/`, `*.apk`, `*.idsig`) or `local.properties`.
+
+## Releases
+
+`.github/workflows/release.yml` builds a release from a tag:
+
+1. In a pull request, bump `versionCode` and `versionName` in `build.gradle.kts` and `build.sh`, and merge it.
+2. Tag the merge commit on `main` with `v<versionName>` and push the tag: `git tag v0.0.1 && git push origin v0.0.1`.
+3. The workflow checks that the tag matches both build files, builds with Gradle and `build.sh` using the release key, compares the two APKs, refuses a debug signature, and creates a **draft** release with `runeloader-<version>.apk` and its SHA-256.
+4. The owner reviews the draft and publishes it. Only the owner publishes a release.
+
+The workflow needs these repository secrets (Settings, Secrets and variables, Actions). It fails when one is missing:
+
+- `SIGNING_KEYSTORE_BASE64`: the release keystore file in base64 (`base64 -w0 release.jks`).
+- `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`: the keystore password, the key alias and the key password.
+
+A new secret for the app build (for example a CurseForge key) goes into both `ci.yml` and `release.yml`, and into this list.
 
 ## Language
 
@@ -67,7 +83,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - `stubs/`: lambda bootstrap stubs for `javac` with a trimmed `android.jar` (used only by `build.sh`).
 - `test/`: JVM tests for the installer, TOC and network paths.
 - `AndroidManifest.xml`, `build.gradle.kts`, `build.sh`: the manifest and the two build paths.
-- `.github/workflows/`: CI.
+- `.github/workflows/`: CI (`ci.yml`) and releases (`release.yml`).
 
 ## Verification
 
