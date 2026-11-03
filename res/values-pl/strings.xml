@@ -231,6 +231,10 @@
     <string name="cat_bags">Torby i przedmioty</string>
     <string name="cat_map">Mapa</string>
     <string name="cat_tools">Narzędzia</string>
+    <string name="cat_other">Inne</string>
+    <string name="browse_mode_popular">Popularne</string>
+    <string name="browse_mode_categories">Kategorie</string>
+    <string name="browse_all_categories">Wszystkie kategorie</string>
     <string name="addon_dbm_dungeons">DBM: Lochy</string>
     <string name="addon_dbm_vanilla">DBM: Klasyczne rajdy</string>
     <string name="sum_questie">Pomocnik zadań: zadania, cele i NPC bezpośrednio na mapie, minimapie i w podpowiedziach. Niezbędny przy levelowaniu.</string>

@@ -227,6 +227,10 @@
     <string name="cat_bags">Sacs et objets</string>
     <string name="cat_map">Carte</string>
     <string name="cat_tools">Utilitaires</string>
+    <string name="cat_other">Autres</string>
+    <string name="browse_mode_popular">Populaires</string>
+    <string name="browse_mode_categories">Catégories</string>
+    <string name="browse_all_categories">Toutes les catégories</string>
     <string name="addon_dbm_dungeons">DBM : Donjons</string>
     <string name="addon_dbm_vanilla">DBM : Raids classiques</string>
     <string name="sum_questie">Assistant de quêtes : quêtes, objectifs et PNJ directement sur la carte, la mini-carte et les infobulles. Indispensable pour monter de niveau.</string>

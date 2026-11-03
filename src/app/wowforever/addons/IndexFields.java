@@ -28,7 +28,10 @@ final class IndexFields {
             if (isHttps(u)) it.screenshots.add(u);
         }
         int cat = categoryRes(str(a, "category"));
-        if (cat != 0 && (it.category == null || it.category.isEmpty())) it.category = Lang.s(cat);   // a catalog category wins
+        if (cat != 0 && (it.category == null || it.category.isEmpty())) {   // a catalog category wins
+            it.category = Lang.s(cat);
+            it.categoryKey = Categories.key(str(a, "category"));
+        }
         if (a.has("stars")) it.stars = a.optLong("stars", -1);
         it.changelog = cap(str(a, "changelog"));
         it.releases.clear();

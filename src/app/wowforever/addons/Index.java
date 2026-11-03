@@ -145,6 +145,7 @@ final class Index {
             // The hand-written catalog knows every folder, the category and Forever caveats.
             for (String d : c.folders) if (!it.folders.contains(d)) it.folders.add(d);
             it.category = c.category;
+            it.categoryKey = c.categoryKey;
             it.note = c.note;
             it.deps = c.deps;
             if (c.iconUrl != null) it.iconUrl = c.iconUrl;

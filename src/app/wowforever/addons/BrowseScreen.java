@@ -30,6 +30,12 @@ final class BrowseScreen extends Screen {
     private boolean hasMore;
     private int searchGen;
     private Runnable pendingSearch;
+    /** Categories mode: the grid, then one category's list. Popular mode lists everything. */
+    private boolean categoriesMode;
+    /** The open category (a Categories key), or null for the grid. */
+    private String category;
+    private java.util.Map<String, Integer> counts;
+    private boolean countsLoading;
 
     BrowseScreen(MainActivity app) { super(app); }
 
@@ -79,6 +85,8 @@ final class BrowseScreen extends Screen {
         LinearLayout h = browseHeader(s(R.string.browse_title), s(R.string.browse_subtitle, Toc.FOREVER_INTERFACE_PREFIX + "01"));
         addHeaderButton(h, s(R.string.action_from_zip), R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
 
+        modeSwitch();
+
         // search row
         LinearLayout sr = Ui.hbox(app);
         sr.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
@@ -118,6 +126,7 @@ final class BrowseScreen extends Screen {
             runSearch(false);
             return true;
         });
+        if (categoriesMode && category != null) sr.addView(categoryBack(), Ui.margins(Ui.lp(-2, Ui.dp(42)), 0, 0, 8, 0));
         sr.addView(app.searchField, Ui.lpw(0, Ui.dp(42), 1));
         app.headerBox.addView(sr);
 
@@ -126,10 +135,136 @@ final class BrowseScreen extends Screen {
         renderResults();
     }
 
+    /** The category grid shows in categories mode until a category is open or a query is typed. */
+    private boolean showGrid() {
+        return categoriesMode && category == null && query.trim().isEmpty();
+    }
+
+    /** Popular / Categories, a two-segment switch under the header. */
+    private void modeSwitch() {
+        LinearLayout box = Ui.hbox(app);
+        box.setBackground(Ui.round(Ui.SURFACE, 11, Ui.SURFACE3, 1f));
+        box.setPadding(Ui.dp(3), Ui.dp(3), Ui.dp(3), Ui.dp(3));
+        box.addView(segment(R.string.browse_mode_popular, R.drawable.ic_trending, !categoriesMode, false), Ui.lpw(0, Ui.dp(32), 1));
+        box.addView(segment(R.string.browse_mode_categories, R.drawable.ic_apps, categoriesMode, true), Ui.margins(Ui.lpw(0, Ui.dp(32), 1), 2, 0, 0, 0));
+        app.headerBox.addView(box, Ui.margins(Ui.lp(-1, -2), gutter(), 0, 16, 8));
+    }
+
+    private View segment(int label, int icon, boolean on, final boolean categories) {
+        LinearLayout seg = Ui.hbox(app);
+        seg.setGravity(android.view.Gravity.CENTER);
+        seg.setBackground(Ui.selectable(on ? Ui.SURFACE3 : 0x00000000, 8, 0));
+        seg.setPadding(Ui.dp(8), 0, Ui.dp(8), 0);
+        seg.setFocusable(true);
+        seg.setClickable(true);
+        int fg = on ? Ui.TEXT : Ui.TEXT2;
+        seg.addView(Ui.icon(app, icon, fg, 15));
+        seg.addView(Ui.oneLine(Ui.text(app, s(label), 13, fg, on ? Ui.MEDIUM : Ui.REGULAR)), Ui.margins(Ui.lp(-2, -2), 6, 0, 0, 0));
+        seg.setContentDescription(s(label));
+        seg.setOnClickListener(v -> setMode(categories, null));
+        return seg;
+    }
+
+    /** Back to the grid, named after the open category; the search then looks inside it. */
+    private View categoryBack() {
+        LinearLayout b = Ui.button(app, s(Categories.nameRes(category)), R.drawable.ic_back, Ui.Kind.GHOST, v -> {
+            query = "";   // back means the grid, not a search over everything
+            setMode(true, null);
+        });
+        b.setContentDescription(s(R.string.browse_all_categories));
+        b.setTooltipText(s(R.string.browse_all_categories));
+        b.setPadding(Ui.dp(10), 0, Ui.dp(14), 0);
+        return b;
+    }
+
+    private void setMode(boolean categories, String cat) {
+        if (categories == categoriesMode && (cat == null ? category == null : cat.equals(category))) return;
+        categoriesMode = categories;
+        category = cat;
+        app.selected = null;
+        app.results.remove(RESULTS);
+        app.render();
+        if (!showGrid()) runSearch(false);
+    }
+
+    private void renderGrid() {
+        if (counts == null) loadCounts();
+        android.widget.ScrollView sv = new android.widget.ScrollView(app);
+        LinearLayout col = Ui.vbox(app);
+        col.setPadding(Ui.dp(gutter()), Ui.dp(2), Ui.dp(16), Ui.dp(96));
+        sv.addView(col);
+        int cols = app.layout.listDp >= 600 ? 4 : app.layout.listDp >= 400 ? 3 : 2;
+        LinearLayout row = null;
+        for (int i = 0; i < Categories.KEYS.length; i++) {
+            if (i % cols == 0) {
+                row = Ui.hbox(app);
+                row.setBaselineAligned(false);
+                col.addView(row, Ui.margins(Ui.lp(-1, -2), 0, i == 0 ? 0 : 8, 0, 0));
+            }
+            row.addView(categoryTile(Categories.KEYS[i]), Ui.margins(Ui.lpw(0, -2, 1), i % cols == 0 ? 0 : 8, 0, 0, 0));
+        }
+        // Keep the last row's tiles the same width as the others.
+        for (int i = Categories.KEYS.length % cols; i > 0 && i < cols; i++)
+            row.addView(new View(app), Ui.margins(Ui.lpw(0, 0, 1), 8, 0, 0, 0));
+        app.bodyBox.addView(sv, new FrameLayout.LayoutParams(-1, -1));
+    }
+
+    private View categoryTile(final String key) {
+        boolean other = Categories.OTHER.equals(key);
+        // Icon above the text, so long names ("Quests and leveling") get the whole tile width.
+        LinearLayout t = Ui.vbox(app);
+        t.setBackground(Ui.selectable(other ? 0x00000000 : Ui.SURFACE, 14, other ? Ui.STROKE : Ui.SURFACE3));
+        t.setPadding(Ui.dp(12), Ui.dp(12), Ui.dp(12), Ui.dp(12));
+        t.setFocusable(true);
+        t.setClickable(true);
+        FrameLayout iconBox = new FrameLayout(app);
+        iconBox.setBackground(Ui.round(Ui.SURFACE3, 10));
+        android.widget.ImageView iv = new android.widget.ImageView(app);
+        iv.setImageResource(Categories.iconRes(key));
+        iv.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+        iconBox.addView(iv, new FrameLayout.LayoutParams(-1, -1));
+        t.addView(iconBox, Ui.lp(Ui.dp(36), Ui.dp(36)));
+        LinearLayout txt = Ui.vbox(app);
+        String name = s(Categories.nameRes(key));
+        TextView title = Ui.text(app, name, 13.5f, Ui.TEXT, Ui.MEDIUM);
+        title.setLines(2);   // the same height for every tile in a row
+        txt.addView(title, Ui.lp(-1, -2));
+        Integer n = counts == null ? null : counts.get(key);
+        String sub = n != null ? q(R.plurals.addons_count, n) : countsLoading ? "…" : " ";
+        txt.addView(Ui.oneLine(Ui.text(app, sub, 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lp(-1, -2), 0, 2, 0, 0));
+        t.addView(txt, Ui.margins(Ui.lp(-1, -2), 0, 10, 0, 0));
+        t.setContentDescription(n == null ? name : name + ", " + sub);
+        t.setOnClickListener(v -> setMode(true, key));
+        return t;
+    }
+
+    private void loadCounts() {
+        if (countsLoading) return;
+        countsLoading = true;
+        MainActivity.net.execute(() -> {
+            java.util.Map<String, Integer> got = null;
+            String err = null;
+            try {
+                got = Search.counts();
+            } catch (Exception e) {
+                err = MainActivity.friendly(e);
+            }
+            final java.util.Map<String, Integer> fGot = got;
+            final String fErr = err;
+            app.main.post(() -> {
+                if (app.isDestroyed()) return;
+                countsLoading = false;
+                if (fGot != null) counts = fGot; else app.snack(fErr);
+                if (app.tab == MainActivity.TAB_BROWSE && showGrid()) renderResults();
+            });
+        });
+    }
+
     private void renderResults() {
         app.bodyBox.removeAllViews();
         app.currentList = null;
         app.currentAdapter = null;
+        if (showGrid()) { renderGrid(); return; }
         List<Model.Item> r = app.results.get(RESULTS);
         final List<Model.Item> list = r == null ? new ArrayList<Model.Item>() : r;
         if (list.isEmpty()) {
@@ -234,12 +369,20 @@ final class BrowseScreen extends Screen {
     }
 
     void ensureResults(boolean force) {
+        if (showGrid()) { if (force) { counts = null; if (app.tab == MainActivity.TAB_BROWSE) renderResults(); } return; }
         if (force || (app.results.get(RESULTS) == null && !loading)) runSearch(false);
     }
 
     private void runSearch(final boolean more) {
+        if (showGrid()) {
+            searchGen++;   // drops a search still running for the list
+            loading = false;
+            if (app.tab == MainActivity.TAB_BROWSE) renderResults();
+            return;
+        }
         if (more && loading) return;
         final String q = query;
+        final String cat = categoriesMode ? category : null;
         final int gen = ++searchGen;
         final List<Model.Item> prev = app.results.get(RESULTS);
         final int offset = more && prev != null ? prev.size() : 0;
@@ -260,7 +403,7 @@ final class BrowseScreen extends Screen {
                         got.add(hit != null ? hit : Sources.GitHub.info(repo));
                     }
                 } else {
-                    Search.Page page = Search.page(q, offset, PAGE);
+                    Search.Page page = Search.page(q, cat, offset, PAGE);
                     got = page.items;
                     moreAvail = page.more;
                     warn = page.warning;

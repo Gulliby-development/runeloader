@@ -227,6 +227,10 @@
     <string name="cat_bags">Bolsas y objetos</string>
     <string name="cat_map">Mapa</string>
     <string name="cat_tools">Utilidades</string>
+    <string name="cat_other">Otros</string>
+    <string name="browse_mode_popular">Populares</string>
+    <string name="browse_mode_categories">Categorías</string>
+    <string name="browse_all_categories">Todas las categorías</string>
     <string name="addon_dbm_dungeons">DBM: Mazmorras</string>
     <string name="addon_dbm_vanilla">DBM: Bandas clásicas</string>
     <string name="sum_questie">Asistente de misiones: misiones, objetivos y PNJ directamente en el mapa, el minimapa y los tooltips. Imprescindible para subir de nivel.</string>

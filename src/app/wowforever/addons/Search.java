@@ -3,9 +3,11 @@ package app.wowforever.addons;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -24,6 +26,11 @@ final class Search {
     }
 
     static Page page(String query, int from, int count) throws IOException {
+        return page(query, null, from, count);
+    }
+
+    /** A page of one category (a Categories key), or of everything when category is null. */
+    static Page page(String query, String category, int from, int count) throws IOException {
         String q = query == null ? "" : query.trim();
         Page p = new Page();
         List<Model.Item> all = new ArrayList<>();
@@ -53,6 +60,11 @@ final class Search {
         }
         // Without a query the list is the most popular addons; a query keeps its relevance order.
         if (q.isEmpty()) Collections.sort(all, Popularity.ORDER);
+        if (category != null) {
+            List<Model.Item> in = new ArrayList<>();
+            for (Model.Item it : all) if (Categories.matches(it, category)) in.add(it);
+            all = in;
+        }
         if (indexError != null) {
             if (all.isEmpty()) throw indexError;
             if (p.warning == null) p.warning = MainActivity.friendly(indexError);
@@ -60,6 +72,19 @@ final class Search {
         if (from < all.size()) p.items.addAll(all.subList(from, Math.min(all.size(), from + count)));
         p.more = from + count < all.size();
         return p;
+    }
+
+    /** How many addons each category holds, without a query: the index and catalog entries it lacks. */
+    static Map<String, Integer> counts() throws IOException {
+        Map<String, Integer> n = new HashMap<>();
+        for (String k : Categories.KEYS) n.put(k, 0);
+        List<Model.Item> all = new ArrayList<>(Index.items(false));
+        for (Model.Item c : Catalog.all()) if (Index.item(c.id) == null) all.add(c);
+        for (Model.Item it : all) {
+            String k = Categories.of(it);
+            n.put(k, n.get(k) + 1);
+        }
+        return n;
     }
 
     private static void add(List<Model.Item> all, Model.Item it, Set<String> keys, Set<String> folders, Set<String> names) {
