@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.text.TextUtils;
@@ -49,10 +50,25 @@ final class Ui {
     static final int RED = 0xFFE86A5F;
     static final int RED_SOFT = 0x26E86A5F;
     static final int FOCUS = 0xFF6FE3C6;
+    /** Soft inner halo under the focus ring. */
+    static final int FOCUS_GLOW = 0x596FE3C6;
     /** Snackbar and toast background. */
     static final int SNACK = 0xFF223F38;
     /** Dim layer behind sheets and dialogs. */
     static final int SCRIM = 0x9E030807;
+
+    // Type scale in sp: display (brand screens), screen title, compact title (low windows),
+    // section heading, list item title, body, caption.
+    static final float TYPE_DISPLAY = 24;
+    static final float TYPE_TITLE = 21;
+    static final float TYPE_TITLE_COMPACT = 19;
+    static final float TYPE_HEADING = 17;
+    static final float TYPE_ITEM = 15;
+    static final float TYPE_BODY = 13.5f;
+    static final float TYPE_CAPTION = 12.5f;
+
+    /** Width to height of res/drawable/wordmark.xml (its viewport is 3034 x 553). */
+    static final float WORDMARK_RATIO = 3034f / 553f;
 
     static final Typeface MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
     static final Typeface BOLD = Typeface.create("sans-serif", Typeface.BOLD);
@@ -76,14 +92,33 @@ final class Ui {
         return g;
     }
 
-    /** Background with ripple + a gold ring when focused by a gamepad / keyboard. */
+    /** Background with ripple + a mint ring and a soft halo when focused by a gamepad / keyboard. */
     static Drawable selectable(int color, float radiusDp, int strokeColor) {
         StateListDrawable s = new StateListDrawable();
-        s.addState(new int[]{android.R.attr.state_focused}, round(color, radiusDp, FOCUS, 2f));
+        s.addState(new int[]{android.R.attr.state_focused}, focusRing(color, radiusDp));
         s.addState(new int[]{android.R.attr.state_selected}, round(blend(color, 0xFFFFFFFF, 0.06f), radiusDp, strokeColor == 0 ? STROKE : strokeColor, 1f));
         s.addState(new int[]{}, strokeColor == 0 ? round(color, radiusDp) : round(color, radiusDp, strokeColor, 1f));
         GradientDrawable mask = round(0xFFFFFFFF, radiusDp);
         return new RippleDrawable(ColorStateList.valueOf(0x22FFFFFF), s, mask);
+    }
+
+    /** A 2dp ring with a translucent halo inside it, so the view keeps its size when focused. */
+    static Drawable focusRing(int color, float radiusDp) {
+        GradientDrawable halo = round(0, Math.max(0, radiusDp - 2), FOCUS_GLOW, 2f);
+        LayerDrawable ld = new LayerDrawable(new Drawable[]{round(color, radiusDp, FOCUS, 2f), halo});
+        int in = dp(2);
+        ld.setLayerInset(1, in, in, in, in);
+        return ld;
+    }
+
+    /** The Runeloader wordmark at the given height, with its own aspect ratio. */
+    static ImageView wordmark(Context c, int heightDp) {
+        ImageView iv = new ImageView(c);
+        iv.setImageResource(R.drawable.wordmark);
+        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        iv.setContentDescription(c.getString(R.string.app_name));
+        iv.setLayoutParams(new LinearLayout.LayoutParams(Math.round(dp(heightDp) * WORDMARK_RATIO), dp(heightDp)));
+        return iv;
     }
 
     static int blend(int a, int b, float t) {

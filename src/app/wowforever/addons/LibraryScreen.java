@@ -38,6 +38,11 @@ final class LibraryScreen extends Screen {
         }
         String sub = q(R.plurals.addons_count, app.installed.size())
                 + " · " + s(R.string.installed_managed, managed) + (app.checking ? " · " + s(R.string.installed_checking) : "");
+        if (!app.layout.rail && app.layout.listDp >= 120 + 32) {
+            // Portrait has no rail to carry the brand: the wordmark sits above the title.
+            int wm = Math.min(22, Math.round((app.layout.listDp - 32) / Ui.WORDMARK_RATIO));
+            app.headerBox.addView(Ui.wordmark(app, wm), Ui.margins(Ui.lp(Math.round(Ui.dp(wm) * Ui.WORDMARK_RATIO), Ui.dp(wm)), 16, 14, 0, 0));
+        }
         LinearLayout h = header(s(R.string.library_title), sub);
         addHeaderButton(h, s(R.string.action_from_zip), R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
         addHeaderButton(h, s(app.checking ? R.string.action_checking : R.string.action_check), R.drawable.ic_refresh, Ui.Kind.SECONDARY, v -> app.manager.checkUpdates(true));
