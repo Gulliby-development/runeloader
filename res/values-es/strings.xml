@@ -57,6 +57,7 @@
     <string name="browse_title">Explorar addons</string>
     <string name="browse_subtitle">Solo versiones para WoW Forever · interfaz %1$s</string>
     <string name="browse_hint_github">Busca o pega un enlace github.com/owner/repo</string>
+    <string name="browse_hint_category">Buscar en esta categoría</string>
     <string name="browse_set_folder">Elegir carpeta</string>
     <string name="browse_no_game">Carpeta del juego sin definir. No se puede instalar.</string>
     <string name="load_failed">No se pudo cargar</string>

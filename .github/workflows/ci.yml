@@ -65,6 +65,12 @@ jobs:
           javac -d /tmp/p src/app/wowforever/addons/{Model,Popularity}.java test/PopularityTest.java
           java -cp /tmp/p app.wowforever.addons.PopularityTest
 
+      - name: GitHub asset filter
+        run: |
+          mkdir -p /tmp/a
+          javac -d /tmp/a src/app/wowforever/addons/AssetName.java test/AssetNameTest.java
+          java -cp /tmp/a app.wowforever.addons.AssetNameTest
+
       - name: Release notes Markdown
         run: |
           mkdir -p /tmp/m

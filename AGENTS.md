@@ -53,7 +53,7 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check in `Http.java` that keeps the GitHub token on GitHub hosts.
 - A new addon source goes into `Sources.java` with a row in the "Where addons come from" table of `README.md`. It declares which TOC field (`X-WoWI-ID`, `X-Wago-ID`, ...) holds its id.
-- The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
+- The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. The tokens that mark a desktop program zip (`AssetName.java`, `is_app_binary` there) stay identical on both sides, with a case in `test/AssetNameTest.java`. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
 - A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
 - The GitHub index (runeloader-index) is a hint for search, metadata and update checks. An install always resolves the asset from GitHub directly (`Sources.latest`), because the index can be a day old. If the index is unreachable, the update check falls back to the per-addon check.
 - The indexer owns icon conversion (TGA/BLP to PNG); the app only shows a ready PNG and keeps the letter icon until it loads. A new optional index key is mapped in `IndexFields.java`, with a case in `test/IndexFieldsTest.java`; the app must work when the key is missing.
@@ -140,6 +140,13 @@ When you change `Popularity.java` (the default Browse order), run its test (CI r
 ```sh
 mkdir -p /tmp/p && javac -d /tmp/p src/app/wowforever/addons/{Model,Popularity}.java test/PopularityTest.java
 java -cp /tmp/p app.wowforever.addons.PopularityTest
+```
+
+When you change `AssetName.java` (which GitHub zips are programs, not addons), run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/a && javac -d /tmp/a src/app/wowforever/addons/AssetName.java test/AssetNameTest.java
+java -cp /tmp/a app.wowforever.addons.AssetNameTest
 ```
 
 When you change `Markdown.java` (release notes in the detail panel), run its test (CI runs it too):

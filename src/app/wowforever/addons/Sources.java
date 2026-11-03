@@ -139,7 +139,8 @@ final class Sources {
             List<JSONObject> zips = new ArrayList<>();
             if (assets != null) for (int i = 0; i < assets.length(); i++) {
                 JSONObject a = assets.optJSONObject(i);
-                if (a != null && a.optString("name").toLowerCase(Locale.ROOT).endsWith(".zip")) zips.add(a);
+                if (a != null && a.optString("name").toLowerCase(Locale.ROOT).endsWith(".zip")
+                        && !AssetName.isAppBinary(a.optString("name"))) zips.add(a);
             }
             for (JSONObject a : zips) {
                 String n = a.optString("name").toLowerCase(Locale.ROOT);
