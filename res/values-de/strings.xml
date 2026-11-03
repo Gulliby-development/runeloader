@@ -56,20 +56,13 @@
 
     <string name="browse_title">Addons entdecken</string>
     <string name="browse_subtitle">Nur Builds für WoW Forever · Interface %1$s</string>
-    <string name="browse_src_catalog">Forever-Katalog</string>
     <string name="browse_hint_github">Suchen oder einen Link github.com/owner/repo einfügen</string>
-    <string name="browse_hint_search">Addons suchen…</string>
-    <string name="browse_cat_all">Alle</string>
     <string name="browse_set_folder">Ordner wählen</string>
-    <string name="browse_source">Quelle</string>
     <string name="browse_no_game">Kein Spielordner gewählt. Installieren ist aus.</string>
     <string name="load_failed">Laden fehlgeschlagen</string>
     <string name="action_retry">Erneut</string>
-    <string name="github_empty_title">Nicht im GitHub-Index</string>
     <string name="github_empty_text">Versuch einen anderen Namen oder füge einen Repository-Link ein, zum Beispiel github.com/Questie/Questie: Der Forever-Build wird aus seiner release.json gewählt.</string>
     <string name="nothing_found">Nichts gefunden</string>
-    <string name="nothing_found_text">Versuche eine andere Suche.</string>
-    <string name="wowi_note">WoWInterface kennzeichnet keine Forever-Versionen. Nach der Installation prüft die App die TOC und warnt, wenn das Addon nicht für Forever ist.</string>
 
     <string name="settings_title">Einstellungen</string>
     <string name="settings_version">%1$s %2$s</string>

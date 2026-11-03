@@ -56,20 +56,13 @@
 
     <string name="browse_title">Parcourir les addons</string>
     <string name="browse_subtitle">Versions WoW Forever uniquement · interface %1$s</string>
-    <string name="browse_src_catalog">Catalogue Forever</string>
     <string name="browse_hint_github">Rechercher, ou coller un lien github.com/owner/repo</string>
-    <string name="browse_hint_search">Rechercher des addons…</string>
-    <string name="browse_cat_all">Tous</string>
     <string name="browse_set_folder">Choisir le dossier</string>
-    <string name="browse_source">Source</string>
     <string name="browse_no_game">Dossier du jeu non défini. Installation impossible.</string>
     <string name="load_failed">Échec du chargement</string>
     <string name="action_retry">Réessayer</string>
-    <string name="github_empty_title">Absent de l\'index GitHub</string>
     <string name="github_empty_text">Essayez un autre nom, ou collez un lien de dépôt comme github.com/Questie/Questie : la version Forever est choisie dans son release.json.</string>
     <string name="nothing_found">Aucun résultat</string>
-    <string name="nothing_found_text">Essayez une autre recherche.</string>
-    <string name="wowi_note">WoWInterface n\'indique pas les versions Forever. Après l\'installation, l\'application vérifie le TOC et vous prévient si l\'addon n\'est pas pour Forever.</string>
 
     <string name="settings_title">Réglages</string>
     <string name="settings_version">%1$s %2$s</string>
