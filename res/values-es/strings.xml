@@ -32,7 +32,10 @@
     <string name="action_from_zip">Desde ZIP</string>
     <string name="action_check">Comprobar</string>
     <string name="action_checking">Comprobando…</string>
-    <string name="action_update_all">Actualizar todo · %1$d</string>
+    <string name="library_title">Biblioteca</string>
+    <string name="action_update_all_plain">Actualizar todo</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s: %2$s</string>
     <string name="installed_empty_title">Aún no hay addons</string>
     <string name="installed_empty_text">Abre el catálogo: reúne addons con versión para WoW Forever, como Questie, Bartender4, DBM, Plater y otros.</string>
     <string name="action_open_catalog">Abrir catálogo</string>
@@ -63,7 +66,9 @@
     <string name="browse_hint_search">Buscar addons…</string>
     <string name="action_find">Buscar</string>
     <string name="browse_cat_all">Todos</string>
-    <string name="browse_no_game">No hay carpeta del juego, así que no se puede instalar. Indícala en Ajustes.</string>
+    <string name="browse_set_folder">Elegir carpeta</string>
+    <string name="browse_source">Fuente</string>
+    <string name="browse_no_game">Carpeta del juego sin definir. No se puede instalar.</string>
     <string name="curse_connect_title">Conecta CurseForge</string>
     <string name="curse_connect_text">CurseForge solo entrega archivos con una clave API personal. Consíguela gratis en console.curseforge.com y pégala en Ajustes; después podrás buscar aquí todos los addons con versión para Forever.\n\nSin clave, descarga el zip en la web de CurseForge con el navegador e instálalo con \"Desde ZIP\".</string>
     <string name="action_enter_key">Introducir clave</string>

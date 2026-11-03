@@ -32,7 +32,10 @@
     <string name="action_from_zip">Aus ZIP</string>
     <string name="action_check">Prüfen</string>
     <string name="action_checking">Prüfe…</string>
-    <string name="action_update_all">Alle aktualisieren · %1$d</string>
+    <string name="library_title">Bibliothek</string>
+    <string name="action_update_all_plain">Alle aktualisieren</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s: %2$s</string>
     <string name="installed_empty_title">Noch keine Addons</string>
     <string name="installed_empty_text">Öffne den Katalog: Dort findest du Addons mit einem Build für WoW Forever, etwa Questie, Bartender4, DBM, Plater und mehr.</string>
     <string name="action_open_catalog">Katalog öffnen</string>
@@ -63,7 +66,9 @@
     <string name="browse_hint_search">Addons suchen…</string>
     <string name="action_find">Suchen</string>
     <string name="browse_cat_all">Alle</string>
-    <string name="browse_no_game">Kein Spielordner gewählt, Installieren ist daher nicht möglich. Lege ihn in den Einstellungen fest.</string>
+    <string name="browse_set_folder">Ordner wählen</string>
+    <string name="browse_source">Quelle</string>
+    <string name="browse_no_game">Kein Spielordner gewählt. Installieren ist aus.</string>
     <string name="curse_connect_title">CurseForge verbinden</string>
     <string name="curse_connect_text">CurseForge gibt Dateien nur mit einem persönlichen API-Schlüssel heraus. Hol ihn dir kostenlos auf console.curseforge.com und füge ihn in den Einstellungen ein; danach kannst du hier alle Addons mit Forever-Version durchsuchen.\n\nOhne Schlüssel kannst du das Zip auf der CurseForge-Seite im Browser laden und mit \"Aus ZIP\" installieren.</string>
     <string name="action_enter_key">Schlüssel eingeben</string>

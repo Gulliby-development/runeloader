@@ -32,7 +32,10 @@
     <string name="action_from_zip">Z pliku ZIP</string>
     <string name="action_check">Sprawdź</string>
     <string name="action_checking">Sprawdzanie…</string>
-    <string name="action_update_all">Aktualizuj wszystko · %1$d</string>
+    <string name="library_title">Biblioteka</string>
+    <string name="action_update_all_plain">Aktualizuj wszystko</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s: %2$s</string>
     <string name="installed_empty_title">Brak dodatków</string>
     <string name="installed_empty_text">Otwórz katalog: są w nim dodatki z wersją dla WoW Forever, takie jak Questie, Bartender4, DBM, Plater i inne.</string>
     <string name="action_open_catalog">Otwórz katalog</string>
@@ -63,7 +66,9 @@
     <string name="browse_hint_search">Szukaj dodatków…</string>
     <string name="action_find">Szukaj</string>
     <string name="browse_cat_all">Wszystkie</string>
-    <string name="browse_no_game">Nie wybrano folderu gry, więc instalacja jest niedostępna. Ustaw go w ustawieniach.</string>
+    <string name="browse_set_folder">Ustaw folder</string>
+    <string name="browse_source">Źródło</string>
+    <string name="browse_no_game">Nie ustawiono folderu gry. Instalacja wyłączona.</string>
     <string name="curse_connect_title">Połącz CurseForge</string>
     <string name="curse_connect_text">CurseForge udostępnia pliki tylko z osobistym kluczem API. Zdobądź go za darmo na console.curseforge.com i wklej w ustawieniach; potem możesz tu wyszukiwać wszystkie dodatki z wersją dla Forever.\n\nBez klucza pobierz plik zip ze strony CurseForge w przeglądarce i zainstaluj go przyciskiem „Z pliku ZIP”.</string>
     <string name="action_enter_key">Wpisz klucz</string>
