@@ -86,6 +86,7 @@ final class BrowseScreen extends Screen {
     private View segmentedSources() {
         HorizontalScrollView hs = new HorizontalScrollView(app);
         hs.setHorizontalScrollBarEnabled(false);
+        Ui.scrollHint(hs);
         hs.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
         hs.setClipToPadding(false);
         LinearLayout seg = Ui.hbox(app);
@@ -147,13 +148,13 @@ final class BrowseScreen extends Screen {
         if (f != null) f.post(f::requestFocus);
     }
 
-    /** One line: what is wrong, and a button that fixes it. */
+    /** What is wrong, and a button that fixes it. The message wraps: some languages need two lines. */
     private void gameFolderBanner() {
         LinearLayout bar = Ui.hbox(app);
         bar.setBackground(Ui.round(Ui.ORANGE_SOFT, 12));
         bar.setPadding(Ui.dp(12), Ui.dp(5), Ui.dp(5), Ui.dp(5));
         bar.addView(Ui.icon(app, R.drawable.ic_warning, Ui.ORANGE, 17));
-        TextView msg = Ui.oneLine(Ui.text(app, s(R.string.browse_no_game), 12.5f, Ui.ORANGE, Ui.REGULAR));
+        TextView msg = Ui.text(app, s(R.string.browse_no_game), 12.5f, Ui.ORANGE, Ui.REGULAR);
         bar.addView(msg, Ui.margins(Ui.lpw(0, -2, 1), 10, 0, 8, 0));
         TextView fix = Ui.oneLine(Ui.text(app, s(R.string.browse_set_folder), 12, Ui.ORANGE, Ui.MEDIUM));
         fix.setGravity(android.view.Gravity.CENTER);
@@ -227,6 +228,7 @@ final class BrowseScreen extends Screen {
         if (source == MainActivity.SRC_CATALOG) {
             HorizontalScrollView cs = new HorizontalScrollView(app);
             cs.setHorizontalScrollBarEnabled(false);
+            Ui.scrollHint(cs);
             LinearLayout cats = Ui.hbox(app);
             cats.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
             List<String> all = new ArrayList<>();

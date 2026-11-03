@@ -81,7 +81,7 @@ A new secret for the app build (for example a CurseForge key) goes into both `ci
   - Count words through `<plurals>` and `getQuantityString`, never by hand: Polish and Russian need `few` and `many` forms.
   - Code outside an activity gets its text through `Lang.s()` and `Lang.q()`. `Installer.java` must also compile on a plain JVM, so its messages go through `Installer.Texts`, with an English default there and the resource in `Lang.INSTALLER`.
   - A new language needs a `res/values-<lang>` folder and an entry in `Lang.TAGS` and `Lang.NAMES`, with the language named in itself.
-  - Side-rail labels (`nav_*_short`) must fit 68dp at 11sp: keep them to about nine Latin characters.
+  - Each tab has one name (`nav_installed`, `nav_browse`, `nav_settings`), used by both the rail and the bottom bar. It must fit the 68dp rail item at 11sp: about nine Latin characters.
 
 ## Navigation
 

@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_tagline">Gestor de addons para WoW Forever</string>
-
-    <string name="nav_installed_short">Míos</string>
-    <string name="nav_browse_short">Explorar</string>
-    <string name="nav_settings_short">Ajustes</string>
-    <string name="nav_installed">Mis addons</string>
+    <string name="nav_installed">Addons</string>
     <string name="nav_browse">Explorar</string>
     <string name="nav_settings">Ajustes</string>
+    <string name="app_tagline">Gestor de addons para WoW Forever</string>
 
     <string name="perm_title">Se necesita acceso a archivos</string>
     <string name="perm_text">Para instalar addons en la carpeta del juego, la app necesita \"Acceso a todos los archivos\", igual que el propio cliente de WoW Forever.</string>

@@ -369,11 +369,11 @@ public class MainActivity extends Activity {
         logo.setImageResource(R.drawable.ic_rune);
         logo.setContentDescription(getString(R.string.app_name));
         rail.addView(logo, Ui.margins(Ui.lp(Ui.dp(40), Ui.dp(40)), 0, 2, 0, 20));
-        rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
-        rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
+        rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
+        rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
         View spacer = new View(this);
         rail.addView(spacer, Ui.lpw(1, 0, 1));
-        rail.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, getString(R.string.nav_settings_short), true), Ui.lp(Ui.dp(68), Ui.dp(60)));
+        rail.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, getString(R.string.nav_settings), true), Ui.lp(Ui.dp(68), Ui.dp(60)));
         return rail;
     }
 
