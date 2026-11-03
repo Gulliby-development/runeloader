@@ -61,7 +61,9 @@
     <string name="browse_hint_search">搜索插件…</string>
     <string name="action_find">查找</string>
     <string name="browse_cat_all">全部</string>
-    <string name="browse_no_game">未选择游戏文件夹，无法安装。请在设置中指定。</string>
+    <string name="browse_set_folder">设置文件夹</string>
+    <string name="browse_source">来源</string>
+    <string name="browse_no_game">未设置游戏文件夹，无法安装。</string>
     <string name="curse_connect_title">连接 CurseForge</string>
     <string name="curse_connect_text">CurseForge 只凭个人 API 密钥提供文件。请在 console.curseforge.com 免费获取，并粘贴到设置中；之后即可在这里搜索所有有 Forever 版本的插件。\n\n没有密钥时，可以在浏览器中从 CurseForge 网站下载 zip，然后用“从 ZIP”安装。</string>
     <string name="action_enter_key">输入密钥</string>
