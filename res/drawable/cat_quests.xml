@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder until the drawn category icon (drawable-nodpi/cat_quests.png) replaces it. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="36dp" android:height="36dp" android:viewportWidth="36" android:viewportHeight="36">
-    <group android:translateX="8" android:translateY="8" android:scaleX="0.833" android:scaleY="0.833">
-        <path android:fillColor="#FFD9A441" android:pathData="M10,3h4v12h-4z M10,17h4v4h-4z"/>
-    </group>
-</vector>
