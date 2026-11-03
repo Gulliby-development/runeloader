@@ -13,6 +13,9 @@
     <string name="perm_text">Pour installer des addons dans le dossier du jeu, l\'application a besoin de « Accès à tous les fichiers », comme le client WoW Forever lui-même.</string>
     <string name="perm_grant">Autoriser l\'accès</string>
     <string name="perm_settings_hint">Ouvrez Paramètres → Applications → %1$s → Accès à tous les fichiers</string>
+    <string name="setup_step_access">Accès aux fichiers</string>
+    <string name="setup_step_folder">Dossier du jeu</string>
+    <string name="setup_step_curse">Connecter CurseForge (facultatif)</string>
     <string name="game_not_set">Aucun dossier de jeu choisi</string>
     <string name="game_where_title">Où est installé WoW Forever ?</string>
     <string name="game_where_text">En général, c\'est « WoW Forever » dans la mémoire interne ou sur la carte SD. Choisissez le dossier qui contient .build.info et _forever_.</string>
