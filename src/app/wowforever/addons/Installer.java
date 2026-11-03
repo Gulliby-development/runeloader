@@ -20,6 +20,21 @@ import java.util.zip.ZipFile;
 /** Unpacks addon zips into Interface/AddOns atomically, folder by folder. */
 final class Installer {
 
+    /** Messages shown to the user. The app swaps in its string resources; the JVM test keeps these English ones. */
+    interface Texts {
+        default String noAddons() { return "No addons found in the archive (no .toc files)"; }
+        default String cannotCreate(Object path) { return "Could not create " + path; }
+        default String noWrite(Object path) { return "No write access: " + path; }
+        default String unpacking(String names) { return "Unpacking: " + names; }
+        default String unpackingFiles(int index, int total) { return "Unpacking files: " + index + " of " + total; }
+        default String unsafePath(String name) { return "Unsafe path in the archive: " + name; }
+        default String installing() { return "Installing into AddOns"; }
+        default String cannotWrite(String name) { return "Could not write " + name; }
+        default String cannotDelete(Object path) { return "Could not delete " + path; }
+    }
+
+    static volatile Texts texts = new Texts() {};
+
     /** prefix inside the zip ("" or "Wrapper/Addon/") -> AddOns folder name */
     static Map<String, String> findRoots(List<String> names) throws IOException {
         Map<String, String> candidates = new LinkedHashMap<>();
@@ -68,7 +83,7 @@ final class Installer {
             taken.add(folder.toLowerCase(Locale.ROOT));
             roots.put(p, folder);
         }
-        if (roots.isEmpty()) throw new IOException("В архиве не найдено ни одного аддона (нет .toc файлов)");
+        if (roots.isEmpty()) throw new IOException(texts.noAddons());
         if (roots.containsKey("") && roots.size() > 1) roots.remove("");
         return roots;
     }
@@ -77,17 +92,17 @@ final class Installer {
 
     /** Installs every addon folder of the zip into addonsDir; returns the folder names. */
     static List<String> install(File zip, File addonsDir, Log log) throws IOException {
-        if (!addonsDir.exists() && !addonsDir.mkdirs()) throw new IOException("Не удалось создать папку " + addonsDir);
+        if (!addonsDir.exists() && !addonsDir.mkdirs()) throw new IOException(texts.cannotCreate(addonsDir));
         File interfaceDir = addonsDir.getParentFile();
         File staging = new File(interfaceDir, ".wow-addons-staging-" + System.currentTimeMillis());
-        if (!staging.mkdirs()) throw new IOException("Нет доступа на запись: " + interfaceDir);
+        if (!staging.mkdirs()) throw new IOException(texts.noWrite(interfaceDir));
         ZipFile zf = new ZipFile(zip);
         try {
             List<String> names = new ArrayList<>();
             Enumeration<? extends ZipEntry> en = zf.entries();
             while (en.hasMoreElements()) names.add(en.nextElement().getName());
             Map<String, String> roots = findRoots(names);
-            if (log != null) log.step("Распаковка: " + String.join(", ", roots.values()));
+            if (log != null) log.step(texts.unpacking(String.join(", ", roots.values())));
             String stagingCanon = staging.getCanonicalPath() + File.separator;
             byte[] buf = new byte[64 * 1024];
             en = zf.entries();
@@ -95,7 +110,7 @@ final class Installer {
             int total = names.size();
             while (en.hasMoreElements()) {
                 ZipEntry ze = en.nextElement();
-                if (log != null && total > 200 && ++index % 150 == 0) log.step("Распаковка файлов: " + index + " из " + total);
+                if (log != null && total > 200 && ++index % 150 == 0) log.step(texts.unpackingFiles(index, total));
                 String name = ze.getName().replace('\\', '/');
                 String root = null;
                 for (String p : roots.keySet()) {
@@ -105,13 +120,13 @@ final class Installer {
                 String rel = name.substring(root.length());
                 if (rel.isEmpty()) continue;
                 File out = new File(new File(staging, roots.get(root)), rel);
-                if (!out.getCanonicalPath().startsWith(stagingCanon)) throw new IOException("Небезопасный путь в архиве: " + name);
+                if (!out.getCanonicalPath().startsWith(stagingCanon)) throw new IOException(texts.unsafePath(name));
                 if (ze.isDirectory() || name.endsWith("/")) {
                     out.mkdirs();
                     continue;
                 }
                 File parent = out.getParentFile();
-                if (!parent.exists() && !parent.mkdirs()) throw new IOException("Не удалось создать " + parent);
+                if (!parent.exists() && !parent.mkdirs()) throw new IOException(texts.cannotCreate(parent));
                 InputStream in = zf.getInputStream(ze);
                 OutputStream os = new FileOutputStream(out);
                 try {
@@ -123,7 +138,7 @@ final class Installer {
                 }
             }
             List<String> folders = new ArrayList<>(roots.values());
-            if (log != null) log.step("Установка в AddOns");
+            if (log != null) log.step(texts.installing());
             for (String folder : folders) swapIn(new File(staging, folder), new File(addonsDir, folder), staging);
             return folders;
         } finally {
@@ -146,7 +161,7 @@ final class Installer {
         }
         if (!target.exists()) {
             if (backup != null) backup.renameTo(target);
-            throw new IOException("Не удалось записать " + target.getName());
+            throw new IOException(texts.cannotWrite(target.getName()));
         }
         if (backup != null) deleteRecursive(backup);
     }
@@ -156,7 +171,7 @@ final class Installer {
             if (f == null || f.isEmpty() || f.contains("/") || f.contains("..")) continue;
             File d = new File(addonsDir, f);
             if (d.exists()) deleteRecursive(d);
-            if (d.exists()) throw new IOException("Не удалось удалить " + f);
+            if (d.exists()) throw new IOException(texts.cannotDelete(f));
         }
     }
 
@@ -171,7 +186,7 @@ final class Installer {
 
     static void copyRecursive(File src, File dst) throws IOException {
         if (src.isDirectory()) {
-            if (!dst.exists() && !dst.mkdirs()) throw new IOException("Не удалось создать " + dst);
+            if (!dst.exists() && !dst.mkdirs()) throw new IOException(texts.cannotCreate(dst));
             File[] kids = src.listFiles();
             if (kids != null) for (File k : kids) copyRecursive(k, new File(dst, k.getName()));
         } else {

@@ -88,7 +88,7 @@ final class Sources {
         static Model.Release latest(String repo) throws IOException {
             String tag = null;
             try { tag = latestTag(repo); } catch (Http.HttpException e) {
-                if (e.code == 404) throw new IOException("Репозиторий " + repo + " не найден или в нём нет релизов");
+                if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_no_releases, repo));
             }
             String base = "https://github.com/" + repo + "/releases/" + (tag == null ? "latest/download/" : "download/" + encPath(tag) + "/");
             JSONObject rj = null;
@@ -118,7 +118,7 @@ final class Sources {
                         if (score > bestScore && score >= 0) { bestScore = score; pick = rel; }
                     }
                 }
-                if (pick == null) throw new IOException("У " + repo + " нет сборки для WoW Forever в последнем релизе");
+                if (pick == null) throw new IOException(Lang.s(R.string.err_gh_no_forever_build, repo));
                 r.fileName = pick.optString("filename");
                 r.version = pick.optString("version", "");
                 if (r.version.isEmpty()) r.version = versionFromFile(r.fileName);
@@ -132,11 +132,11 @@ final class Sources {
             try {
                 rel = new JSONObject(Http.get("https://api.github.com/repos/" + repo + "/releases/latest", apiHeaders()));
             } catch (Http.HttpException e) {
-                if (e.code == 404) throw new IOException("В репозитории " + repo + " нет опубликованных релизов");
-                if (e.code == 403 || e.code == 429) throw new IOException("Лимит запросов GitHub исчерпан. Подождите час или добавьте токен в настройках.");
+                if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_no_published, repo));
+                if (e.code == 403 || e.code == 429) throw new IOException(Lang.s(R.string.err_gh_rate_limit));
                 throw e;
             } catch (org.json.JSONException e) {
-                throw new IOException("GitHub вернул неожиданный ответ");
+                throw new IOException(Lang.s(R.string.err_gh_unexpected));
             }
             JSONArray assets = rel.optJSONArray("assets");
             JSONObject pick = null;
@@ -194,7 +194,7 @@ final class Sources {
                 it.downloads = -1;
                 it.updated = parseIso(o.optString("pushed_at"));
             } catch (Http.HttpException e) {
-                if (e.code == 404) throw new IOException("Репозиторий " + repo + " не найден");
+                if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_not_found, repo));
                 // rate limit: keep the bare card
             } catch (org.json.JSONException ignored) {
             }
@@ -228,7 +228,7 @@ final class Sources {
         }
 
         static List<Model.Item> search(String query, int index) throws IOException {
-            if (!hasCurseKey()) throw new IOException("Нужен ключ CurseForge API (Настройки)");
+            if (!hasCurseKey()) throw new IOException(Lang.s(R.string.err_curse_key_needed));
             String url = API + "/mods/search?gameId=1&gameVersionTypeId=" + CURSE_FOREVER_TYPE
                     + "&sortField=2&sortOrder=desc&pageSize=40&index=" + index
                     + (query == null || query.trim().isEmpty() ? "" : "&searchFilter=" + Http.enc(query.trim()));
@@ -240,7 +240,7 @@ final class Sources {
                     if (it != null) out.add(it);
                 }
             } catch (org.json.JSONException e) {
-                throw new IOException("CurseForge вернул неожиданный ответ");
+                throw new IOException(Lang.s(R.string.err_curse_unexpected));
             }
             return out;
         }
@@ -249,7 +249,7 @@ final class Sources {
             try {
                 return Http.get(url, headers());
             } catch (Http.HttpException e) {
-                if (e.code == 401 || e.code == 403) throw new IOException("CurseForge отклонил ключ API (код " + e.code + "). Проверьте ключ в настройках.");
+                if (e.code == 401 || e.code == 403) throw new IOException(Lang.s(R.string.err_curse_key_rejected, e.code));
                 throw e;
             }
         }
@@ -287,20 +287,20 @@ final class Sources {
             try {
                 return fromMod(new JSONObject(get(API + "/mods/" + id)).optJSONObject("data"));
             } catch (org.json.JSONException e) {
-                throw new IOException("CurseForge вернул неожиданный ответ");
+                throw new IOException(Lang.s(R.string.err_curse_unexpected));
             }
         }
 
         static Model.Release latest(String id) throws IOException {
-            if (!hasCurseKey()) throw new IOException("Нужен ключ CurseForge API (Настройки)");
+            if (!hasCurseKey()) throw new IOException(Lang.s(R.string.err_curse_key_needed));
             JSONArray files;
             try {
                 files = new JSONObject(get(API + "/mods/" + id + "/files?gameVersionTypeId=" + CURSE_FOREVER_TYPE + "&pageSize=50"))
                         .optJSONArray("data");
             } catch (org.json.JSONException e) {
-                throw new IOException("CurseForge вернул неожиданный ответ");
+                throw new IOException(Lang.s(R.string.err_curse_unexpected));
             }
-            if (files == null || files.length() == 0) throw new IOException("На CurseForge нет файлов этого аддона для WoW Forever");
+            if (files == null || files.length() == 0) throw new IOException(Lang.s(R.string.err_curse_no_files));
             List<JSONObject> list = new ArrayList<>();
             for (int i = 0; i < files.length(); i++) if (files.optJSONObject(i) != null) list.add(files.optJSONObject(i));
             Collections.sort(list, (a, b) -> Long.compare(parseIso(b.optString("fileDate")), parseIso(a.optString("fileDate"))));
@@ -312,7 +312,7 @@ final class Sources {
             r.fileName = pick.optString("fileName");
             String dl = pick.optString("downloadUrl", "");
             if (dl.isEmpty() || "null".equals(dl)) {
-                throw new IOException("Автор запретил скачивание вне сайта CurseForge. Скачайте zip в браузере и установите через «Из ZIP».");
+                throw new IOException(Lang.s(R.string.err_curse_site_only));
             }
             r.url = dl;
             r.headers = headers();
@@ -419,7 +419,7 @@ final class Sources {
                 }
                 r.endArray();
             } catch (IllegalStateException e) {
-                throw new IOException("Не удалось разобрать список WoWInterface");
+                throw new IOException(Lang.s(R.string.err_wowi_list));
             } finally {
                 r.close();
             }
@@ -450,17 +450,17 @@ final class Sources {
                 JSONArray arr = new JSONArray(Http.get(DETAILS + id + ".json"));
                 d = arr.optJSONObject(0);
             } catch (org.json.JSONException e) {
-                throw new IOException("WoWInterface вернул неожиданный ответ");
+                throw new IOException(Lang.s(R.string.err_wowi_unexpected));
             }
-            if (d == null) throw new IOException("Аддон не найден на WoWInterface");
-            if ("1".equals(d.optString("UIPending"))) throw new IOException("Новая версия ещё ждёт одобрения на WoWInterface");
+            if (d == null) throw new IOException(Lang.s(R.string.err_wowi_not_found));
+            if ("1".equals(d.optString("UIPending"))) throw new IOException(Lang.s(R.string.err_wowi_pending));
             Model.Release r = new Model.Release();
             r.version = d.optString("UIVersion");
             r.fileName = d.optString("UIFileName", "addon.zip");
             r.url = d.optString("UIDownload");
             r.md5 = d.optString("UIMD5", null);
             r.guessed = true;
-            if (r.url == null || r.url.isEmpty()) throw new IOException("У аддона нет файла для скачивания");
+            if (r.url == null || r.url.isEmpty()) throw new IOException(Lang.s(R.string.err_no_download));
             return r;
         }
 
