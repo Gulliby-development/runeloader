@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
     static final int TAB_INSTALLED = 0, TAB_BROWSE = 1, TAB_SETTINGS = 2;
     static final int SRC_CATALOG = 0, SRC_CURSE = 1, SRC_WOWI = 2, SRC_GITHUB = 3;
     private static final int REQ_ZIP = 41, REQ_PERM = 42;
+    static final int REQ_NOTIFY = 43;
 
     final Handler main = new Handler(Looper.getMainLooper());
     static final ExecutorService net = Executors.newFixedThreadPool(4);
@@ -111,12 +112,13 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 30) getWindow().setDecorFitsSystemWindows(false);
         ImageLoader.dir = new File(getCacheDir(), "img");
         ImageLoader.dir.mkdirs();
-        store = new Store(this);
+        store = Store.get(this);
         if (b != null) tab = b.getInt("tab", tab);
         if (store.gameRoot() == null && hasStorageAccess()) gameFolder.autoDetect(false);
         store.load();
         buildShell();
         manager.rescan();
+        AutoUpdate.apply(this);
     }
 
     @Override protected void onSaveInstanceState(Bundle out) {
@@ -137,6 +139,17 @@ public class MainActivity extends Activity {
             store.load();
             manager.rescan();
         }
+        // The background job changed addons while this screen is open: show the new state.
+        AutoUpdate.onChanged = () -> main.post(() -> {
+            if (isDestroyed()) return;
+            manager.rescan();
+            renderIfTab(TAB_SETTINGS);
+        });
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        AutoUpdate.onChanged = null;
     }
 
     @Override public void onConfigurationChanged(Configuration c) {
@@ -343,12 +356,11 @@ public class MainActivity extends Activity {
         rail.setBackgroundColor(Ui.RAIL);
         rail.setGravity(Gravity.CENTER_HORIZONTAL);
         rail.setPadding(0, Ui.dp(14), 0, Ui.dp(14));
+        // The rail is too narrow for the wordmark: the rune mark alone.
         ImageView logo = new ImageView(this);
-        logo.setImageResource(R.mipmap.ic_launcher);
-        rail.addView(logo, Ui.lp(Ui.dp(46), Ui.dp(46)));
-        TextView brand = Ui.text(this, "Addons", 11, Ui.ACCENT, Ui.CONDENSED);
-        brand.setLetterSpacing(0.08f);
-        rail.addView(brand, Ui.margins(Ui.lp(-2, -2), 0, 4, 0, 18));
+        logo.setImageResource(R.drawable.ic_rune);
+        logo.setContentDescription(getString(R.string.app_name));
+        rail.addView(logo, Ui.margins(Ui.lp(Ui.dp(40), Ui.dp(40)), 0, 2, 0, 20));
         rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
         rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
         View spacer = new View(this);

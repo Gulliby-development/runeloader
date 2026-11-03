@@ -45,7 +45,11 @@ final class SetupScreen extends Screen {
 
         // The language can be changed here, before the user has to read anything else.
         LinearLayout top = Ui.hbox(app);
-        top.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        // The wordmark replaces the header on these screens; it shrinks to leave room for the language button.
+        int wm = Math.max(16, Math.min(28, Math.round((ls.listDp - 220) / Ui.WORDMARK_RATIO)));
+        top.addView(Ui.wordmark(app, wm), Ui.margins(Ui.lp(Math.round(Ui.dp(wm) * Ui.WORDMARK_RATIO), Ui.dp(wm)), 8, 0, 0, 0));
+        top.addView(new View(app), Ui.lpw(0, 1, 1f));
         top.addView(Ui.button(app, Lang.name(app, Lang.saved(app)), R.drawable.ic_language, Ui.Kind.GHOST, v -> languageDialog()), Ui.lp(-2, Ui.dp(40)));
         page.addView(top, Ui.lp(-1, -2));
 

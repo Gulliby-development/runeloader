@@ -42,6 +42,7 @@ final class SettingsScreen extends Screen {
         curseCard(right);
         languageCard(left);
         githubCard(right);
+        autoUpdateCard(right);
         aboutCard(left);
 
         app.bodyBox.addView(sv, new FrameLayout.LayoutParams(-1, -1));
@@ -126,6 +127,9 @@ final class SettingsScreen extends Screen {
 
     private void aboutCard(LinearLayout parent) {
         LinearLayout ab = card(parent, R.drawable.ic_info, s(R.string.settings_about));
+        int col = app.layout.listDp >= TWO_COLUMNS_DP ? app.layout.listDp / 2 : app.layout.listDp;
+        int wmh = Math.min(40, Math.round((col - 80) / Ui.WORDMARK_RATIO));
+        ab.addView(Ui.wordmark(app, wmh), Ui.margins(Ui.lp(Math.round(Ui.dp(wmh) * Ui.WORDMARK_RATIO), Ui.dp(wmh)), 0, 2, 0, 12));
         ab.addView(Ui.text(app, s(R.string.settings_about_text), 12.5f, Ui.TEXT2, Ui.REGULAR));
         ab.addView(actions(
                 Ui.button(app, s(R.string.action_forever_client), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl("https://github.com/jaredgei/wow-forever-android")),
@@ -143,6 +147,86 @@ final class SettingsScreen extends Screen {
         Ui.FlowRow row = new Ui.FlowRow(app, 8, 8);
         for (View b : buttons) row.addView(b, new ViewGroup.LayoutParams(-2, Ui.dp(40)));
         return row;
+    }
+
+    // ── Auto-update ──
+
+    private void autoUpdateCard(LinearLayout col) {
+        final Store st = app.store;
+        LinearLayout c = card(col, R.drawable.ic_upgrade, s(R.string.auto_title));
+        c.addView(Ui.text(app, s(R.string.auto_text), 12.5f, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 10));
+        final int mode = st.autoMode();
+        c.addView(chipRow(new String[]{s(R.string.auto_mode_off), s(R.string.auto_mode_notify), s(R.string.auto_mode_install)},
+                new int[]{UpdatePolicy.MODE_OFF, UpdatePolicy.MODE_NOTIFY, UpdatePolicy.MODE_INSTALL}, mode, m -> {
+                    st.setAutoMode(m);
+                    if (m != UpdatePolicy.MODE_OFF) askNotifications();
+                    AutoUpdate.apply(app);
+                    app.render();
+                }));
+        if (mode == UpdatePolicy.MODE_OFF) return;
+
+        c.addView(Ui.text(app, s(R.string.auto_frequency), 13, Ui.TEXT2, Ui.MEDIUM), Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 6));
+        String[] hours = new String[UpdatePolicy.INTERVALS_H.length];
+        for (int i = 0; i < hours.length; i++) hours[i] = s(R.string.auto_every_hours, UpdatePolicy.INTERVALS_H[i]);
+        c.addView(chipRow(hours, UpdatePolicy.INTERVALS_H, st.autoIntervalHours(), h -> {
+            st.setAutoIntervalHours(h);
+            AutoUpdate.apply(app);
+            app.render();
+        }));
+
+        c.addView(Ui.text(app, s(R.string.auto_conditions), 13, Ui.TEXT2, Ui.MEDIUM), Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 6));
+        Ui.FlowRow toggles = new Ui.FlowRow(app, 8, 8);
+        toggles.addView(chip(s(R.string.auto_wifi_only), st.autoWifiOnly(), v -> { st.setAutoWifiOnly(!st.autoWifiOnly()); AutoUpdate.apply(app); app.render(); }));
+        toggles.addView(chip(s(R.string.auto_charging_only), st.autoChargingOnly(), v -> { st.setAutoChargingOnly(!st.autoChargingOnly()); AutoUpdate.apply(app); app.render(); }));
+        c.addView(toggles, Ui.lp(-1, -2));
+
+        c.addView(Ui.text(app, autoStatus(st), 12.5f, st.autoLastError() != null ? Ui.ORANGE : Ui.TEXT3, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 0));
+        if (!AutoUpdate.canNotify(app)) c.addView(Ui.text(app, s(R.string.auto_no_notifications), 12.5f, Ui.TEXT3, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 6, 0, 0));
+        android.os.PowerManager pm = (android.os.PowerManager) app.getSystemService(android.content.Context.POWER_SERVICE);
+        if (pm != null && !pm.isIgnoringBatteryOptimizations(app.getPackageName())) {
+            c.addView(Ui.text(app, s(R.string.auto_battery_text), 12.5f, Ui.TEXT3, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 6, 0, 8));
+            c.addView(Ui.button(app, s(R.string.auto_battery_action), R.drawable.ic_settings, Ui.Kind.GHOST, v -> {
+                try { app.startActivity(new android.content.Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)); }
+                catch (Exception e) { app.snack(MainActivity.friendly(e)); }
+            }), Ui.lp(-2, Ui.dp(40)));
+        }
+    }
+
+    private String autoStatus(Store st) {
+        long t = st.autoLastRun();
+        if (t == 0) return s(R.string.auto_status_never);
+        String when = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Lang.locale()).format(new java.util.Date(t));
+        if (st.autoLastError() != null) return s(R.string.auto_status_error, when, st.autoLastError());
+        if (st.autoLastUpdated() > 0) return s(R.string.auto_status_updated, when, st.autoLastUpdated());
+        if (st.autoLastFound() > 0) return s(R.string.auto_status_found, when, st.autoLastFound());
+        return s(R.string.auto_status_none, when);
+    }
+
+    private void askNotifications() {
+        if (android.os.Build.VERSION.SDK_INT >= 33 && !AutoUpdate.canNotify(app)) {
+            app.requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, MainActivity.REQ_NOTIFY);
+        }
+    }
+
+    private interface IntPick { void pick(int value); }
+
+    private View chipRow(String[] labels, int[] values, int current, IntPick onPick) {
+        Ui.FlowRow row = new Ui.FlowRow(app, 8, 8);
+        for (int i = 0; i < labels.length; i++) {
+            final int v = values[i];
+            row.addView(chip(labels[i], v == current, x -> { if (v != current) onPick.pick(v); }));
+        }
+        return row;
+    }
+
+    private TextView chip(String label, boolean on, View.OnClickListener click) {
+        TextView chip = Ui.text(app, label, 13, on ? Ui.ACCENT_DARK : Ui.TEXT2, Ui.MEDIUM);
+        chip.setBackground(Ui.selectable(on ? Ui.ACCENT : Ui.SURFACE2, 16, on ? 0 : Ui.STROKE));
+        chip.setPadding(Ui.dp(14), Ui.dp(8), Ui.dp(14), Ui.dp(8));
+        chip.setFocusable(true);
+        chip.setClickable(true);
+        chip.setOnClickListener(click);
+        return chip;
     }
 
     private void testCurseKey() {

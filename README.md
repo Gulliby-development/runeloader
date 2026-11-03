@@ -4,6 +4,8 @@ Addon manager for the [WoW Forever Android client](https://github.com/jaredgei/w
 
 Sources: the Forever catalog (GitHub releases built for Forever), CurseForge (with your own API key) and WoWInterface.
 
+Optional background auto-update (Settings → Auto-update): checks every 6–24 hours, also when the app is closed, and either notifies you or installs the updates.
+
 Android 10 or newer. Works only with WoW Forever builds. The app speaks English, German, Spanish, French, Polish, Portuguese, Russian and Chinese, and follows your system language unless you pick one in Settings.
 
 ## Install
