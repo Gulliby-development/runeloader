@@ -13,6 +13,8 @@
   <img src="https://img.shields.io/badge/no%20ads-no%20tracking-17302d?style=for-the-badge" alt="No ads, no tracking">
 </p>
 
+<p align="center"><img src="docs/images/promo/promo-hero.jpg" alt="Runeloader: browse addons and see updates on Android" width="860"></p>
+
 ---
 
 Installing addons on a phone usually means zip files, file managers and long folder paths. Runeloader does it for you. Search for an addon, tap **Install**, and it goes into the right folder. When a new version comes out, you update it with one tap.
@@ -28,6 +30,20 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **Safe.** An addon is replaced only after the new version is fully unpacked, so a broken download never breaks your game.
 - **Made for play.** Works in landscape and portrait, by touch or with a gamepad.
 - **Your language.** English, German, Spanish, French, Polish, Portuguese, Russian and Chinese.
+
+<p align="center"><img src="docs/images/promo/promo-features.jpg" alt="Find, install and auto-update addons" width="860"></p>
+
+<details>
+<summary><b>More screenshots</b></summary>
+
+| Browse | Addon details | Your addons |
+| --- | --- | --- |
+| <img src="docs/images/promo/shot-browse.png" alt="Browse" width="280"> | <img src="docs/images/promo/shot-detail.png" alt="Addon details" width="280"> | <img src="docs/images/promo/shot-library.png" alt="Installed addons with an update" width="280"> |
+
+| Browse, portrait | Auto-update |
+| --- | --- |
+| <img src="docs/images/promo/shot-browse-portrait.png" alt="Browse in portrait" width="200"> | <img src="docs/images/promo/shot-settings-portrait.png" alt="Auto-update settings" width="200"> |
+</details>
 
 ## Install
 
