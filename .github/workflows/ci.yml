@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Gradle build, Android lint and the build.sh path, then a check that both APKs agree.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Also validates gradle-wrapper.jar against the official checksums.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: SDK packages for build.sh
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;35.0.0" "platforms;android-35" > /dev/null
+
+      - name: Gradle build and lint
+        run: ./gradlew assembleDebug assembleRelease lint
+
+      - name: build.sh
+        run: BUILD_TOOLS="$ANDROID_HOME/build-tools/35.0.0" ./build.sh
+
+      - name: Both build paths make the same app
+        run: |
+          AAPT2="$ANDROID_HOME/build-tools/35.0.0/aapt2"
+          scripts/apk-summary.sh "$AAPT2" build/outputs/apk/release/wow-addons.apk > gradle.txt
+          scripts/apk-summary.sh "$AAPT2" wow-addons.apk > buildsh.txt
+          diff -u gradle.txt buildsh.txt
+
+      - name: Installer and TOC classes compile on a plain JVM
+        run: |
+          mkdir -p /tmp/t
+          javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Model}.java test/InstallTest.java
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: apk
+          path: |
+            build/outputs/apk/release/wow-addons.apk
+            build/outputs/apk/debug/wow-addons-debug.apk
+            build/reports/lint-results-debug.html
+
+  # Branch names follow AGENTS.md: feature/<name> or bugfix/<name>.
+  branch-name:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Branch name follows AGENTS.md
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [[ "$HEAD_REF" == dependabot/* ]]; then exit 0; fi
+          if [[ ! "$HEAD_REF" =~ ^(feature|bugfix)/[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+            echo "::error::Branch '$HEAD_REF' must be feature/<name> or bugfix/<name> (lowercase words joined by hyphens). See AGENTS.md."
+            exit 1
+          fi
+          case "$HEAD_REF" in
+            */patch|*/update|*/project-thread) echo "::error::Branch '$HEAD_REF' has a generic name. Name the task."; exit 1 ;;
+          esac

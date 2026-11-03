@@ -1,0 +1,10 @@
+build/
+.gradle/
+.idea/
+local.properties
+*.iml
+wow-addons.apk
+*.idsig
+# Signing keys stay out of the repository (see AGENTS.md).
+*.keystore
+*.jks
