@@ -134,7 +134,6 @@ abstract class Screen {
     String q(int id, int n) { return app.getResources().getQuantityString(id, n, n); }
 
     String sourceName(String src) {
-        if (Model.SRC_CURSE.equals(src)) return "CurseForge";
         if (Model.SRC_WOWI.equals(src)) return "WoWInterface";
         if (Model.SRC_ZIP.equals(src)) return s(R.string.source_zip);
         return "GitHub";

@@ -15,10 +15,10 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Each tab is a `Screen` subclass: `LibraryScreen` (installed addons), `BrowseScreen` (catalog and search), `SettingsScreen`. `SetupScreen` shows the storage permission and game folder prompts, `DetailPanel` the addon details, `GameFolder` finds and picks the game folder. `Screen.java` has the helpers they share (headers, rows, empty states).
 - `AddonManager.java` scans the AddOns folder and drives installs, updates and removes from the screens. `Updater.java` does the actual install and update without a screen, under one process-wide lock.
 - `UpdateJobService.java` is the background auto-update: a periodic `JobScheduler` job that `AutoUpdate.java` schedules from the settings and that posts the result as a notification. `UpdatePolicy.java` holds its plain-Java rules (which addons, which versions count as new).
-- `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, CurseForge (the user's own key) and WoWInterface.
+- `Index.java`, `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, searched through the nightly [runeloader-index](https://github.com/Gulliby-development/runeloader-index) `index.json` or added by link, and WoWInterface. The index is only for search: installs and update checks read the repository's release directly. CurseForge is not a source (owner's decision); do not add it back.
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
 - `Toc.java` picks the TOC file the same way the Forever client does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
-- `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. `Http.java` follows redirects by hand, so the CurseForge key goes only to CurseForge hosts.
+- `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. `Http.java` follows redirects by hand, so the GitHub token goes only to GitHub hosts.
 
 ## Task workflow
 
@@ -50,8 +50,10 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Landscape is the main layout: most players hold the device sideways, as in the game. Every screen must work in landscape at 4:3, 16:9 and 20:9, and also in portrait, by touch and by gamepad. Text must not be cut mid-word, and buttons must not leave the screen. Check all of them when you change a screen (see [Verification](#verification)).
 - Install and update addons only through `Updater`, never with a copy of its logic in a screen or the background job. Any other write to the AddOns folder (remove, ZIP install) runs inside `Updater.LOCK`, so the screens and the background job never write it at the same time. Get the store through `Store.get`, never a second `Store`.
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
-- Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check that keeps the CurseForge key on CurseForge hosts.
-- A new addon source goes into `Sources.java` with its own section in `README.md`. A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
+- Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check in `Http.java` that keeps the GitHub token on GitHub hosts.
+- A new addon source goes into `Sources.java` with its own section in `README.md`. It declares which TOC field (`X-WoWI-ID`, `X-Wago-ID`, ...) holds its id.
+- The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
+- A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
 - A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the Forever client uses. Add a case for it to `test/InstallTest.java`.
 - Keep comments short and about intent that the code does not show.
 - Do not commit build output (`build/`, `*.apk`, `*.idsig`) or `local.properties`.
@@ -70,7 +72,7 @@ The workflow needs these repository secrets (Settings, Secrets and variables, Ac
 - `SIGNING_KEYSTORE_BASE64`: the release keystore file in base64 (`base64 -w0 release.jks`).
 - `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`: the keystore password, the key alias and the key password.
 
-A new secret for the app build (for example a CurseForge key) goes into both `ci.yml` and `release.yml`, and into this list.
+A new secret for the app build (for example an API key) goes into both `ci.yml` and `release.yml`, and into this list.
 
 ## Language
 
