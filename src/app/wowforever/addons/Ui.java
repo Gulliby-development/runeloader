@@ -272,33 +272,34 @@ final class Ui {
         @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
     }
 
+    /** One decimal at most, with the UI language's decimal separator: 1.2 / 1,2. */
+    private static String decimal(double v, int maxFraction) {
+        java.text.NumberFormat f = java.text.NumberFormat.getNumberInstance(Lang.locale());
+        f.setMaximumFractionDigits(maxFraction);
+        f.setGroupingUsed(false);
+        return f.format(v);
+    }
+
     static String formatCount(long n) {
         if (n < 0) return "";
-        if (n >= 1_000_000) return String.format(java.util.Locale.US, "%.1f млн", n / 1_000_000.0).replace('.', ',');
-        if (n >= 1_000) return String.format(java.util.Locale.US, "%.1f тыс.", n / 1_000.0).replace('.', ',').replace(",0 ", " ");
+        if (n >= 1_000_000) return Lang.s(R.string.fmt_millions, decimal(n / 1_000_000.0, 1));
+        if (n >= 1_000) return Lang.s(R.string.fmt_thousands, decimal(n / 1_000.0, 1));
         return String.valueOf(n);
     }
 
     static String formatBytes(long b) {
-        if (b < 1024) return b + " Б";
-        if (b < 1024 * 1024) return String.format(java.util.Locale.US, "%.0f КБ", b / 1024.0);
-        return String.format(java.util.Locale.US, "%.1f МБ", b / (1024.0 * 1024)).replace('.', ',');
+        if (b < 1024) return Lang.s(R.string.fmt_bytes, (int) b);
+        if (b < 1024 * 1024) return Lang.s(R.string.fmt_kb, decimal(b / 1024.0, 0));
+        return Lang.s(R.string.fmt_mb, decimal(b / (1024.0 * 1024), 1));
     }
 
     static String formatDate(long ms) {
         if (ms <= 0) return "";
         long days = (System.currentTimeMillis() - ms) / (24L * 3600 * 1000);
-        if (days < 1) return "сегодня";
-        if (days == 1) return "вчера";
-        if (days < 30) return days + " " + plural(days, "день", "дня", "дней") + " назад";
-        return new java.text.SimpleDateFormat("d MMM yyyy", new java.util.Locale("ru")).format(new java.util.Date(ms));
-    }
-
-    static String plural(long n, String one, String few, String many) {
-        long m10 = n % 10, m100 = n % 100;
-        if (m10 == 1 && m100 != 11) return one;
-        if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
-        return many;
+        if (days < 1) return Lang.s(R.string.today);
+        if (days == 1) return Lang.s(R.string.yesterday);
+        if (days < 30) return Lang.q(R.plurals.days_ago, (int) days);
+        return java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Lang.locale()).format(new java.util.Date(ms));
     }
 
     static void setMatchParent(View v) {

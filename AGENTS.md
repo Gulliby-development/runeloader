@@ -74,11 +74,16 @@ A new secret for the app build (for example a CurseForge key) goes into both `ci
 
 - Write code, identifiers, comments, commit messages, issues, pull requests and these instructions in English.
 - `README.md` is in English and stays short: what the app is, how to install it from a release, how to build it.
-- The app UI is in Russian today. English becomes the main UI language, with more languages to follow; until then, keep new UI strings in the style of the existing ones.
+- The UI is localized through string resources. English in `res/values/strings.xml` is the base and the fallback; translations live in `res/values-<lang>/strings.xml` (today `de`, `es`, `fr`, `pl`, `pt`, `ru`, `zh`). By default the app follows the system language; the user can pick another one in Settings.
+  - Put no UI text in Java. Add every new string to `res/values/strings.xml` and to every `values-<lang>` file in the same pull request; lint reports a key that is missing from a language.
+  - Count words through `<plurals>` and `getQuantityString`, never by hand: Polish and Russian need `few` and `many` forms.
+  - Code outside an activity gets its text through `Lang.s()` and `Lang.q()`. `Installer.java` must also compile on a plain JVM, so its messages go through `Installer.Texts`, with an English default there and the resource in `Lang.INSTALLER`.
+  - A new language needs a `res/values-<lang>` folder and an entry in `Lang.TAGS` and `Lang.NAMES`, with the language named in itself.
+  - Side-rail labels (`nav_*_short`) must fit 68dp at 11sp: keep them to about nine Latin characters.
 
 ## Navigation
 
-- `src/app/wowforever/addons/`: all app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes).
+- `src/app/wowforever/addons/`: all app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes), `Lang.java` (UI language and localized strings outside an activity).
 - `res/`: the adaptive launcher icon and vector icons.
 - `stubs/`: lambda bootstrap stubs for `javac` with a trimmed `android.jar` (used only by `build.sh`).
 - `test/`: JVM tests for the installer, TOC and network paths.

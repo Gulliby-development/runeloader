@@ -139,7 +139,7 @@ final class AddonManager {
         if (app.checking) return;
         final List<Model.Entry> list = new ArrayList<>();
         for (Model.Entry e : app.store.list()) if (!Model.SRC_ZIP.equals(e.source)) list.add(e);
-        if (list.isEmpty()) { if (manual) app.snack("Нет аддонов, установленных через менеджер"); return; }
+        if (list.isEmpty()) { if (manual) app.snack(app.getString(R.string.no_managed_addons)); return; }
         app.checking = true;
         app.renderIfTab(MainActivity.TAB_INSTALLED);
         final AtomicInteger left = new AtomicInteger(list.size());
@@ -162,7 +162,7 @@ final class AddonManager {
                         app.store.setLastCheck(System.currentTimeMillis());
                         int n = 0;
                         for (Model.Entry x : app.store.list()) if (x.updateAvailable) n++;
-                        if (manual || n > 0) app.snack(n == 0 ? "Все аддоны актуальны" : "Доступно обновлений: " + n);
+                        if (manual || n > 0) app.snack(n == 0 ? app.getString(R.string.all_up_to_date) : app.getResources().getQuantityString(R.plurals.updates_available, n, n));
                     }
                     if (app.tab == MainActivity.TAB_INSTALLED) { app.render(); }
                 });
@@ -171,7 +171,7 @@ final class AddonManager {
     }
 
     void checkOne(final Model.Entry e) {
-        app.snack("Проверяю " + e.name + "…");
+        app.snack(app.getString(R.string.checking_one, e.name));
         MainActivity.net.execute(() -> {
             String latest = null, err = null;
             try { latest = Sources.latest(Sources.itemFor(e)).version; } catch (Exception ex) { err = MainActivity.friendly(ex); }
@@ -179,7 +179,7 @@ final class AddonManager {
             app.main.post(() -> {
                 e.checkError = fe;
                 if (fl != null) { e.latest = fl; e.updateAvailable = !sameVersion(fl, e.version); }
-                app.snack(fe != null ? fe : (e.updateAvailable ? "Доступна версия " + fl : "Установлена последняя версия"));
+                app.snack(fe != null ? fe : (e.updateAvailable ? app.getString(R.string.version_available, fl) : app.getString(R.string.latest_installed)));
                 if (app.tab == MainActivity.TAB_INSTALLED) app.render();
             });
         });
@@ -194,8 +194,8 @@ final class AddonManager {
     boolean requireGame() {
         if (!app.hasStorageAccess()) { app.requestStorage(); return false; }
         if (!app.store.gameReady()) {
-            app.confirm("Папка игры не выбрана", "Укажите, где установлен WoW Forever, чтобы приложение знало, куда ставить аддоны.",
-                    "Выбрать папку", app.gameFolder::openFolderPicker);
+            app.confirm(app.getString(R.string.game_not_set), app.getString(R.string.game_not_set_dialog),
+                    app.getString(R.string.game_pick_folder), app.gameFolder::openFolderPicker);
             return false;
         }
         return true;
@@ -208,13 +208,13 @@ final class AddonManager {
     void updateAll() {
         int n = 0;
         for (Model.Entry e : app.store.list()) if (e.updateAvailable && !app.busy.containsKey(e.key)) { update(e); n++; }
-        if (n > 0) app.snack("Обновляю: " + n);
+        if (n > 0) app.snack(app.getString(R.string.updating_n, n));
     }
 
     void install(final Model.Item item, final Runnable after) {
         if (!requireGame()) return;
         if (app.busy.containsKey(item.key())) return;
-        app.busy.put(item.key(), "В очереди…");
+        app.busy.put(item.key(), app.getString(R.string.queued));
         queued.incrementAndGet();
         updateProgressCard();
         app.refreshList();
@@ -235,10 +235,9 @@ final class AddonManager {
                 queued.decrementAndGet();
                 updateProgressCard();
                 if (fe != null) {
-                    app.confirm("Не удалось установить " + item.name, fe, null, null);
+                    app.confirm(app.getString(R.string.install_failed, item.name), fe, null, null);
                 } else {
-                    app.snack((installedNames.size() > 1 ? "Установлено: " + String.join(", ", installedNames) : "Установлено: " + item.name)
-                            + ". Если игра запущена — введите /reload");
+                    app.snack(app.getString(R.string.installed_names, installedNames.size() > 1 ? String.join(", ", installedNames) : item.name));
                 }
                 rescan();
                 app.refreshList();
@@ -251,7 +250,7 @@ final class AddonManager {
     /** Runs on the ops thread. */
     private void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth) throws IOException {
         if (!seen.add(item.key()) || depth > 4) return;
-        progress(item, "Поиск сборки для Forever…", -1);
+        progress(item, app.getString(R.string.finding_build), -1);
         Model.Release rel = Sources.latest(item);
         // dependencies first
         List<Model.Item> deps = new ArrayList<>(rel.deps);
@@ -267,13 +266,13 @@ final class AddonManager {
         dl.mkdirs();
         File zip = new File(dl, safeName(rel.fileName == null ? item.name + ".zip" : rel.fileName));
         final Model.Item fItem = item;
-        progress(item, "Загрузка " + (rel.version == null ? "" : rel.version), 0);
-        Http.download(rel.url, rel.headers, zip, (d, t) -> progress(fItem, "Загрузка " + Ui.formatBytes(d) + (t > 0 ? " из " + Ui.formatBytes(t) : ""), t > 0 ? (float) d / t : -1));
+        progress(item, app.getString(R.string.downloading, rel.version == null ? "" : rel.version), 0);
+        Http.download(rel.url, rel.headers, zip, (d, t) -> progress(fItem, t > 0 ? app.getString(R.string.downloading_of, Ui.formatBytes(d), Ui.formatBytes(t)) : app.getString(R.string.downloading, Ui.formatBytes(d)), t > 0 ? (float) d / t : -1));
         if (rel.md5 != null && rel.md5.length() == 32) {
             String got = Installer.md5(zip);
-            if (!got.equalsIgnoreCase(rel.md5)) { zip.delete(); throw new IOException("Файл повреждён при загрузке (MD5 не совпал). Попробуйте ещё раз."); }
+            if (!got.equalsIgnoreCase(rel.md5)) { zip.delete(); throw new IOException(app.getString(R.string.md5_mismatch)); }
         }
-        progress(item, "Распаковка…", -1);
+        progress(item, app.getString(R.string.unpacking), -1);
         Model.Entry old = app.store.entry(item.key());
         List<String> folders = Installer.install(zip, addons, text -> progress(fItem, text, -1));
         zip.delete();
@@ -323,7 +322,7 @@ final class AddonManager {
         app.main.post(() -> {
             if (!app.busy.containsKey(item.key())) return;
             app.busy.put(item.key(), text);
-            app.progressTitle.setText(item.name + (queued.get() > 1 ? "  ·  ещё " + (queued.get() - 1) + " в очереди" : ""));
+            app.progressTitle.setText(item.name + (queued.get() > 1 ? "  ·  " + app.getString(R.string.more_queued, queued.get() - 1) : ""));
             app.progressText.setText(text);
             if (fraction < 0) app.progressBar.setIndeterminate(true);
             else { app.progressBar.setIndeterminate(false); app.progressBar.setProgress((int) (fraction * 1000)); }
@@ -336,9 +335,9 @@ final class AddonManager {
         if (app.busy.isEmpty()) { app.progressCard.setVisibility(View.GONE); return; }
         app.progressCard.setVisibility(View.VISIBLE);
         Map.Entry<String, String> first = null;
-        for (Map.Entry<String, String> en : app.busy.entrySet()) { if (!"В очереди…".equals(en.getValue())) { first = en; break; } }
+        for (Map.Entry<String, String> en : app.busy.entrySet()) { if (!app.getString(R.string.queued).equals(en.getValue())) { first = en; break; } }
         if (first == null) first = app.busy.entrySet().iterator().next();
-        app.progressTitle.setText(nameOfKey(first.getKey()) + (app.busy.size() > 1 ? "  ·  ещё " + (app.busy.size() - 1) + " в очереди" : ""));
+        app.progressTitle.setText(nameOfKey(first.getKey()) + (app.busy.size() > 1 ? "  ·  " + app.getString(R.string.more_queued, app.busy.size() - 1) : ""));
         app.progressText.setText(first.getValue());
         app.progressBar.setIndeterminate(true);
     }
@@ -353,11 +352,11 @@ final class AddonManager {
     }
 
     void adoptCurse(final String id, final Model.Installed r) {
-        app.snack("Ищу на CurseForge…");
+        app.snack(app.getString(R.string.searching_curse));
         MainActivity.net.execute(() -> {
             try {
                 final Model.Item it = Sources.Curse.mod(id);
-                if (it == null) throw new IOException("Аддон не найден на CurseForge");
+                if (it == null) throw new IOException(app.getString(R.string.curse_addon_not_found));
                 app.main.post(() -> install(it, null));
             } catch (Exception e) {
                 final String m = MainActivity.friendly(e);
@@ -380,11 +379,11 @@ final class AddonManager {
         final List<String> folders = new ArrayList<>();
         for (Model.LocalAddon a : r.folders) folders.add(a.folder);
         if (r.entry != null) for (String f : r.entry.folders) if (!containsIgnoreCase(folders, f)) folders.add(f);
-        app.confirm("Удалить " + r.title + "?", "Будут удалены папки: " + DetailPanel.joinShort(folders, 10) + ".\nНастройки аддона в WTF останутся.", "Удалить", () -> {
+        app.confirm(app.getString(R.string.remove_title, r.title), app.getString(R.string.remove_text, DetailPanel.joinShort(folders, 10)), app.getString(R.string.action_remove), () -> {
             final File addons = app.store.addonsDir();
             app.selected = null;
             if (!app.layout.docked) app.detail.closeDetailSheet(); else app.detail.renderDetail();
-            app.snack("Удаляю " + r.title + "…");
+            app.snack(app.getString(R.string.removing, r.title));
             MainActivity.ops.execute(() -> {
                 String err = null;
                 try {
@@ -396,7 +395,7 @@ final class AddonManager {
                 final String fe = err;
                 app.main.post(() -> {
                     if (app.isDestroyed()) return;
-                    app.snack(fe != null ? fe : "Удалено: " + r.title);
+                    app.snack(fe != null ? fe : app.getString(R.string.removed, r.title));
                     rescan();
                 });
             });
@@ -414,7 +413,7 @@ final class AddonManager {
         final String name = displayName(uri);
         final String key = "zip:" + name;
         if (app.busy.containsKey(key)) return;
-        app.busy.put(key, "Копирование…");
+        app.busy.put(key, app.getString(R.string.copying));
         queued.incrementAndGet();
         updateProgressCard();
         final File addons = app.store.addonsDir();
@@ -426,7 +425,7 @@ final class AddonManager {
                 dl.mkdirs();
                 File zip = new File(dl, safeName(name));
                 InputStream in = app.getContentResolver().openInputStream(uri);
-                if (in == null) throw new IOException("Не удалось открыть файл");
+                if (in == null) throw new IOException(app.getString(R.string.cannot_open_file));
                 OutputStream out = new FileOutputStream(zip);
                 try {
                     byte[] buf = new byte[64 * 1024];
@@ -454,8 +453,8 @@ final class AddonManager {
                 app.busy.remove(key);
                 queued.decrementAndGet();
                 updateProgressCard();
-                if (fe != null) app.confirm("Не удалось установить ZIP", fe, null, null);
-                else app.snack("Установлено из ZIP: " + DetailPanel.joinShort(ff, 4));
+                if (fe != null) app.confirm(app.getString(R.string.zip_install_failed), fe, null, null);
+                else app.snack(app.getString(R.string.zip_installed, DetailPanel.joinShort(ff, 4)));
                 rescan();
             });
         });
