@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="nav_installed">Addons</string>
+    <string name="nav_browse">Katalog</string>
+    <string name="nav_settings">Optionen</string>
     <string name="app_tagline">Addon-Manager für WoW Forever</string>
-
-    <string name="nav_installed_short">Meine</string>
-    <string name="nav_browse_short">Katalog</string>
-    <string name="nav_settings_short">Optionen</string>
-    <string name="nav_installed">Meine Addons</string>
-    <string name="nav_browse">Entdecken</string>
-    <string name="nav_settings">Einstellungen</string>
 
     <string name="perm_title">Dateizugriff nötig</string>
     <string name="perm_text">Um Addons in den Spielordner zu installieren, braucht die App den \"Zugriff auf alle Dateien\", genau wie der WoW-Forever-Client selbst.</string>

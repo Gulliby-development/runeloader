@@ -67,6 +67,7 @@ final class GameFolder extends Screen {
         // quick roots
         HorizontalScrollView hs = new HorizontalScrollView(app);
         hs.setHorizontalScrollBarEnabled(false);
+        Ui.scrollHint(hs);
         LinearLayout roots = Ui.hbox(app);
         List<File> vols = new ArrayList<>();
         vols.add(Environment.getExternalStorageDirectory());

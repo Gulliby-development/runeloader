@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- English: the base language and the fallback. Every key here must exist in each values-<lang>/strings.xml. -->
 <resources>
-    <string name="app_name" translatable="false">Runeloader</string>
-    <string name="app_tagline">Addon manager for WoW Forever</string>
-
-    <!-- Navigation: *_short labels sit in the 68dp side rail, keep them to about 9 characters. -->
-    <string name="nav_installed_short">Mine</string>
-    <string name="nav_browse_short">Browse</string>
-    <string name="nav_settings_short">Settings</string>
-    <string name="nav_installed">My addons</string>
+    <!-- Tab names, the same in the rail and the bottom bar. The rail item is 68dp at 11sp: about nine Latin characters. -->
+    <string name="nav_installed">Addons</string>
     <string name="nav_browse">Browse</string>
     <string name="nav_settings">Settings</string>
+    <string name="app_name" translatable="false">Runeloader</string>
+    <string name="app_tagline">Addon manager for WoW Forever</string>
 
     <!-- Storage permission and game folder -->
     <string name="perm_title">File access needed</string>
