@@ -103,6 +103,17 @@
     <string name="info_installed">已安装</string>
     <string name="info_version">版本</string>
     <string name="info_category">分类</string>
+    <string name="info_stars">星标</string>
+    <string name="detail_description">简介</string>
+    <string name="detail_screenshots">截图</string>
+    <string name="detail_screenshot_n">截图 %1$d</string>
+    <string name="detail_whats_new">更新内容</string>
+    <string name="detail_whats_new_in">%1$s 更新内容</string>
+    <string name="detail_versions">版本</string>
+    <string name="detail_all_releases">全部发布</string>
+    <string name="pill_beta">测试版</string>
+    <string name="show_more">展开</string>
+    <string name="show_less">收起</string>
     <string name="info_downloads">下载量</string>
     <string name="info_updated">更新于</string>
     <string name="info_folders">文件夹</string>

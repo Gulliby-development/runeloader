@@ -145,30 +145,46 @@ final class AddonManager {
         app.checking = true;
         app.renderIfTab(MainActivity.TAB_INSTALLED);
         final AtomicInteger left = new AtomicInteger(list.size());
-        for (final Model.Entry e : list) {
-            MainActivity.net.execute(() -> {
-                String latest = null, err = null;
-                try {
-                    latest = Updater.latestVersion(e);
-                } catch (Exception ex) {
-                    err = MainActivity.friendly(ex);
+        MainActivity.net.execute(() -> {
+            // One index download answers every GitHub addon it lists; the rest are asked one by one.
+            Map<String, Model.Item> index = Updater.indexByKey(manual);
+            for (final Model.Entry e : list) {
+                final Model.Item ix = Updater.indexHit(index, e);
+                if (ix != null) {
+                    app.main.post(() -> finishCheck(e, ix.version, ix.changelog, null, left, manual));
+                    continue;
                 }
-                final String fl = latest, fe = err;
-                app.main.post(() -> {
-                    if (app.isDestroyed()) return;
-                    e.checkError = fe;
-                    if (fl != null) { e.latest = fl; e.updateAvailable = !sameVersion(fl, e.version); }
-                    if (left.decrementAndGet() == 0) {
-                        app.checking = false;
-                        app.store.setLastCheck(System.currentTimeMillis());
-                        int n = 0;
-                        for (Model.Entry x : app.store.list()) if (x.updateAvailable) n++;
-                        if (manual || n > 0) app.snack(n == 0 ? app.getString(R.string.all_up_to_date) : app.getResources().getQuantityString(R.plurals.updates_available, n, n));
+                MainActivity.net.execute(() -> {
+                    String latest = null, err = null;
+                    try {
+                        latest = Updater.latestVersion(e);
+                    } catch (Exception ex) {
+                        err = MainActivity.friendly(ex);
                     }
-                    if (app.tab == MainActivity.TAB_INSTALLED) { app.render(); }
+                    final String fl = latest, fe = err;
+                    app.main.post(() -> finishCheck(e, fl, null, fe, left, manual));
                 });
-            });
+            }
+        });
+    }
+
+    private void finishCheck(Model.Entry e, String latest, String changelog, String err, AtomicInteger left, boolean manual) {
+        if (app.isDestroyed()) return;
+        e.checkError = err;
+        if (latest != null) {
+            if (!latest.equals(e.latest)) e.changelog = null;
+            e.latest = latest;
+            e.updateAvailable = !sameVersion(latest, e.version);
+            if (changelog != null && !changelog.isEmpty()) e.changelog = changelog;
         }
+        if (left.decrementAndGet() == 0) {
+            app.checking = false;
+            app.store.setLastCheck(System.currentTimeMillis());
+            int n = 0;
+            for (Model.Entry x : app.store.list()) if (x.updateAvailable) n++;
+            if (manual || n > 0) app.snack(n == 0 ? app.getString(R.string.all_up_to_date) : app.getResources().getQuantityString(R.plurals.updates_available, n, n));
+        }
+        if (app.tab == MainActivity.TAB_INSTALLED) app.render();
     }
 
     void checkOne(final Model.Entry e) {

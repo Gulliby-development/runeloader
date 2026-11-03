@@ -29,6 +29,12 @@ final class Model {
         List<String> folders = new ArrayList<>();   // known AddOns folders (to recognise manual installs)
         List<String> deps = new ArrayList<>();      // required items, as "source:id"
         String note;          // a Forever caveat to show
+        // From the GitHub index (#26-#28); empty when the source has no such data.
+        String description = "";
+        List<String> screenshots = new ArrayList<>();
+        long stars = -1;
+        String changelog = "";                        // notes of the latest release
+        List<Release> releases = new ArrayList<>();   // newest first
 
         String key() { return source + ":" + id; }
     }
@@ -43,6 +49,12 @@ final class Model {
         boolean guessed;      // flavor picked from the file name, not from metadata
         List<Item> deps = new ArrayList<>();
         String changelogUrl;
+        // Index metadata, informational only: installs resolve the asset from GitHub directly.
+        String tag;
+        long released;        // epoch millis
+        boolean prerelease;
+        long size = -1;
+        String changelog = "";
     }
 
     /** One addon this app installed (persisted). */
@@ -62,6 +74,7 @@ final class Model {
         String latest;
         boolean updateAvailable;
         String checkError;
+        String changelog;     // notes of the latest release, when the index has them
     }
 
     /** One folder found in Interface/AddOns. */
