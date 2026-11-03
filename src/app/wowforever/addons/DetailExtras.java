@@ -1,5 +1,11 @@
 package app.wowforever.addons;
 
+import android.graphics.Typeface;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.HorizontalScrollView;
@@ -56,7 +62,7 @@ final class DetailExtras {
         card.setPadding(Ui.dp(12), Ui.dp(10), Ui.dp(12), Ui.dp(10));
         String title = version == null || version.isEmpty() ? app.getString(R.string.detail_whats_new) : app.getString(R.string.detail_whats_new_in, shortVer(version));
         card.addView(Ui.oneLine(Ui.text(app, title, 13.5f, isUpdate ? Ui.ACCENT : Ui.TEXT, Ui.MEDIUM)), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 6));
-        expandable(app, card, text, Ui.TEXT2);
+        expandable(app, card, styled(Markdown.render(text)), Ui.TEXT2);
         col.addView(card, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 14));
     }
 
@@ -98,11 +104,12 @@ final class DetailExtras {
         return row;
     }
 
-    private static void expandable(MainActivity app, LinearLayout parent, final String text, int color) {
-        final TextView t = Ui.text(app, text, 13, color, Ui.REGULAR);
+    private static void expandable(MainActivity app, LinearLayout parent, final CharSequence text, int color) {
+        final TextView t = Ui.text(app, "", 13, color, Ui.REGULAR);
+        t.setText(text);
         parent.addView(t, Ui.lp(-1, -2));
         if (text.length() <= COLLAPSED_CHARS) return;
-        final String shortText = cut(text);
+        final CharSequence shortText = cut(text);
         t.setText(shortText);
         final TextView more = Ui.text(app, app.getString(R.string.show_more), 13, Ui.ACCENT, Ui.MEDIUM);
         more.setPadding(0, Ui.dp(8), Ui.dp(8), Ui.dp(4));
@@ -120,11 +127,29 @@ final class DetailExtras {
         parent.addView(more, Ui.lp(-2, -2));
     }
 
-    private static String cut(String s) {
-        int nl = s.lastIndexOf('\n', COLLAPSED_CHARS);
-        int sp = s.lastIndexOf(' ', COLLAPSED_CHARS);
+    private static CharSequence cut(CharSequence s) {
+        String str = s.toString();
+        int nl = str.lastIndexOf('\n', COLLAPSED_CHARS);
+        int sp = str.lastIndexOf(' ', COLLAPSED_CHARS);
         int at = nl > COLLAPSED_CHARS / 2 ? nl : (sp > COLLAPSED_CHARS / 2 ? sp : COLLAPSED_CHARS);
-        return s.substring(0, at).trim() + "…";
+        int end = at;
+        while (end > 0 && Character.isWhitespace(str.charAt(end - 1))) end--;
+        return new SpannableStringBuilder(s.subSequence(0, end)).append("…");
+    }
+
+    /** Release notes with their headings and bold text styled. */
+    static CharSequence styled(Markdown.Doc d) {
+        SpannableStringBuilder sb = new SpannableStringBuilder(d.text);
+        for (int[] r : d.headings) {
+            if (r[0] >= r[1]) continue;
+            sb.setSpan(new StyleSpan(Typeface.BOLD), r[0], r[1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sb.setSpan(new ForegroundColorSpan(Ui.TEXT), r[0], r[1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sb.setSpan(new RelativeSizeSpan(1.08f), r[0], r[1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        for (int[] r : d.bold) {
+            if (r[0] < r[1]) sb.setSpan(new StyleSpan(Typeface.BOLD), r[0], r[1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return sb;
     }
 
     private static TextView sectionTitle(MainActivity app, String s) {
