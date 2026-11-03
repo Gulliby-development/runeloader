@@ -57,20 +57,13 @@
 
     <string name="browse_title">浏览插件</string>
     <string name="browse_subtitle">仅限 WoW Forever 版本 · 界面 %1$s</string>
-    <string name="browse_src_catalog">Forever 目录</string>
     <string name="browse_hint_github">搜索，或粘贴 github.com/owner/repo 链接</string>
-    <string name="browse_hint_search">搜索插件…</string>
-    <string name="browse_cat_all">全部</string>
     <string name="browse_set_folder">设置文件夹</string>
-    <string name="browse_source">来源</string>
     <string name="browse_no_game">未设置游戏文件夹，无法安装。</string>
     <string name="load_failed">加载失败</string>
     <string name="action_retry">重试</string>
-    <string name="github_empty_title">不在 GitHub 索引中</string>
     <string name="github_empty_text">换个名称试试，或粘贴仓库链接，例如 github.com/Questie/Questie：将从其 release.json 中选择 Forever 版本。</string>
     <string name="nothing_found">未找到结果</string>
-    <string name="nothing_found_text">换个关键词试试。</string>
-    <string name="wowi_note">WoWInterface 不标注 Forever 版本。安装后应用会检查 TOC，若插件不适用于 Forever 会提醒你。</string>
 
     <string name="settings_title">设置</string>
     <string name="settings_version">%1$s %2$s</string>
