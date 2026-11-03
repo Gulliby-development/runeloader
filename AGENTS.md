@@ -45,6 +45,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Never commit a signing key or its passwords. A release build gets the key from the `SIGNING_KEYSTORE`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS` and `SIGNING_KEY_PASSWORD` environment variables (CI secrets, see [Releases](#releases)); without them, both build paths sign with a debug key. Only the release key makes an APK that installs over a published one.
 - Build the UI in code through the helpers in `Ui.java` (palette, buttons, pills, icons). Do not add XML layouts.
 - Put a new screen in its own `Screen` subclass, and work that changes addons on disk in `AddonManager`. Keep `MainActivity` to the shell and the state that screens share.
+- Layout decisions come from `LayoutSpec` (window size in dp): rail or bottom bar, a docked detail panel or a sheet, compact headers on low screens. Screens read `app.layout` instead of comparing width and height themselves. When you change its thresholds, update `test/LayoutSpecTest.java`.
 - Landscape is the main layout: most players hold the device sideways, as in the game. Every screen must work in landscape at 4:3, 16:9 and 20:9, and also in portrait, by touch and by gamepad. Text must not be cut mid-word, and buttons must not leave the screen. Check all of them when you change a screen (see [Verification](#verification)).
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check that keeps the CurseForge key on CurseForge hosts.
@@ -91,6 +92,13 @@ CI runs these on every pull request to `main`. Run them before you open one:
 ```sh
 ./gradlew assembleDebug assembleRelease lint
 ANDROID_HOME=<sdk> ./build.sh
+```
+
+When you change `LayoutSpec.java`, run its test:
+
+```sh
+mkdir -p /tmp/l && javac -d /tmp/l src/app/wowforever/addons/LayoutSpec.java test/LayoutSpecTest.java
+java -cp /tmp/l app.wowforever.addons.LayoutSpecTest
 ```
 
 When you change `Installer.java`, `Toc.java` or `Model.java`, also run the installer test on real addon zips:

@@ -383,7 +383,7 @@ final class AddonManager {
         app.confirm("Удалить " + r.title + "?", "Будут удалены папки: " + DetailPanel.joinShort(folders, 10) + ".\nНастройки аддона в WTF останутся.", "Удалить", () -> {
             final File addons = app.store.addonsDir();
             app.selected = null;
-            if (!app.landscape) app.detail.closePortraitDetail(); else app.detail.renderDetail();
+            if (!app.layout.docked) app.detail.closeDetailSheet(); else app.detail.renderDetail();
             app.snack("Удаляю " + r.title + "…");
             MainActivity.ops.execute(() -> {
                 String err = null;

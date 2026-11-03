@@ -309,7 +309,7 @@ final class BrowseScreen extends Screen {
                     base.addAll(fGot);
                     app.results.put(src, base);
                     hasMore.put(src, fMore);
-                    if (src == MainActivity.SRC_GITHUB && fGot.size() == 1 && app.landscape) app.selected = fGot.get(0);
+                    if (src == MainActivity.SRC_GITHUB && fGot.size() == 1 && app.layout.docked) app.selected = fGot.get(0);
                 }
                 if (app.tab == MainActivity.TAB_BROWSE && source == src) {
                     if (more && app.currentAdapter != null && fErr == null) {
