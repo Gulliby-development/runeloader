@@ -2,6 +2,7 @@ package app.wowforever.addons;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -10,7 +11,8 @@ import java.util.Set;
 /**
  * One addon search over every source: the GitHub index, catalog entries the index does not list yet,
  * then WoWInterface. The order here is the source preference: GitHub first, WoWInterface only for
- * addons GitHub does not have (matched by folder or name).
+ * addons GitHub does not have (matched by folder or name). An empty query lists every addon by
+ * {@link Popularity}.
  */
 final class Search {
 
@@ -49,6 +51,8 @@ final class Search {
                 p.warning = MainActivity.friendly(e);
             }
         }
+        // Without a query the list is the most popular addons; a query keeps its relevance order.
+        if (q.isEmpty()) Collections.sort(all, Popularity.ORDER);
         if (indexError != null) {
             if (all.isEmpty()) throw indexError;
             if (p.warning == null) p.warning = MainActivity.friendly(indexError);

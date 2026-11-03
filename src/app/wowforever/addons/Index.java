@@ -101,7 +101,6 @@ final class Index {
         List<Model.Item> out = new ArrayList<>();
         Map<String, JSONObject> repos = new HashMap<>();
         Map<String, Model.Item> folders = new HashMap<>();
-        final Map<Model.Item, Long> stars = new HashMap<>();
         if (arr != null) for (int i = 0; i < arr.length(); i++) {
             JSONObject a = arr.optJSONObject(i);
             Model.Item it = toItem(a);
@@ -112,9 +111,8 @@ final class Index {
                 String k = d.toLowerCase(Locale.ROOT);
                 if (!folders.containsKey(k)) folders.put(k, it);
             }
-            stars.put(it, a.optLong("stars", 0));
         }
-        Collections.sort(out, (x, y) -> Long.compare(stars.get(y), stars.get(x)));
+        Collections.sort(out, Popularity.ORDER);
         items = out;
         byRepo = repos;
         byFolder = folders;

@@ -53,6 +53,12 @@ jobs:
           javac -d /tmp/u src/app/wowforever/addons/{Model,UpdatePolicy}.java test/UpdatePolicyTest.java
           java -cp /tmp/u app.wowforever.addons.UpdatePolicyTest
 
+      - name: Popularity order
+        run: |
+          mkdir -p /tmp/p
+          javac -d /tmp/p src/app/wowforever/addons/{Model,Popularity}.java test/PopularityTest.java
+          java -cp /tmp/p app.wowforever.addons.PopularityTest
+
       - name: Release notes Markdown
         run: |
           mkdir -p /tmp/m
