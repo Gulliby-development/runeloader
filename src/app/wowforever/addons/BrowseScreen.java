@@ -95,7 +95,9 @@ final class BrowseScreen extends Screen {
         app.searchField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
         app.searchField.setTextColor(Ui.TEXT);
         app.searchField.setHintTextColor(Ui.TEXT3);
-        app.searchField.setHint(s(R.string.browse_hint_github));
+        app.searchField.setId(View.generateViewId());
+        // Inside a category the back button takes width: a short hint keeps it whole at 4:3.
+        app.searchField.setHint(s(categoriesMode && category != null ? R.string.browse_hint_category : R.string.browse_hint_github));
         app.searchField.setText(query);
         app.searchField.setSelection(app.searchField.getText().length());
         app.searchField.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN);
@@ -202,7 +204,10 @@ final class BrowseScreen extends Screen {
                 row.setBaselineAligned(false);
                 col.addView(row, Ui.margins(Ui.lp(-1, -2), 0, i == 0 ? 0 : 8, 0, 0));
             }
-            row.addView(categoryTile(keys[i]), Ui.margins(Ui.lpw(0, -2, 1), i % cols == 0 ? 0 : 8, 0, 0, 0));
+            View tile = categoryTile(keys[i]);
+            // DPAD Up from the first row goes to the search field, not past it to the switch.
+            if (i < cols && app.searchField != null) tile.setNextFocusUpId(app.searchField.getId());
+            row.addView(tile, Ui.margins(Ui.lpw(0, -2, 1), i % cols == 0 ? 0 : 8, 0, 0, 0));
         }
         // Keep the last row's tiles the same width as the others.
         for (int i = keys.length % cols; i > 0 && i < cols; i++)
