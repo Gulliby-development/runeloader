@@ -50,7 +50,6 @@ public class MainActivity extends Activity {
     final GameFolder gameFolder = new GameFolder(this);
 
     static final int TAB_INSTALLED = 0, TAB_BROWSE = 1, TAB_SETTINGS = 2;
-    static final int SRC_GITHUB = 0, SRC_CATALOG = 1, SRC_WOWI = 2;
     private static final int REQ_ZIP = 41, REQ_PERM = 42;
     static final int REQ_NOTIFY = 43;
 

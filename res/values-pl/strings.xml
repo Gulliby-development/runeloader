@@ -56,20 +56,13 @@
 
     <string name="browse_title">Przeglądaj dodatki</string>
     <string name="browse_subtitle">Tylko wersje dla WoW Forever · interfejs %1$s</string>
-    <string name="browse_src_catalog">Katalog Forever</string>
     <string name="browse_hint_github">Szukaj lub wklej link github.com/owner/repo</string>
-    <string name="browse_hint_search">Szukaj dodatków…</string>
-    <string name="browse_cat_all">Wszystkie</string>
     <string name="browse_set_folder">Ustaw folder</string>
-    <string name="browse_source">Źródło</string>
     <string name="browse_no_game">Nie ustawiono folderu gry. Instalacja wyłączona.</string>
     <string name="load_failed">Nie udało się wczytać</string>
     <string name="action_retry">Ponów</string>
-    <string name="github_empty_title">Brak w indeksie GitHub</string>
     <string name="github_empty_text">Spróbuj innej nazwy albo wklej link do repozytorium, na przykład github.com/Questie/Questie: wersja dla Forever zostanie wybrana z jego release.json.</string>
     <string name="nothing_found">Nic nie znaleziono</string>
-    <string name="nothing_found_text">Spróbuj innego zapytania.</string>
-    <string name="wowi_note">WoWInterface nie oznacza wersji dla Forever. Po instalacji aplikacja sprawdzi TOC i ostrzeże, jeśli dodatek nie jest dla Forever.</string>
 
     <string name="settings_title">Ustawienia</string>
     <string name="settings_version">%1$s %2$s</string>

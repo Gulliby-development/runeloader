@@ -56,20 +56,13 @@
 
     <string name="browse_title">Обзор аддонов</string>
     <string name="browse_subtitle">Только сборки для WoW Forever · интерфейс %1$s</string>
-    <string name="browse_src_catalog">Forever-каталог</string>
     <string name="browse_hint_github">Поиск или ссылка github.com/owner/repo</string>
-    <string name="browse_hint_search">Поиск аддонов…</string>
-    <string name="browse_cat_all">Все</string>
     <string name="browse_set_folder">Выбрать папку</string>
-    <string name="browse_source">Источник</string>
     <string name="browse_no_game">Папка игры не выбрана. Установка недоступна.</string>
     <string name="load_failed">Не удалось загрузить</string>
     <string name="action_retry">Повторить</string>
-    <string name="github_empty_title">Нет в индексе GitHub</string>
     <string name="github_empty_text">Попробуйте другое название или вставьте ссылку на репозиторий, например github.com/Questie/Questie: сборка для Forever будет выбрана из его release.json.</string>
     <string name="nothing_found">Ничего не найдено</string>
-    <string name="nothing_found_text">Попробуйте другой запрос.</string>
-    <string name="wowi_note">WoWInterface не помечает версии для Forever — после установки приложение проверит TOC и предупредит, если аддон не для Forever.</string>
 
     <string name="settings_title">Настройки</string>
     <string name="settings_version">%1$s %2$s</string>

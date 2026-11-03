@@ -57,20 +57,13 @@
 
     <string name="browse_title">Explorar addons</string>
     <string name="browse_subtitle">Somente versões para WoW Forever · interface %1$s</string>
-    <string name="browse_src_catalog">Catálogo Forever</string>
     <string name="browse_hint_github">Pesquise ou cole um link github.com/owner/repo</string>
-    <string name="browse_hint_search">Buscar addons…</string>
-    <string name="browse_cat_all">Todos</string>
     <string name="browse_set_folder">Definir pasta</string>
-    <string name="browse_source">Fonte</string>
     <string name="browse_no_game">Pasta do jogo não definida. Instalação desativada.</string>
     <string name="load_failed">Não foi possível carregar</string>
     <string name="action_retry">Tentar de novo</string>
-    <string name="github_empty_title">Não está no índice do GitHub</string>
     <string name="github_empty_text">Tente outro nome ou cole o link de um repositório, por exemplo github.com/Questie/Questie: a versão para Forever é escolhida no release.json dele.</string>
     <string name="nothing_found">Nada encontrado</string>
-    <string name="nothing_found_text">Tente outra busca.</string>
-    <string name="wowi_note">O WoWInterface não marca as versões para Forever. Após a instalação, o app verifica o TOC e avisa se o addon não for para Forever.</string>
 
     <string name="settings_title">Configurações</string>
     <string name="settings_version">%1$s %2$s</string>
