@@ -18,12 +18,12 @@ Read the code at the point of failure until you can say in one sentence which ru
 Search current `main` for each kind of sibling below. Search for the method, the constant, the error text and the field names involved.
 
 - **Copies of the computation.** Other places that compute the same thing their own way instead of through one helper.
-- **Addon sources.** GitHub releases, the Forever catalog, CurseForge and WoWInterface (`Sources.java`, `Catalog.java`). A bug in one source's parsing, paging, version compare or download often exists in the others.
+- **Addon sources.** GitHub releases through the index, the Forever catalog or a link, and WoWInterface (`Index.java`, `Sources.java`, `Catalog.java`). A bug in one source's parsing, paging, version compare or download often exists in the others.
 - **Install paths.** Fresh install, update, reinstall, delete, and an addon the user installed by hand (`Installer.java`, `Store.java`).
 - **TOC variants.** `_Forever`, `_Camelot`, `_Mainline` and the base `.toc` (`Toc.java`).
 - **Screens and input.** The installed, browse and settings tabs, the list and the detail panel, portrait and landscape, touch and gamepad (`MainActivity.java`, `Ui.java`).
 - **Storage.** The app's own files and the copy in `_forever_/Interface/wow-addons.json`, and folders with and without the "all files" access.
-- **Network.** Redirects, timeouts, no network, a server error, and the host check for the CurseForge key (`Http.java`, `ImageLoader.java`).
+- **Network.** Redirects, timeouts, no network, a server error, and the host check for the GitHub token (`Http.java`, `ImageLoader.java`).
 - **Android versions.** API 29 (scoped storage starts) up to 35. Check code that branches on `Build.VERSION.SDK_INT`.
 - **Build paths.** Gradle and `build.sh`, when the bug is in the version, the manifest, resources or signing.
 - **Edge cases of earlier fixes.** Check `git log -S<symbol>` and recent `bugfix/` merges on the same code for an off-by-one, an empty list or a first-match-wins lookup.

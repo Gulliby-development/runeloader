@@ -25,29 +25,28 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/** The browse tab: catalog, CurseForge, WoWInterface and GitHub search. */
+/** The browse tab: GitHub index search, the Forever catalog and WoWInterface. */
 final class BrowseScreen extends Screen {
 
-    int source = MainActivity.SRC_CATALOG;
-    private final String[] queries = {"", "", "", ""};
+    int source = MainActivity.SRC_GITHUB;
+    private final String[] queries = {"", "", ""};
     private String catalogCategory = null;
     private final Map<Integer, String> resultErrors = new HashMap<>();
     private final Set<Integer> loading = new HashSet<>();
     private final Map<Integer, Boolean> hasMore = new HashMap<>();
-    private final int[] searchGen = new int[4];
+    private final int[] searchGen = new int[3];
     private Runnable pendingSearch;
 
     BrowseScreen(MainActivity app) { super(app); }
 
-    private static final int[] SOURCE_ICONS = {R.drawable.ic_star, R.drawable.ic_download, R.drawable.ic_apps, R.drawable.ic_link};
-    /** At this list width the four sources fit as a segmented control; below it, a picker next to search. */
+    private static final int[] SOURCE_ICONS = {R.drawable.ic_link, R.drawable.ic_star, R.drawable.ic_apps};
+    /** At this list width the sources fit as a segmented control; below it, a picker next to search. */
     private static final int SEGMENTED_DP = 560;
     /** Below this list width the row actions drop their labels. */
     private static final int ROW_LABELS_DP = 480;
 
     private String sourceLabel(int i) {
         switch (i) {
-            case MainActivity.SRC_CURSE: return "CurseForge";
             case MainActivity.SRC_WOWI: return "WoWInterface";
             case MainActivity.SRC_GITHUB: return "GitHub";
             default: return s(R.string.browse_src_catalog);
@@ -62,11 +61,14 @@ final class BrowseScreen extends Screen {
         ensureResults(false);
     }
 
+    /** Below this list width the subtitle gets its own line, as on 4:3. */
+    private static final int INLINE_SUBTITLE_DP = 600;
+
     private int gutter() { return app.landscape ? 20 : 16; }
 
-    /** Header with the title and subtitle on one line when the window is low. */
+    /** Header with the title and subtitle on one line when the window is low and wide enough. */
     private LinearLayout browseHeader(String title, String subtitle) {
-        if (!app.layout.compactHeight) return header(title, subtitle);
+        if (!app.layout.compactHeight || app.layout.listDp < INLINE_SUBTITLE_DP) return header(title, subtitle);
         LinearLayout h = Ui.hbox(app);
         h.setPadding(Ui.dp(gutter()), Ui.dp(10), Ui.dp(app.landscape ? 16 : 12), Ui.dp(6));
         LinearLayout tbox = Ui.hbox(app);
@@ -79,10 +81,11 @@ final class BrowseScreen extends Screen {
         return h;
     }
 
-    /** All four sources side by side, the current one in gold. */
+    /** All sources side by side, the current one in gold. */
     private View segmentedSources() {
         HorizontalScrollView hs = new HorizontalScrollView(app);
         hs.setHorizontalScrollBarEnabled(false);
+        Ui.scrollHint(hs);
         hs.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
         hs.setClipToPadding(false);
         LinearLayout seg = Ui.hbox(app);
@@ -107,7 +110,7 @@ final class BrowseScreen extends Screen {
         return hs;
     }
 
-    /** The current source as a chip; it opens a chooser with all four. */
+    /** The current source as a chip; it opens a chooser with all of them. */
     private View sourcePicker() {
         LinearLayout chip = Ui.hbox(app);
         chip.setFocusable(true);
@@ -144,13 +147,13 @@ final class BrowseScreen extends Screen {
         if (f != null) f.post(f::requestFocus);
     }
 
-    /** One line: what is wrong, and a button that fixes it. */
+    /** What is wrong, and a button that fixes it. The message wraps: some languages need two lines. */
     private void gameFolderBanner() {
         LinearLayout bar = Ui.hbox(app);
         bar.setBackground(Ui.round(Ui.ORANGE_SOFT, 12));
         bar.setPadding(Ui.dp(12), Ui.dp(5), Ui.dp(5), Ui.dp(5));
         bar.addView(Ui.icon(app, R.drawable.ic_warning, Ui.ORANGE, 17));
-        TextView msg = Ui.oneLine(Ui.text(app, s(R.string.browse_no_game), 12.5f, Ui.ORANGE, Ui.REGULAR));
+        TextView msg = Ui.text(app, s(R.string.browse_no_game), 12.5f, Ui.ORANGE, Ui.REGULAR);
         bar.addView(msg, Ui.margins(Ui.lpw(0, -2, 1), 10, 0, 8, 0));
         TextView fix = Ui.oneLine(Ui.text(app, s(R.string.browse_set_folder), 12, Ui.ORANGE, Ui.MEDIUM));
         fix.setGravity(android.view.Gravity.CENTER);
@@ -200,10 +203,9 @@ final class BrowseScreen extends Screen {
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void afterTextChanged(Editable e) {
                 queries[srcNow] = e.toString();
-                if (srcNow == MainActivity.SRC_GITHUB) return;
                 if (pendingSearch != null) app.main.removeCallbacks(pendingSearch);
                 pendingSearch = () -> runSearch(srcNow, false);
-                app.main.postDelayed(pendingSearch, srcNow == MainActivity.SRC_CURSE ? 650 : 250);
+                app.main.postDelayed(pendingSearch, 250);
             }
         });
         app.searchField.setOnEditorActionListener((v, actionId, ev) -> {
@@ -213,17 +215,12 @@ final class BrowseScreen extends Screen {
             return true;
         });
         sr.addView(app.searchField, Ui.lpw(0, Ui.dp(42), 1));
-        if (source == MainActivity.SRC_GITHUB) {
-            boolean labeled = app.layout.listDp >= ROW_LABELS_DP;
-            LinearLayout go = Ui.button(app, labeled ? s(R.string.action_find) : null, R.drawable.ic_search, Ui.Kind.PRIMARY, v -> { app.hideKeyboard(); runSearch(MainActivity.SRC_GITHUB, false); });
-            if (!labeled) { go.setContentDescription(s(R.string.action_find)); go.setTooltipText(s(R.string.action_find)); }
-            sr.addView(go, Ui.margins(Ui.lp(-2, Ui.dp(42)), 8, 0, 0, 0));
-        }
         app.headerBox.addView(sr);
 
         if (source == MainActivity.SRC_CATALOG) {
             HorizontalScrollView cs = new HorizontalScrollView(app);
             cs.setHorizontalScrollBarEnabled(false);
+            Ui.scrollHint(cs);
             LinearLayout cats = Ui.hbox(app);
             cats.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
             List<String> all = new ArrayList<>();
@@ -266,13 +263,6 @@ final class BrowseScreen extends Screen {
         app.currentList = null;
         app.currentAdapter = null;
         final int src = source;
-        if (src == MainActivity.SRC_CURSE && !Sources.hasCurseKey()) {
-            app.bodyBox.addView(emptyState(R.drawable.ic_key, s(R.string.curse_connect_title),
-                    s(R.string.curse_connect_text),
-                    Ui.button(app, s(R.string.action_enter_key), R.drawable.ic_key, Ui.Kind.PRIMARY, v -> app.switchTab(MainActivity.TAB_SETTINGS)),
-                    Ui.button(app, s(R.string.action_open_site), R.drawable.ic_open, Ui.Kind.SECONDARY, v -> app.openUrl("https://www.curseforge.com/wow/search?class=addons&gameVersionTypeId=" + Sources.CURSE_FOREVER_TYPE))));
-            return;
-        }
         final List<Model.Item> list;
         if (src == MainActivity.SRC_CATALOG) {
             list = catalogFiltered();
@@ -384,14 +374,12 @@ final class BrowseScreen extends Screen {
     }
 
     void ensureResults(boolean force) {
-        if (source == MainActivity.SRC_CATALOG || source == MainActivity.SRC_GITHUB) return;
-        if (source == MainActivity.SRC_CURSE && !Sources.hasCurseKey()) return;
+        if (source == MainActivity.SRC_CATALOG) return;
         if (force || (app.results.get(source) == null && !loading.contains(source))) runSearch(source, false);
     }
 
     private void runSearch(final int src, final boolean more) {
         if (src == MainActivity.SRC_CATALOG) { if (app.tab == MainActivity.TAB_BROWSE && source == src) renderResults(); return; }
-        if (src == MainActivity.SRC_CURSE && !Sources.hasCurseKey()) return;
         if (more && loading.contains(src)) return;
         final String q = queries[src];
         final int gen = ++searchGen[src];
@@ -405,17 +393,23 @@ final class BrowseScreen extends Screen {
             String err = null;
             boolean moreAvail = false;
             try {
-                if (src == MainActivity.SRC_CURSE) {
-                    got = Sources.Curse.search(q, offset);
-                    moreAvail = got.size() >= 40 && offset < 9000;
-                } else if (src == MainActivity.SRC_WOWI) {
+                if (src == MainActivity.SRC_WOWI) {
                     got = Sources.Wowi.search(q, offset, 60);
                     moreAvail = got.size() >= 60;
                 } else if (src == MainActivity.SRC_GITHUB) {
-                    String repo = Sources.GitHub.normalize(q);
-                    if (repo == null) throw new IOException(s(R.string.github_repo_needed));
-                    got = new ArrayList<>();
-                    got.add(Sources.GitHub.info(repo));
+                    String repo = q.contains("/") ? Sources.GitHub.normalize(q) : null;
+                    if (repo != null) {
+                        // A pasted owner/repo or link: its index entry if listed, else the repository itself.
+                        got = new ArrayList<>();
+                        if (!more) {
+                            try { Index.items(false); } catch (IOException ignored) {}
+                            Model.Item hit = Index.item(repo);
+                            got.add(hit != null ? hit : Sources.GitHub.info(repo));
+                        }
+                    } else {
+                        got = Index.search(q, offset, 60);
+                        moreAvail = got.size() >= 60;
+                    }
                 }
             } catch (Exception e) {
                 err = MainActivity.friendly(e);
@@ -434,7 +428,7 @@ final class BrowseScreen extends Screen {
                     base.addAll(fGot);
                     app.results.put(src, base);
                     hasMore.put(src, fMore);
-                    if (src == MainActivity.SRC_GITHUB && fGot.size() == 1 && app.layout.docked) app.selected = fGot.get(0);
+                    if (src == MainActivity.SRC_GITHUB && !more && fGot.size() == 1 && q.contains("/") && app.layout.docked) app.selected = fGot.get(0);
                 }
                 if (app.tab == MainActivity.TAB_BROWSE && source == src) {
                     if (more && app.currentAdapter != null && fErr == null) {

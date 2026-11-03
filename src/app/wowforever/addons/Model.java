@@ -9,13 +9,12 @@ final class Model {
 
     static final String SRC_CATALOG = "github";   // curated catalog entries are GitHub sources
     static final String SRC_GITHUB = "github";
-    static final String SRC_CURSE = "curse";
     static final String SRC_WOWI = "wowi";
     static final String SRC_ZIP = "zip";
 
     /** Something that can be installed: a catalog entry or a search result. */
     static final class Item {
-        String source;        // github | curse | wowi
+        String source;        // github | wowi
         String id;            // owner/repo | numeric id
         String name;
         String author = "";
@@ -27,10 +26,15 @@ final class Model {
         String pageUrl;
         String version;       // version string if known from the listing
         boolean foreverVerified;  // the source says it has a Forever build
-        boolean distributionOff;  // CurseForge: author forbids 3rd-party downloads
         List<String> folders = new ArrayList<>();   // known AddOns folders (to recognise manual installs)
         List<String> deps = new ArrayList<>();      // required items, as "source:id"
         String note;          // a Forever caveat to show
+        // From the GitHub index (#26-#28); empty when the source has no such data.
+        String description = "";
+        List<String> screenshots = new ArrayList<>();
+        long stars = -1;
+        String changelog = "";                        // notes of the latest release
+        List<Release> releases = new ArrayList<>();   // newest first
 
         String key() { return source + ":" + id; }
     }
@@ -45,6 +49,12 @@ final class Model {
         boolean guessed;      // flavor picked from the file name, not from metadata
         List<Item> deps = new ArrayList<>();
         String changelogUrl;
+        // Index metadata, informational only: installs resolve the asset from GitHub directly.
+        String tag;
+        long released;        // epoch millis
+        boolean prerelease;
+        long size = -1;
+        String changelog = "";
     }
 
     /** One addon this app installed (persisted). */
@@ -64,6 +74,7 @@ final class Model {
         String latest;
         boolean updateAvailable;
         String checkError;
+        String changelog;     // notes of the latest release, when the index has them
     }
 
     /** One folder found in Interface/AddOns. */
@@ -77,7 +88,7 @@ final class Model {
         String tocFile = "";
         boolean foreverToc;     // has a _Forever / _Camelot TOC or interface 160xx
         boolean loadOnDemand;
-        String curseId, wowiId, wagoId, website;
+        String wowiId, wagoId, website;
         List<String> deps = new ArrayList<>();
     }
 

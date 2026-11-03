@@ -19,7 +19,8 @@ Installing addons on a phone usually means zip files, file managers and long fol
 
 ## Features
 
-- **Search in one place.** Runeloader looks in the Forever catalog, CurseForge and WoWInterface.
+- **Search in one place.** Runeloader searches addons built for Forever on GitHub and WoWInterface. No accounts, no API keys.
+- **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
 - **One-tap install.** The app finds the right folder and the right files for you.
 - **Updates.** See which addons are out of date and update them all at once.
 - **Auto-update.** Turn it on in **Settings**, and Runeloader checks for updates in the background, even when the app is closed. It can tell you, or install the updates for you.
@@ -55,11 +56,9 @@ Open the folder where you installed WoW Forever. The right folder has a `.build.
 </details>
 
 <details>
-<summary><b>Why does CurseForge ask for a key?</b></summary>
+<summary><b>An addon I want is not in the search</b></summary>
 
-CurseForge gives files only to apps with an API key. You can get a free key at [console.curseforge.com](https://console.curseforge.com/) and paste it in **Settings**. The key stays on your device and is sent only to CurseForge.
-
-No key? Download the addon zip on the CurseForge site and install it with **From ZIP**.
+Paste its GitHub link (for example `github.com/Questie/Questie`) into the search box. Runeloader picks the Forever build from the repository's release. Or download the addon zip yourself and install it with **From ZIP**.
 </details>
 
 <details>
@@ -81,8 +80,7 @@ Download the new APK from the [latest release](../../releases/latest) and instal
 
 | Source | How it works |
 | --- | --- |
-| Forever catalog | GitHub releases with a `forever` flavor in `release.json`. |
-| CurseForge | The official API, with the user's own key. |
+| GitHub | Releases with a `forever` flavor in `release.json`, found through the nightly [Runeloader index](https://github.com/Gulliby-development/runeloader-index) or added by link. |
 | WoWInterface | The public file API. |
 | Zip file | Any zip the user picks on the device. |
 
@@ -96,7 +94,7 @@ The app picks the TOC file the same way the Forever client does: `_Forever`, the
 2. Addon folders are found by their `.toc` files.
 3. Each folder is swapped into `AddOns` in one step, so the old version stays until the new one is ready.
 
-The CurseForge key is sent only to CurseForge hosts, even when a download redirects somewhere else.
+An optional GitHub token (Settings) is sent only to GitHub hosts, even when a download redirects somewhere else. Installs always take the asset from GitHub directly, because the index can be a day old.
 </details>
 
 <details>

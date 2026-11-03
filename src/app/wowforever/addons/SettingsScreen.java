@@ -39,7 +39,6 @@ final class SettingsScreen extends Screen {
         }
 
         gameCard(left);
-        curseCard(right);
         languageCard(left);
         githubCard(right);
         autoUpdateCard(right);
@@ -94,23 +93,6 @@ final class SettingsScreen extends Screen {
         lang.addView(chips, Ui.lp(-1, -2));
     }
 
-    private void curseCard(LinearLayout parent) {
-        LinearLayout cf = card(parent, R.drawable.ic_key, s(R.string.settings_curse_key));
-        cf.addView(Ui.text(app, s(R.string.settings_curse_text), 12.5f, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 10));
-        final EditText key = field(app.store.curseKey(), s(R.string.settings_paste_key), true);
-        cf.addView(key, Ui.lp(-1, Ui.dp(42)));
-        cf.addView(actions(
-                Ui.button(app, s(R.string.action_save), R.drawable.ic_check, Ui.Kind.PRIMARY, v -> {
-                    app.store.setCurseKey(key.getText().toString());
-                    app.results.remove(MainActivity.SRC_CURSE);
-                    app.hideKeyboard();
-                    app.snack(s(Sources.hasCurseKey() ? R.string.curse_key_saved : R.string.curse_key_removed));
-                    if (Sources.hasCurseKey()) testCurseKey();
-                }),
-                Ui.button(app, s(R.string.action_get_key), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl("https://console.curseforge.com/"))),
-                Ui.margins(Ui.lp(-1, -2), 0, 10, 0, 0));
-    }
-
     private void githubCard(LinearLayout parent) {
         LinearLayout gh = card(parent, R.drawable.ic_link, s(R.string.settings_github_token));
         gh.addView(Ui.text(app, s(R.string.settings_github_text), 12.5f, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 10));
@@ -136,6 +118,8 @@ final class SettingsScreen extends Screen {
                 Ui.button(app, s(R.string.action_clear_cache), R.drawable.ic_delete, Ui.Kind.GHOST, v -> {
                     Installer.deleteRecursive(new File(app.getCacheDir(), "dl"));
                     Installer.deleteRecursive(new File(app.getCacheDir(), "wowi-filelist.json"));
+                    Installer.deleteRecursive(new File(app.getCacheDir(), "index.json"));
+                    Installer.deleteRecursive(new File(app.getCacheDir(), "index.etag"));
                     app.results.clear();
                     app.snack(s(R.string.cache_cleared));
                 })),
@@ -227,20 +211,6 @@ final class SettingsScreen extends Screen {
         chip.setClickable(true);
         chip.setOnClickListener(click);
         return chip;
-    }
-
-    private void testCurseKey() {
-        MainActivity.net.execute(() -> {
-            String msg;
-            try {
-                Sources.Curse.search("", 0);
-                msg = s(R.string.curse_key_works);
-            } catch (Exception e) {
-                msg = MainActivity.friendly(e);
-            }
-            final String m = msg;
-            app.main.post(() -> app.snack(m));
-        });
     }
 
     private LinearLayout card(LinearLayout parent, int icon, String title) {

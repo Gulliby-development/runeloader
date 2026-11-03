@@ -20,14 +20,26 @@ final class ImageLoader {
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     static File dir;
 
+    /** An addon logo: a letter icon until the image arrives, or for good if it fails. */
     static void load(final ImageView iv, final String url, final String nameForLetters) {
+        iv.setImageDrawable(new Ui.LetterDrawable(nameForLetters));
+        fetch(iv, url, 128, true);
+    }
+
+    /** A screenshot, decoded to about maxPx on its short side and shown as is. */
+    static void loadShot(final ImageView iv, final String url, int maxPx) {
+        iv.setImageDrawable(null);
+        fetch(iv, url, maxPx, false);
+    }
+
+    private static void fetch(final ImageView iv, final String url, final int minSide, final boolean round) {
         iv.setTag(url);
-        Bitmap cached = url == null ? null : MEM.get(url);
+        final String memKey = url + "#" + minSide;
+        Bitmap cached = url == null ? null : MEM.get(memKey);
         if (cached != null) {
-            iv.setImageDrawable(new Ui.RoundBitmap(cached));
+            iv.setImageDrawable(round ? new Ui.RoundBitmap(cached) : new android.graphics.drawable.BitmapDrawable(iv.getResources(), cached));
             return;
         }
-        iv.setImageDrawable(new Ui.LetterDrawable(nameForLetters));
         if (url == null || url.isEmpty() || dir == null) return;
         POOL.execute(() -> {
             Bitmap b = null;
@@ -42,7 +54,7 @@ final class ImageLoader {
                 o.inJustDecodeBounds = true;
                 BitmapFactory.decodeFile(f.getPath(), o);
                 int sample = 1;
-                while (o.outWidth / (sample * 2) >= 128 && o.outHeight / (sample * 2) >= 128) sample *= 2;
+                while (o.outWidth / (sample * 2) >= minSide && o.outHeight / (sample * 2) >= minSide) sample *= 2;
                 o = new BitmapFactory.Options();
                 o.inSampleSize = sample;
                 b = BitmapFactory.decodeFile(f.getPath(), o);
@@ -51,9 +63,9 @@ final class ImageLoader {
             }
             final Bitmap bmp = b;
             if (bmp == null) return;
-            MEM.put(url, bmp);
+            MEM.put(memKey, bmp);
             MAIN.post(() -> {
-                if (url.equals(iv.getTag())) iv.setImageDrawable(new Ui.RoundBitmap(bmp));
+                if (url.equals(iv.getTag())) iv.setImageDrawable(round ? new Ui.RoundBitmap(bmp) : new android.graphics.drawable.BitmapDrawable(iv.getResources(), bmp));
             });
         });
     }

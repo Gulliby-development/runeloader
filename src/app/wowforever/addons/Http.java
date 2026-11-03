@@ -9,18 +9,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /** Small HTTP helper: manual redirects so secrets never leak to a foreign host. */
 final class Http {
     static final String UA = "wow-addons-android/1.0 (WoW Forever addon manager)";
-
-    /** Hosts that may receive the CurseForge key. */
-    private static final List<String> CURSE_HOSTS = Arrays.asList(
-            "api.curseforge.com", "edge.forgecdn.net", "mediafilez.forgecdn.net");
 
     interface Progress { void on(long done, long total); }
 
@@ -43,7 +37,6 @@ final class Http {
 
     private static boolean secretAllowed(String header, String host) {
         String h = header.toLowerCase();
-        if (h.equals("x-api-key")) return CURSE_HOSTS.contains(host);
         if (h.equals("authorization")) return host.equals("api.github.com") || host.equals("github.com");
         return true;
     }

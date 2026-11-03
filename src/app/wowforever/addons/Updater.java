@@ -5,8 +5,10 @@ import android.content.Context;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,6 +35,23 @@ final class Updater {
         return r.version;
     }
 
+    /** The GitHub index as "github:owner/repo" (lower case) to item; empty when it cannot be loaded. */
+    static Map<String, Model.Item> indexByKey(boolean refresh) {
+        Map<String, Model.Item> m = new HashMap<>();
+        try {
+            for (Model.Item it : Index.items(refresh)) m.put(it.key().toLowerCase(Locale.ROOT), it);
+        } catch (Exception ignored) {
+            // no index and no cache: every addon falls back to the direct check
+        }
+        return m;
+    }
+
+    /** The index entry that answers the update check for e, or null to ask the source directly. */
+    static Model.Item indexHit(Map<String, Model.Item> index, Model.Entry e) {
+        Model.Item ix = index.get(e.key.toLowerCase(Locale.ROOT));
+        return ix != null && ix.version != null && !ix.version.isEmpty() ? ix : null;
+    }
+
     /** Installs an item and its missing dependencies; adds the installed names to done. */
     void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth, Progress p) throws IOException {
         synchronized (LOCK) {
@@ -49,9 +68,6 @@ final class Updater {
         for (String d : item.deps) { Model.Item c = Catalog.byKey(d); if (c != null) deps.add(c); }
         for (Model.Item d : deps) {
             if (store.entry(d.key()) != null) continue;
-            if (Model.SRC_CURSE.equals(d.source)) {
-                try { Model.Item full = Sources.Curse.mod(d.id); if (full != null) d = full; } catch (IOException ignored) {}
-            }
             installLocked(d, addons, done, seen, depth + 1, p);
         }
         File dl = new File(ctx.getCacheDir(), "dl");

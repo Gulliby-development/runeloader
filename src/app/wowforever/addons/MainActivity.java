@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
     final GameFolder gameFolder = new GameFolder(this);
 
     static final int TAB_INSTALLED = 0, TAB_BROWSE = 1, TAB_SETTINGS = 2;
-    static final int SRC_CATALOG = 0, SRC_CURSE = 1, SRC_WOWI = 2, SRC_GITHUB = 3;
+    static final int SRC_GITHUB = 0, SRC_CATALOG = 1, SRC_WOWI = 2;
     private static final int REQ_ZIP = 41, REQ_PERM = 42;
     static final int REQ_NOTIFY = 43;
 
@@ -121,6 +121,14 @@ public class MainActivity extends Activity {
         buildShell();
         manager.rescan();
         AutoUpdate.apply(this);
+        // Refresh the GitHub index in the background; manual installs it recognizes get an update source.
+        net.execute(() -> {
+            try {
+                Index.items(false);
+                main.post(() -> { if (!isDestroyed()) manager.rescan(); });
+            } catch (Exception ignored) {
+            }
+        });
     }
 
     @Override protected void onSaveInstanceState(Bundle out) {
@@ -369,11 +377,11 @@ public class MainActivity extends Activity {
         logo.setImageResource(R.drawable.ic_rune);
         logo.setContentDescription(getString(R.string.app_name));
         rail.addView(logo, Ui.margins(Ui.lp(Ui.dp(40), Ui.dp(40)), 0, 2, 0, 20));
-        rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
-        rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
+        rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
+        rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
         View spacer = new View(this);
         rail.addView(spacer, Ui.lpw(1, 0, 1));
-        rail.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, getString(R.string.nav_settings_short), true), Ui.lp(Ui.dp(68), Ui.dp(60)));
+        rail.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, getString(R.string.nav_settings), true), Ui.lp(Ui.dp(68), Ui.dp(60)));
         return rail;
     }
 

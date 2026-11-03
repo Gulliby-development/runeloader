@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_tagline">Менеджер аддонов для WoW Forever</string>
-
-    <string name="nav_installed_short">Мои</string>
-    <string name="nav_browse_short">Обзор</string>
-    <string name="nav_settings_short">Настройки</string>
-    <string name="nav_installed">Мои аддоны</string>
+    <string name="nav_installed">Аддоны</string>
     <string name="nav_browse">Обзор</string>
     <string name="nav_settings">Настройки</string>
+    <string name="app_tagline">Менеджер аддонов для WoW Forever</string>
 
     <string name="perm_title">Нужен доступ к файлам</string>
     <string name="perm_text">Чтобы устанавливать аддоны в папку игры, приложению нужен «Доступ ко всем файлам» — так же, как самому клиенту WoW Forever.</string>
@@ -15,7 +11,6 @@
     <string name="perm_settings_hint">Откройте Настройки → Приложения → %1$s → Доступ ко всем файлам</string>
     <string name="setup_step_access">Доступ к файлам</string>
     <string name="setup_step_folder">Папка игры</string>
-    <string name="setup_step_curse">Подключить CurseForge (необязательно)</string>
     <string name="game_not_set">Папка игры не выбрана</string>
     <string name="game_where_title">Где установлен WoW Forever?</string>
     <string name="game_where_text">Обычно это «WoW Forever» во внутренней памяти или на SD-карте. Выберите папку, в которой лежат .build.info и _forever_.</string>
@@ -62,25 +57,19 @@
     <string name="browse_title">Обзор аддонов</string>
     <string name="browse_subtitle">Только сборки для WoW Forever · интерфейс %1$s</string>
     <string name="browse_src_catalog">Forever-каталог</string>
-    <string name="browse_hint_github">owner/repo или ссылка на GitHub</string>
+    <string name="browse_hint_github">Поиск или ссылка github.com/owner/repo</string>
     <string name="browse_hint_search">Поиск аддонов…</string>
-    <string name="action_find">Найти</string>
     <string name="browse_cat_all">Все</string>
     <string name="browse_set_folder">Выбрать папку</string>
     <string name="browse_source">Источник</string>
     <string name="browse_no_game">Папка игры не выбрана. Установка недоступна.</string>
-    <string name="curse_connect_title">Подключите CurseForge</string>
-    <string name="curse_connect_text">CurseForge выдаёт файлы только по личному API-ключу. Получите его бесплатно на console.curseforge.com и вставьте в настройках — после этого здесь появится поиск по всем аддонам с версией для Forever.\n\nБез ключа можно скачать zip на сайте CurseForge в браузере и установить его кнопкой «Из ZIP».</string>
-    <string name="action_enter_key">Ввести ключ</string>
-    <string name="action_open_site">Открыть сайт</string>
     <string name="load_failed">Не удалось загрузить</string>
     <string name="action_retry">Повторить</string>
-    <string name="github_empty_title">Аддон с GitHub</string>
-    <string name="github_empty_text">Вставьте ссылку на репозиторий, например github.com/Questie/Questie. Будет выбрана сборка для Forever из release.json, а обновления пойдут без ключей и лимитов.</string>
+    <string name="github_empty_title">Нет в индексе GitHub</string>
+    <string name="github_empty_text">Попробуйте другое название или вставьте ссылку на репозиторий, например github.com/Questie/Questie: сборка для Forever будет выбрана из его release.json.</string>
     <string name="nothing_found">Ничего не найдено</string>
     <string name="nothing_found_text">Попробуйте другой запрос.</string>
     <string name="wowi_note">WoWInterface не помечает версии для Forever — после установки приложение проверит TOC и предупредит, если аддон не для Forever.</string>
-    <string name="github_repo_needed">Введите репозиторий в виде owner/repo или ссылку github.com/owner/repo</string>
 
     <string name="settings_title">Настройки</string>
     <string name="settings_version">%1$s %2$s</string>
@@ -94,16 +83,9 @@
     <string name="settings_language">Язык</string>
     <string name="settings_language_text">По умолчанию приложение говорит на языке системы. Здесь можно выбрать другой.</string>
     <string name="language_system">Системный</string>
-    <string name="settings_curse_key">CurseForge API-ключ</string>
-    <string name="settings_curse_text">Даёт поиск и обновления по всем аддонам CurseForge с версией для Forever. Ключ бесплатный: войдите на console.curseforge.com → API keys. Он хранится только на этом устройстве и отправляется только на api.curseforge.com и forgecdn.net.</string>
-    <string name="settings_paste_key">Вставьте ключ</string>
     <string name="action_save">Сохранить</string>
-    <string name="curse_key_saved">Ключ CurseForge сохранён</string>
-    <string name="curse_key_removed">Ключ удалён</string>
-    <string name="action_get_key">Получить ключ</string>
-    <string name="curse_key_works">Ключ CurseForge работает ✓</string>
     <string name="settings_github_token">GitHub-токен (необязательно)</string>
-    <string name="settings_github_text">Каталог работает без токена. Токен нужен, только если вы часто добавляете репозитории без release.json и упираетесь в лимит 60 запросов в час.</string>
+    <string name="settings_github_text">Поиск и установка работают без токена. Токен нужен, только если вы часто ставите аддоны из репозиториев без release.json и упираетесь в лимит 60 запросов в час.</string>
     <string name="saved">Сохранено</string>
     <string name="settings_about">О приложении</string>
     <string name="settings_about_text">Менеджер аддонов для клиента WoW Forever на Android. Ставит только сборки для Forever (TOC _Forever / _Camelot, интерфейс 16001), обновляет их и ничего не трогает в игре, кроме Interface/AddOns.\n\nУправление с геймпада: L1/R1 — вкладки, X — проверить обновления, Y — поиск, B — назад.</string>
@@ -116,12 +98,21 @@
     <string name="detail_pick_addon">Выберите аддон</string>
     <string name="detail_hint_library">Здесь будут версия, папки и кнопки обновления и удаления.</string>
     <string name="detail_hint_browse">Нажмите на аддон в списке, чтобы увидеть подробности и установить его.</string>
-    <string name="action_download_site">Скачать на сайте</string>
-    <string name="note_distribution_off">Автор разрешает скачивание только с сайта CurseForge. Скачайте zip в браузере и установите его кнопкой «Из ZIP».</string>
     <string name="note_wowi_version">WoWInterface не указывает версию для Forever. Убедитесь, что аддон поддерживает Forever (интерфейс 16001).</string>
     <string name="info_installed">Установлено</string>
     <string name="info_version">Версия</string>
     <string name="info_category">Категория</string>
+    <string name="info_stars">Звёзды</string>
+    <string name="detail_description">Описание</string>
+    <string name="detail_screenshots">Скриншоты</string>
+    <string name="detail_screenshot_n">Скриншот %1$d</string>
+    <string name="detail_whats_new">Что нового</string>
+    <string name="detail_whats_new_in">Что нового в %1$s</string>
+    <string name="detail_versions">Версии</string>
+    <string name="detail_all_releases">Все релизы</string>
+    <string name="pill_beta">бета</string>
+    <string name="show_more">Показать полностью</string>
+    <string name="show_less">Свернуть</string>
     <string name="info_downloads">Загрузки</string>
     <string name="info_updated">Обновлён</string>
     <string name="info_folders">Папки</string>
@@ -135,7 +126,6 @@
     <string name="action_install_again">Установить заново</string>
     <string name="action_check_update">Проверить обновление</string>
     <string name="action_track_catalog">Обновлять через каталог</string>
-    <string name="action_track_curse">Обновлять с CurseForge</string>
     <string name="action_track_wowi">Обновлять с WoWInterface</string>
     <string name="action_page">Страница</string>
     <string name="action_remove">Удалить</string>
@@ -159,8 +149,6 @@
     <string name="md5_mismatch">Файл повреждён при загрузке (MD5 не совпал). Попробуйте ещё раз.</string>
     <string name="unpacking">Распаковка…</string>
     <string name="more_queued">ещё %1$d в очереди</string>
-    <string name="searching_curse">Ищу на CurseForge…</string>
-    <string name="curse_addon_not_found">Аддон не найден на CurseForge</string>
     <string name="remove_title">Удалить %1$s?</string>
     <string name="remove_text">Будут удалены папки: %1$s.\nНастройки аддона в WTF останутся.</string>
     <string name="removing">Удаляю %1$s…</string>
@@ -195,11 +183,6 @@
     <string name="err_gh_rate_limit">Лимит запросов GitHub исчерпан. Подождите час или добавьте токен в настройках.</string>
     <string name="err_gh_unexpected">GitHub вернул неожиданный ответ</string>
     <string name="err_gh_repo_not_found">Репозиторий %1$s не найден</string>
-    <string name="err_curse_key_needed">Нужен ключ CurseForge API (Настройки)</string>
-    <string name="err_curse_unexpected">CurseForge вернул неожиданный ответ</string>
-    <string name="err_curse_key_rejected">CurseForge отклонил ключ API (код %1$d). Проверьте ключ в настройках.</string>
-    <string name="err_curse_no_files">На CurseForge нет файлов этого аддона для WoW Forever</string>
-    <string name="err_curse_site_only">Автор запретил скачивание вне сайта CurseForge. Скачайте zip в браузере и установите через «Из ZIP».</string>
     <string name="err_wowi_list">Не удалось разобрать список WoWInterface</string>
     <string name="err_wowi_unexpected">WoWInterface вернул неожиданный ответ</string>
     <string name="err_wowi_not_found">Аддон не найден на WoWInterface</string>
@@ -284,7 +267,7 @@
     <string name="sum_aio">Доступ к скрытым настройкам клиента (CVar) через удобное меню.</string>
     <string name="sum_broker">Набор информеров: золото, FPS, задержка, друзья, гильдия, прочность и многое другое.</string>
     <string name="sum_bugsack">Собирает ошибки Lua в «мешок», чтобы они не мешали играть.</string>
-    <string name="note_bugsack">Ошибки перехватывает !BugGrabber — его можно найти на CurseForge или WoWInterface.</string>
+    <string name="note_bugsack">Ошибки перехватывает !BugGrabber — его можно найти на GitHub или WoWInterface.</string>
 
     <!-- Background auto-update (settings, detail panel, notifications) -->
     <string name="auto_title">Автообновление</string>
@@ -327,4 +310,7 @@
         <item quantity="many">Обновлено %d аддонов</item>
         <item quantity="other">Обновлено %d аддона</item>
     </plurals>
+    <string name="err_index_missing">Индекс GitHub ещё не опубликован. Вставьте ссылку на репозиторий (owner/repo), чтобы установить аддон напрямую.</string>
+    <string name="err_index_broken">Индекс GitHub повреждён. Попробуйте позже.</string>
+    <string name="err_index_newer">Индекс GitHub новее приложения. Обновите Runeloader.</string>
 </resources>

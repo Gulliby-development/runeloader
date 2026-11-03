@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_tagline">Gestor de addons para WoW Forever</string>
-
-    <string name="nav_installed_short">Míos</string>
-    <string name="nav_browse_short">Explorar</string>
-    <string name="nav_settings_short">Ajustes</string>
-    <string name="nav_installed">Mis addons</string>
+    <string name="nav_installed">Addons</string>
     <string name="nav_browse">Explorar</string>
     <string name="nav_settings">Ajustes</string>
+    <string name="app_tagline">Gestor de addons para WoW Forever</string>
 
     <string name="perm_title">Se necesita acceso a archivos</string>
     <string name="perm_text">Para instalar addons en la carpeta del juego, la app necesita \"Acceso a todos los archivos\", igual que el propio cliente de WoW Forever.</string>
@@ -15,7 +11,6 @@
     <string name="perm_settings_hint">Abre Ajustes → Aplicaciones → %1$s → Acceso a todos los archivos</string>
     <string name="setup_step_access">Acceso a archivos</string>
     <string name="setup_step_folder">Carpeta del juego</string>
-    <string name="setup_step_curse">Conectar CurseForge (opcional)</string>
     <string name="game_not_set">No hay carpeta del juego</string>
     <string name="game_where_title">¿Dónde está instalado WoW Forever?</string>
     <string name="game_where_text">Suele ser \"WoW Forever\" en el almacenamiento interno o en la tarjeta SD. Elige la carpeta que contiene .build.info y _forever_.</string>
@@ -62,25 +57,19 @@
     <string name="browse_title">Explorar addons</string>
     <string name="browse_subtitle">Solo versiones para WoW Forever · interfaz %1$s</string>
     <string name="browse_src_catalog">Catálogo Forever</string>
-    <string name="browse_hint_github">owner/repo o un enlace de GitHub</string>
+    <string name="browse_hint_github">Busca o pega un enlace github.com/owner/repo</string>
     <string name="browse_hint_search">Buscar addons…</string>
-    <string name="action_find">Buscar</string>
     <string name="browse_cat_all">Todos</string>
     <string name="browse_set_folder">Elegir carpeta</string>
     <string name="browse_source">Fuente</string>
     <string name="browse_no_game">Carpeta del juego sin definir. No se puede instalar.</string>
-    <string name="curse_connect_title">Conecta CurseForge</string>
-    <string name="curse_connect_text">CurseForge solo entrega archivos con una clave API personal. Consíguela gratis en console.curseforge.com y pégala en Ajustes; después podrás buscar aquí todos los addons con versión para Forever.\n\nSin clave, descarga el zip en la web de CurseForge con el navegador e instálalo con \"Desde ZIP\".</string>
-    <string name="action_enter_key">Introducir clave</string>
-    <string name="action_open_site">Abrir web</string>
     <string name="load_failed">No se pudo cargar</string>
     <string name="action_retry">Reintentar</string>
-    <string name="github_empty_title">Addon de GitHub</string>
-    <string name="github_empty_text">Pega el enlace de un repositorio, por ejemplo github.com/Questie/Questie. Se elegirá la versión para Forever de release.json, y las actualizaciones no necesitan claves ni tienen límites.</string>
+    <string name="github_empty_title">No está en el índice de GitHub</string>
+    <string name="github_empty_text">Prueba otro nombre o pega el enlace de un repositorio, por ejemplo github.com/Questie/Questie: la versión para Forever se elige de su release.json.</string>
     <string name="nothing_found">Sin resultados</string>
     <string name="nothing_found_text">Prueba otra búsqueda.</string>
     <string name="wowi_note">WoWInterface no marca las versiones para Forever. Tras instalar, la app revisa el TOC y te avisa si el addon no es para Forever.</string>
-    <string name="github_repo_needed">Escribe el repositorio como owner/repo o un enlace github.com/owner/repo</string>
 
     <string name="settings_title">Ajustes</string>
     <string name="settings_version">%1$s %2$s</string>
@@ -94,16 +83,9 @@
     <string name="settings_language">Idioma</string>
     <string name="settings_language_text">La app usa el idioma del sistema. Aquí puedes elegir otro.</string>
     <string name="language_system">Sistema</string>
-    <string name="settings_curse_key">Clave API de CurseForge</string>
-    <string name="settings_curse_text">Permite buscar y actualizar todos los addons de CurseForge con versión para Forever. La clave es gratis: entra en console.curseforge.com → API keys. Se guarda solo en este dispositivo y solo se envía a api.curseforge.com y forgecdn.net.</string>
-    <string name="settings_paste_key">Pega la clave</string>
     <string name="action_save">Guardar</string>
-    <string name="curse_key_saved">Clave de CurseForge guardada</string>
-    <string name="curse_key_removed">Clave eliminada</string>
-    <string name="action_get_key">Obtener clave</string>
-    <string name="curse_key_works">La clave de CurseForge funciona ✓</string>
     <string name="settings_github_token">Token de GitHub (opcional)</string>
-    <string name="settings_github_text">El catálogo funciona sin token. Solo lo necesitas si añades a menudo repositorios sin release.json y llegas al límite de 60 solicitudes por hora.</string>
+    <string name="settings_github_text">La búsqueda y la instalación funcionan sin token. Solo lo necesitas si instalas a menudo desde repositorios sin release.json y llegas al límite de 60 peticiones por hora.</string>
     <string name="saved">Guardado</string>
     <string name="settings_about">Acerca de</string>
     <string name="settings_about_text">Gestor de addons para el cliente WoW Forever en Android. Solo instala versiones para Forever (TOC _Forever / _Camelot, interfaz 16001), las mantiene al día y no toca nada del juego salvo Interface/AddOns.\n\nMando: L1/R1 cambian de pestaña, X busca actualizaciones, Y abre la búsqueda, B vuelve atrás.</string>
@@ -116,12 +98,21 @@
     <string name="detail_pick_addon">Elige un addon</string>
     <string name="detail_hint_library">Aquí verás la versión, las carpetas y los botones para actualizar y eliminar.</string>
     <string name="detail_hint_browse">Toca un addon de la lista para ver los detalles e instalarlo.</string>
-    <string name="action_download_site">Descargar en la web</string>
-    <string name="note_distribution_off">El autor solo permite descargar desde la web de CurseForge. Descarga el zip en el navegador e instálalo con \"Desde ZIP\".</string>
     <string name="note_wowi_version">WoWInterface no indica la versión para Forever. Asegúrate de que el addon es compatible con Forever (interfaz 16001).</string>
     <string name="info_installed">Instalado</string>
     <string name="info_version">Versión</string>
     <string name="info_category">Categoría</string>
+    <string name="info_stars">Estrellas</string>
+    <string name="detail_description">Descripción</string>
+    <string name="detail_screenshots">Capturas</string>
+    <string name="detail_screenshot_n">Captura %1$d</string>
+    <string name="detail_whats_new">Novedades</string>
+    <string name="detail_whats_new_in">Novedades de %1$s</string>
+    <string name="detail_versions">Versiones</string>
+    <string name="detail_all_releases">Todas las versiones</string>
+    <string name="pill_beta">beta</string>
+    <string name="show_more">Ver más</string>
+    <string name="show_less">Ver menos</string>
     <string name="info_downloads">Descargas</string>
     <string name="info_updated">Actualizado</string>
     <string name="info_folders">Carpetas</string>
@@ -135,7 +126,6 @@
     <string name="action_install_again">Instalar de nuevo</string>
     <string name="action_check_update">Buscar actualización</string>
     <string name="action_track_catalog">Actualizar con el catálogo</string>
-    <string name="action_track_curse">Actualizar desde CurseForge</string>
     <string name="action_track_wowi">Actualizar desde WoWInterface</string>
     <string name="action_page">Página</string>
     <string name="action_remove">Eliminar</string>
@@ -159,8 +149,6 @@
     <string name="md5_mismatch">El archivo se dañó al descargarlo (el MD5 no coincide). Inténtalo de nuevo.</string>
     <string name="unpacking">Descomprimiendo…</string>
     <string name="more_queued">+%1$d en cola</string>
-    <string name="searching_curse">Buscando en CurseForge…</string>
-    <string name="curse_addon_not_found">Addon no encontrado en CurseForge</string>
     <string name="remove_title">¿Eliminar %1$s?</string>
     <string name="remove_text">Se borrarán estas carpetas: %1$s.\nLos ajustes del addon en WTF se conservan.</string>
     <string name="removing">Eliminando %1$s…</string>
@@ -195,11 +183,6 @@
     <string name="err_gh_rate_limit">Límite de solicitudes de GitHub agotado. Espera una hora o añade un token en Ajustes.</string>
     <string name="err_gh_unexpected">GitHub devolvió una respuesta inesperada</string>
     <string name="err_gh_repo_not_found">Repositorio %1$s no encontrado</string>
-    <string name="err_curse_key_needed">Se necesita una clave API de CurseForge (Ajustes)</string>
-    <string name="err_curse_unexpected">CurseForge devolvió una respuesta inesperada</string>
-    <string name="err_curse_key_rejected">CurseForge rechazó la clave API (código %1$d). Revisa la clave en Ajustes.</string>
-    <string name="err_curse_no_files">CurseForge no tiene archivos de este addon para WoW Forever</string>
-    <string name="err_curse_site_only">El autor no permite descargar fuera de la web de CurseForge. Descarga el zip en el navegador e instálalo con \"Desde ZIP\".</string>
     <string name="err_wowi_list">No se pudo leer la lista de WoWInterface</string>
     <string name="err_wowi_unexpected">WoWInterface devolvió una respuesta inesperada</string>
     <string name="err_wowi_not_found">Addon no encontrado en WoWInterface</string>
@@ -280,7 +263,7 @@
     <string name="sum_aio">Acceso a los ajustes ocultos del cliente (CVar) desde un menú práctico.</string>
     <string name="sum_broker">Un conjunto de indicadores: oro, FPS, latencia, amigos, hermandad, durabilidad y mucho más.</string>
     <string name="sum_bugsack">Guarda los errores de Lua en una \"bolsa\" para que no molesten al jugar.</string>
-    <string name="note_bugsack">Los errores los captura !BugGrabber, que encontrarás en CurseForge o WoWInterface.</string>
+    <string name="note_bugsack">Los errores los captura !BugGrabber, que encontrarás en GitHub o WoWInterface.</string>
 
     <!-- Background auto-update (settings, detail panel, notifications) -->
     <string name="auto_title">Actualización automática</string>
@@ -319,4 +302,7 @@
         <item quantity="one">%d addon actualizado</item>
         <item quantity="other">%d addons actualizados</item>
     </plurals>
+    <string name="err_index_missing">El índice de GitHub aún no está publicado. Pega el enlace de un repositorio (owner/repo) para instalar un addon directamente.</string>
+    <string name="err_index_broken">El índice de GitHub está dañado. Inténtalo más tarde.</string>
+    <string name="err_index_newer">El índice de GitHub es más nuevo que la app. Actualiza Runeloader.</string>
 </resources>

@@ -32,6 +32,7 @@ final class AddonManager {
         final File addons = app.store.addonsDir();
         MainActivity.net.execute(() -> {
             List<Model.LocalAddon> locals = addons.isDirectory() ? Toc.scan(addons) : new ArrayList<Model.LocalAddon>();
+            Index.loadCached();
             final List<Model.Installed> rows = group(locals);
             app.main.post(() -> {
                 if (app.isDestroyed()) return;
@@ -82,6 +83,7 @@ final class AddonManager {
         for (Model.LocalAddon a : locals) {
             if (owned.contains(a.folder.toLowerCase(Locale.ROOT))) continue;
             Model.Item c = Catalog.byFolder(a.folder);
+            if (c == null) c = Index.byFolder(a.folder);
             if (c != null) {
                 Model.Installed g = catalogGroups.get(c.key());
                 if (g == null) { g = new Model.Installed(); g.catalogMatch = c; catalogGroups.put(c.key(), g); }
@@ -143,30 +145,46 @@ final class AddonManager {
         app.checking = true;
         app.renderIfTab(MainActivity.TAB_INSTALLED);
         final AtomicInteger left = new AtomicInteger(list.size());
-        for (final Model.Entry e : list) {
-            MainActivity.net.execute(() -> {
-                String latest = null, err = null;
-                try {
-                    latest = Updater.latestVersion(e);
-                } catch (Exception ex) {
-                    err = MainActivity.friendly(ex);
+        MainActivity.net.execute(() -> {
+            // One index download answers every GitHub addon it lists; the rest are asked one by one.
+            Map<String, Model.Item> index = Updater.indexByKey(manual);
+            for (final Model.Entry e : list) {
+                final Model.Item ix = Updater.indexHit(index, e);
+                if (ix != null) {
+                    app.main.post(() -> finishCheck(e, ix.version, ix.changelog, null, left, manual));
+                    continue;
                 }
-                final String fl = latest, fe = err;
-                app.main.post(() -> {
-                    if (app.isDestroyed()) return;
-                    e.checkError = fe;
-                    if (fl != null) { e.latest = fl; e.updateAvailable = !sameVersion(fl, e.version); }
-                    if (left.decrementAndGet() == 0) {
-                        app.checking = false;
-                        app.store.setLastCheck(System.currentTimeMillis());
-                        int n = 0;
-                        for (Model.Entry x : app.store.list()) if (x.updateAvailable) n++;
-                        if (manual || n > 0) app.snack(n == 0 ? app.getString(R.string.all_up_to_date) : app.getResources().getQuantityString(R.plurals.updates_available, n, n));
+                MainActivity.net.execute(() -> {
+                    String latest = null, err = null;
+                    try {
+                        latest = Updater.latestVersion(e);
+                    } catch (Exception ex) {
+                        err = MainActivity.friendly(ex);
                     }
-                    if (app.tab == MainActivity.TAB_INSTALLED) { app.render(); }
+                    final String fl = latest, fe = err;
+                    app.main.post(() -> finishCheck(e, fl, null, fe, left, manual));
                 });
-            });
+            }
+        });
+    }
+
+    private void finishCheck(Model.Entry e, String latest, String changelog, String err, AtomicInteger left, boolean manual) {
+        if (app.isDestroyed()) return;
+        e.checkError = err;
+        if (latest != null) {
+            if (!latest.equals(e.latest)) e.changelog = null;
+            e.latest = latest;
+            e.updateAvailable = !sameVersion(latest, e.version);
+            if (changelog != null && !changelog.isEmpty()) e.changelog = changelog;
         }
+        if (left.decrementAndGet() == 0) {
+            app.checking = false;
+            app.store.setLastCheck(System.currentTimeMillis());
+            int n = 0;
+            for (Model.Entry x : app.store.list()) if (x.updateAvailable) n++;
+            if (manual || n > 0) app.snack(n == 0 ? app.getString(R.string.all_up_to_date) : app.getResources().getQuantityString(R.plurals.updates_available, n, n));
+        }
+        if (app.tab == MainActivity.TAB_INSTALLED) app.render();
     }
 
     void checkOne(final Model.Entry e) {
@@ -282,20 +300,6 @@ final class AddonManager {
         if (e != null) return e.name;
         for (List<Model.Item> l : app.results.values()) for (Model.Item it : l) if (it.key().equals(key)) return it.name;
         return key;
-    }
-
-    void adoptCurse(final String id, final Model.Installed r) {
-        app.snack(app.getString(R.string.searching_curse));
-        MainActivity.net.execute(() -> {
-            try {
-                final Model.Item it = Sources.Curse.mod(id);
-                if (it == null) throw new IOException(app.getString(R.string.curse_addon_not_found));
-                app.main.post(() -> install(it, null));
-            } catch (Exception e) {
-                final String m = MainActivity.friendly(e);
-                app.main.post(() -> app.snack(m));
-            }
-        });
     }
 
     void adoptWowi(final String id, final Model.Installed r) {

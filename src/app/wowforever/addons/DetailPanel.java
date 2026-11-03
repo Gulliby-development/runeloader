@@ -196,8 +196,6 @@ final class DetailPanel extends Screen {
             LinearLayout b = Ui.button(app, app.busy.get(it.key()), 0, Ui.Kind.SECONDARY, null);
             b.setEnabled(false);
             primaryAction(col, b);
-        } else if (it.distributionOff) {
-            primaryAction(col, Ui.button(app, s(R.string.action_download_site), R.drawable.ic_open, Ui.Kind.PRIMARY, v -> app.openUrl(it.pageUrl)));
         } else {
             String label = s(e == null ? R.string.action_install : R.string.action_reinstall);
             LinearLayout b = Ui.button(app, label, R.drawable.ic_download, e == null ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
@@ -214,7 +212,6 @@ final class DetailPanel extends Screen {
         }
 
         if (it.note != null) noteCard(col, it.note, Ui.ORANGE, Ui.ORANGE_SOFT);
-        if (it.distributionOff) noteCard(col, s(R.string.note_distribution_off), Ui.ORANGE, Ui.ORANGE_SOFT);
         if (Model.SRC_WOWI.equals(it.source)) noteCard(col, s(R.string.note_wowi_version), Ui.BLUE, Ui.BLUE_SOFT);
 
         if (!it.summary.isEmpty()) {
@@ -231,8 +228,14 @@ final class DetailPanel extends Screen {
             });
         }
 
+        Model.Item meta = indexMeta(it.source, it.id, it);
+        DetailExtras.screenshots(app, col, meta.screenshots);
+        DetailExtras.description(app, col, meta.description);
+        DetailExtras.changelog(app, col, it.version, meta.changelog, false);
+
         if (e != null) infoRow(col, s(R.string.info_installed), e.version, true);
-        if (it.version != null && !Model.SRC_CURSE.equals(it.source)) infoRow(col, s(R.string.info_version), it.version, true);
+        if (it.version != null) infoRow(col, s(R.string.info_version), it.version, true);
+        if (meta.stars >= 0) infoRow(col, s(R.string.info_stars), Ui.formatCount(meta.stars));
         if (!it.category.isEmpty()) infoRow(col, s(R.string.info_category), it.category);
         if (it.downloads > 0) infoRow(col, s(R.string.info_downloads), Ui.formatCount(it.downloads));
         if (it.updated > 0) infoRow(col, s(R.string.info_updated), Ui.formatDate(it.updated));
@@ -243,6 +246,15 @@ final class DetailPanel extends Screen {
             infoRow(col, s(R.string.info_dependencies), s(R.string.info_dependencies_auto, String.join(", ", names)));
         }
         infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(it.source) ? "github.com/" + it.id : sourceName(it.source) + " #" + it.id);
+        DetailExtras.releases(app, col, meta.releases, e != null ? e.version : null, Model.SRC_GITHUB.equals(it.source) ? it.id : null);
+    }
+
+    /** The index entry for a GitHub addon, so catalog and installed cards get its metadata too. */
+    private static Model.Item indexMeta(String source, String id, Model.Item fallback) {
+        if (fallback != null && !fallback.description.isEmpty()) return fallback;
+        Model.Item ix = Model.SRC_GITHUB.equals(source) && id != null ? Index.item(id) : null;
+        if (ix != null) return ix;
+        return fallback != null ? fallback : new Model.Item();
     }
 
     private void buildInstalledDetail(LinearLayout col, final Model.Installed r) {
@@ -278,9 +290,6 @@ final class DetailPanel extends Screen {
             }
         } else if (e == null && r.catalogMatch != null) {
             primary = Ui.button(app, s(R.string.action_track_catalog), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.install(r.catalogMatch, null));
-        } else if (e == null && r.main() != null && r.main().curseId != null && Sources.hasCurseKey()) {
-            final String cid = r.main().curseId;
-            primary = Ui.button(app, s(R.string.action_track_curse), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.adoptCurse(cid, r));
         } else if (e == null && r.main() != null && r.main().wowiId != null) {
             final String wid = r.main().wowiId;
             primary = Ui.button(app, s(R.string.action_track_wowi), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.adoptWowi(wid, r));
@@ -318,6 +327,13 @@ final class DetailPanel extends Screen {
         if (r.notes != null && !r.notes.isEmpty()) {
             col.addView(Ui.text(app, r.notes, 14, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 14));
         }
+        Model.Item meta = e != null ? indexMeta(e.source, e.id, null)
+                : (r.catalogMatch != null ? indexMeta(r.catalogMatch.source, r.catalogMatch.id, r.catalogMatch) : new Model.Item());
+        String news = e != null && e.changelog != null && !e.changelog.isEmpty() ? e.changelog : meta.changelog;
+        String newsVer = e != null && e.latest != null ? e.latest : (meta.releases.isEmpty() ? null : meta.releases.get(0).version);
+        DetailExtras.changelog(app, col, newsVer, news, e != null && e.updateAvailable);
+        DetailExtras.screenshots(app, col, meta.screenshots);
+        DetailExtras.description(app, col, meta.description);
         infoRow(col, s(R.string.info_version), r.version, true);
         if (e != null && e.latest != null) infoRow(col, s(R.string.info_latest), e.latest, true);
         if (e != null && e.installedAt > 0) infoRow(col, s(R.string.info_installed_at), Ui.formatDate(e.installedAt));
@@ -327,6 +343,7 @@ final class DetailPanel extends Screen {
         if (fs.isEmpty() && e != null) fs.addAll(e.folders);
         infoRow(col, s(R.string.info_folders), joinShort(fs, 8));
         if (e != null && !Model.SRC_ZIP.equals(e.source)) infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(e.source) ? "github.com/" + e.id : sourceName(e.source) + " #" + e.id);
+        DetailExtras.releases(app, col, meta.releases, r.version, e != null && Model.SRC_GITHUB.equals(e.source) ? e.id : null);
     }
 
     private static String shortVer(String v) {

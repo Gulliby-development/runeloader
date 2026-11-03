@@ -123,7 +123,6 @@ final class Toc {
             a.notes = notes;
             a.interfaceVersion = firstNonEmpty(m.get("Interface"));
             a.loadOnDemand = "1".equals(firstNonEmpty(m.get("LoadOnDemand")));
-            a.curseId = emptyToNull(m.get("X-Curse-Project-ID"));
             a.wowiId = emptyToNull(m.get("X-WoWI-ID"));
             a.wagoId = emptyToNull(m.get("X-Wago-ID"));
             a.website = emptyToNull(m.get("X-Website"));
