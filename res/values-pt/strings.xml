@@ -61,7 +61,9 @@
     <string name="browse_hint_search">Buscar addons…</string>
     <string name="action_find">Buscar</string>
     <string name="browse_cat_all">Todos</string>
-    <string name="browse_no_game">Nenhuma pasta do jogo escolhida, então não é possível instalar. Defina-a nas configurações.</string>
+    <string name="browse_set_folder">Definir pasta</string>
+    <string name="browse_source">Fonte</string>
+    <string name="browse_no_game">Pasta do jogo não definida. Instalação desativada.</string>
     <string name="curse_connect_title">Conecte o CurseForge</string>
     <string name="curse_connect_text">O CurseForge só entrega arquivos com uma chave de API pessoal. Obtenha uma grátis em console.curseforge.com e cole nas configurações; depois você poderá buscar aqui todos os addons com versão para Forever.\n\nSem chave, baixe o zip no site do CurseForge pelo navegador e instale com \"Do ZIP\".</string>
     <string name="action_enter_key">Inserir chave</string>

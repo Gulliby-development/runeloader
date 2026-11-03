@@ -11,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -38,43 +39,141 @@ final class BrowseScreen extends Screen {
 
     BrowseScreen(MainActivity app) { super(app); }
 
-    void renderBrowse() {
-        LinearLayout h = header(s(R.string.browse_title), s(R.string.browse_subtitle, Toc.FOREVER_INTERFACE_PREFIX + "01"));
-        addHeaderButton(h, s(R.string.action_from_zip), R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
+    private static final int[] SOURCE_ICONS = {R.drawable.ic_star, R.drawable.ic_download, R.drawable.ic_apps, R.drawable.ic_link};
+    /** At this list width the four sources fit as a segmented control; below it, a picker next to search. */
+    private static final int SEGMENTED_DP = 560;
+    /** Below this list width the row actions drop their labels. */
+    private static final int ROW_LABELS_DP = 480;
 
-        // source segmented control
+    private String sourceLabel(int i) {
+        switch (i) {
+            case MainActivity.SRC_CURSE: return "CurseForge";
+            case MainActivity.SRC_WOWI: return "WoWInterface";
+            case MainActivity.SRC_GITHUB: return "GitHub";
+            default: return s(R.string.browse_src_catalog);
+        }
+    }
+
+    private void switchSource(int s) {
+        if (source == s) return;
+        source = s;
+        app.selected = null;
+        app.render();
+        ensureResults(false);
+    }
+
+    private int gutter() { return app.landscape ? 20 : 16; }
+
+    /** Header with the title and subtitle on one line when the window is low. */
+    private LinearLayout browseHeader(String title, String subtitle) {
+        if (!app.layout.compactHeight) return header(title, subtitle);
+        LinearLayout h = Ui.hbox(app);
+        h.setPadding(Ui.dp(gutter()), Ui.dp(10), Ui.dp(app.landscape ? 16 : 12), Ui.dp(6));
+        LinearLayout tbox = Ui.hbox(app);
+        tbox.setBaselineAligned(true);
+        tbox.setGravity(android.view.Gravity.BOTTOM);
+        tbox.addView(Ui.oneLine(Ui.text(app, title, 19, Ui.TEXT, Ui.BOLD)), Ui.lp(-2, -2));
+        tbox.addView(Ui.oneLine(Ui.text(app, subtitle, 12, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lpw(0, -2, 1), 10, 0, 0, 0));
+        h.addView(tbox, Ui.lpw(0, -2, 1));
+        app.headerBox.addView(h);
+        return h;
+    }
+
+    /** All four sources side by side, the current one in gold. */
+    private View segmentedSources() {
         HorizontalScrollView hs = new HorizontalScrollView(app);
         hs.setHorizontalScrollBarEnabled(false);
+        hs.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
+        hs.setClipToPadding(false);
         LinearLayout seg = Ui.hbox(app);
-        seg.setPadding(Ui.dp(app.landscape ? 20 : 16), 0, Ui.dp(16), Ui.dp(8));
-        String[] names = {s(R.string.browse_src_catalog), "CurseForge", "WoWInterface", "GitHub"};
-        int[] icons = {R.drawable.ic_star, R.drawable.ic_download, R.drawable.ic_apps, R.drawable.ic_link};
-        for (int i = 0; i < names.length; i++) {
-            final int s = i;
+        seg.setBackground(Ui.round(Ui.SURFACE2, 12, Ui.STROKE, 1f));
+        seg.setPadding(Ui.dp(3), Ui.dp(3), Ui.dp(3), Ui.dp(3));
+        for (int i = 0; i < SOURCE_ICONS.length; i++) {
+            final int src = i;
             boolean on = i == source;
-            LinearLayout chip = Ui.hbox(app);
-            chip.setFocusable(true);
-            chip.setClickable(true);
-            chip.setBackground(Ui.selectable(on ? Ui.ACCENT : Ui.SURFACE2, 20, on ? 0 : Ui.STROKE));
-            chip.setPadding(Ui.dp(12), Ui.dp(7), Ui.dp(14), Ui.dp(7));
-            chip.addView(Ui.icon(app, icons[i], on ? Ui.ACCENT_DARK : Ui.TEXT2, 16));
-            TextView t = Ui.text(app, names[i], 13.5f, on ? Ui.ACCENT_DARK : Ui.TEXT, Ui.MEDIUM);
-            chip.addView(t, Ui.margins(Ui.lp(-2, -2), 7, 0, 0, 0));
-            chip.setOnClickListener(v -> {
-                if (source == s) return;
-                source = s;
-                app.selected = null;
-                app.render();
-                ensureResults(false);
-            });
-            seg.addView(chip, Ui.margins(Ui.lp(-2, -2), 0, 0, 8, 0));
+            LinearLayout part = Ui.hbox(app);
+            part.setFocusable(true);
+            part.setClickable(true);
+            part.setBackground(Ui.selectable(on ? Ui.ACCENT : 0x00000000, 9, 0));
+            part.setPadding(Ui.dp(11), 0, Ui.dp(12), 0);
+            part.setContentDescription(sourceLabel(i));
+            part.addView(Ui.icon(app, SOURCE_ICONS[i], on ? Ui.ACCENT_DARK : Ui.TEXT2, 15));
+            TextView t = Ui.oneLine(Ui.text(app, sourceLabel(i), 12.5f, on ? Ui.ACCENT_DARK : Ui.TEXT2, Ui.MEDIUM));
+            part.addView(t, Ui.margins(Ui.lp(-2, -2), 6, 0, 0, 0));
+            part.setOnClickListener(v -> switchSource(src));
+            seg.addView(part, Ui.margins(Ui.lp(-2, Ui.dp(32)), i == 0 ? 0 : 4, 0, 0, 0));
         }
         hs.addView(seg);
-        app.headerBox.addView(hs);
+        return hs;
+    }
+
+    /** The current source as a chip; it opens a chooser with all four. */
+    private View sourcePicker() {
+        LinearLayout chip = Ui.hbox(app);
+        chip.setFocusable(true);
+        chip.setClickable(true);
+        chip.setBackground(Ui.selectable(Ui.SURFACE2, 12, Ui.STROKE));
+        chip.setPadding(Ui.dp(10), 0, Ui.dp(8), 0);
+        chip.setContentDescription(s(R.string.browse_source) + ": " + sourceLabel(source));
+        chip.setTooltipText(s(R.string.browse_source));
+        chip.addView(Ui.icon(app, SOURCE_ICONS[source], Ui.ACCENT, 16));
+        TextView t = Ui.oneLine(Ui.text(app, sourceLabel(source), 13, Ui.TEXT, Ui.MEDIUM));
+        // A long source name must not squeeze the search field to nothing.
+        t.setMaxWidth(Ui.dp(Math.max(72, app.layout.listDp * 2 / 5 - 54)));
+        chip.addView(t, Ui.margins(Ui.lp(-2, -2), 7, 0, 0, 0));
+        ImageView chev = Ui.icon(app, R.drawable.ic_chevron, Ui.TEXT3, 14);
+        chev.setRotation(90);
+        chip.addView(chev, Ui.margins(Ui.lp(Ui.dp(14), Ui.dp(14)), 5, 0, 0, 0));
+        chip.setOnClickListener(v -> showSourceChooser());
+        return chip;
+    }
+
+    private void showSourceChooser() {
+        LinearLayout col = Ui.vbox(app);
+        View current = null;
+        for (int i = 0; i < SOURCE_ICONS.length; i++) {
+            final int src = i;
+            boolean on = i == source;
+            LinearLayout b = Ui.button(app, sourceLabel(i), SOURCE_ICONS[i], on ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> { app.closeModal(); switchSource(src); });
+            b.setGravity(android.view.Gravity.CENTER_VERTICAL | android.view.Gravity.START);
+            col.addView(b, Ui.margins(Ui.lp(-1, Ui.dp(44)), 0, 0, 0, 8));
+            if (on) current = b;
+        }
+        app.modal(s(R.string.browse_source), null, col, null);
+        final View f = current;
+        if (f != null) f.post(f::requestFocus);
+    }
+
+    /** One line: what is wrong, and a button that fixes it. */
+    private void gameFolderBanner() {
+        LinearLayout bar = Ui.hbox(app);
+        bar.setBackground(Ui.round(Ui.ORANGE_SOFT, 12));
+        bar.setPadding(Ui.dp(12), Ui.dp(5), Ui.dp(5), Ui.dp(5));
+        bar.addView(Ui.icon(app, R.drawable.ic_warning, Ui.ORANGE, 17));
+        TextView msg = Ui.oneLine(Ui.text(app, s(R.string.browse_no_game), 12.5f, Ui.ORANGE, Ui.REGULAR));
+        bar.addView(msg, Ui.margins(Ui.lpw(0, -2, 1), 10, 0, 8, 0));
+        TextView fix = Ui.oneLine(Ui.text(app, s(R.string.browse_set_folder), 12, Ui.ORANGE, Ui.MEDIUM));
+        fix.setGravity(android.view.Gravity.CENTER);
+        fix.setBackground(Ui.selectable(Ui.ORANGE_SOFT, 10, 0));
+        fix.setPadding(Ui.dp(10), 0, Ui.dp(10), 0);
+        fix.setFocusable(true);
+        fix.setClickable(true);
+        fix.setOnClickListener(v -> app.gameFolder.openFolderPicker());
+        bar.addView(fix, Ui.lp(-2, Ui.dp(30)));
+        app.headerBox.addView(bar, Ui.margins(Ui.lp(-1, -2), gutter(), 0, 16, 8));
+    }
+
+    void renderBrowse() {
+        LinearLayout h = browseHeader(s(R.string.browse_title), s(R.string.browse_subtitle, Toc.FOREVER_INTERFACE_PREFIX + "01"));
+        addHeaderButton(h, s(R.string.action_from_zip), R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
+
+        boolean segmented = app.layout.listDp >= SEGMENTED_DP;
+        if (segmented) app.headerBox.addView(segmentedSources());
 
         // search row
         LinearLayout sr = Ui.hbox(app);
-        sr.setPadding(Ui.dp(app.landscape ? 20 : 16), 0, Ui.dp(16), Ui.dp(10));
+        sr.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
+        if (!segmented) sr.addView(sourcePicker(), Ui.margins(Ui.lp(-2, Ui.dp(42)), 0, 0, 8, 0));
         app.searchField = new EditText(app);
         app.searchField.setSingleLine(true);
         app.searchField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
@@ -86,7 +185,7 @@ final class BrowseScreen extends Screen {
         app.searchField.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN);
         app.searchField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | (source == MainActivity.SRC_GITHUB ? InputType.TYPE_TEXT_VARIATION_URI : 0));
         android.graphics.drawable.StateListDrawable fbg = new android.graphics.drawable.StateListDrawable();
-        fbg.addState(new int[]{android.R.attr.state_focused}, Ui.round(Ui.SURFACE2, 12, Ui.ACCENT, 1.5f));
+        fbg.addState(new int[]{android.R.attr.state_focused}, Ui.round(Ui.SURFACE2, 12, Ui.FOCUS, 1.5f));
         fbg.addState(new int[]{}, Ui.round(Ui.SURFACE2, 12, Ui.STROKE, 1f));
         app.searchField.setBackground(fbg);
         android.graphics.drawable.Drawable sIcon = app.getDrawable(R.drawable.ic_search).mutate();
@@ -115,7 +214,9 @@ final class BrowseScreen extends Screen {
         });
         sr.addView(app.searchField, Ui.lpw(0, Ui.dp(42), 1));
         if (source == MainActivity.SRC_GITHUB) {
-            LinearLayout go = Ui.button(app, s(R.string.action_find), R.drawable.ic_search, Ui.Kind.PRIMARY, v -> { app.hideKeyboard(); runSearch(MainActivity.SRC_GITHUB, false); });
+            boolean labeled = app.layout.listDp >= ROW_LABELS_DP;
+            LinearLayout go = Ui.button(app, labeled ? s(R.string.action_find) : null, R.drawable.ic_search, Ui.Kind.PRIMARY, v -> { app.hideKeyboard(); runSearch(MainActivity.SRC_GITHUB, false); });
+            if (!labeled) { go.setContentDescription(s(R.string.action_find)); go.setTooltipText(s(R.string.action_find)); }
             sr.addView(go, Ui.margins(Ui.lp(-2, Ui.dp(42)), 8, 0, 0, 0));
         }
         app.headerBox.addView(sr);
@@ -124,30 +225,26 @@ final class BrowseScreen extends Screen {
             HorizontalScrollView cs = new HorizontalScrollView(app);
             cs.setHorizontalScrollBarEnabled(false);
             LinearLayout cats = Ui.hbox(app);
-            cats.setPadding(Ui.dp(app.landscape ? 20 : 16), 0, Ui.dp(16), Ui.dp(8));
+            cats.setPadding(Ui.dp(gutter()), 0, Ui.dp(16), Ui.dp(8));
             List<String> all = new ArrayList<>();
             all.add(null);
             all.addAll(Catalog.categories());
             for (final String c : all) {
                 boolean on = c == null ? catalogCategory == null : c.equals(catalogCategory);
-                TextView chip = Ui.text(app, c == null ? s(R.string.browse_cat_all) : c, 12.5f, on ? Ui.TEXT : Ui.TEXT2, Ui.MEDIUM);
-                chip.setBackground(Ui.selectable(on ? Ui.SURFACE3 : 0x00000000, 16, on ? 0 : Ui.STROKE));
-                chip.setPadding(Ui.dp(12), Ui.dp(6), Ui.dp(12), Ui.dp(6));
+                TextView chip = Ui.oneLine(Ui.text(app, c == null ? s(R.string.browse_cat_all) : c, 12, on ? Ui.TEXT : Ui.TEXT2, Ui.MEDIUM));
+                chip.setGravity(android.view.Gravity.CENTER);
+                chip.setBackground(Ui.selectable(on ? Ui.SURFACE3 : 0x00000000, 14, on ? 0 : Ui.STROKE));
+                chip.setPadding(Ui.dp(12), 0, Ui.dp(12), 0);
                 chip.setFocusable(true);
                 chip.setClickable(true);
                 chip.setOnClickListener(v -> { catalogCategory = c; app.selected = null; app.render(); });
-                cats.addView(chip, Ui.margins(Ui.lp(-2, -2), 0, 0, 6, 0));
+                cats.addView(chip, Ui.margins(Ui.lp(-2, Ui.dp(28)), 0, 0, 6, 0));
             }
             cs.addView(cats);
             app.headerBox.addView(cs);
         }
 
-        if (app.store.gameRoot() == null || !app.store.gameReady()) {
-            TextView warn = Ui.text(app, s(R.string.browse_no_game), 12.5f, Ui.ORANGE, Ui.REGULAR);
-            warn.setBackground(Ui.round(Ui.ORANGE_SOFT, 10));
-            warn.setPadding(Ui.dp(12), Ui.dp(8), Ui.dp(12), Ui.dp(8));
-            app.headerBox.addView(warn, Ui.margins(Ui.lp(-1, -2), app.landscape ? 20 : 16, 0, 16, 8));
-        }
+        if (app.store.gameRoot() == null || !app.store.gameReady()) gameFolderBanner();
 
         renderResults();
     }
@@ -224,38 +321,66 @@ final class BrowseScreen extends Screen {
     }
 
     private View itemRow(final Model.Item it) {
-        LinearLayout row = rowShell(it == app.selected || (app.selected instanceof Model.Item && ((Model.Item) app.selected).key().equals(it.key())));
-        row.addView(avatar(it.iconUrl, it.name, 46));
+        boolean active = it == app.selected || (app.selected instanceof Model.Item && ((Model.Item) app.selected).key().equals(it.key()));
+        LinearLayout row = rowShell(active);
+        if (active) row.setBackground(activeRowBackground());
+        row.setPadding(Ui.dp(10), Ui.dp(8), Ui.dp(8), Ui.dp(8));
+        row.setMinimumHeight(Ui.dp(60));
+        row.addView(avatar(it.iconUrl, it.name, 40));
         LinearLayout mid = Ui.vbox(app);
-        LinearLayout tl = Ui.hbox(app);
-        tl.addView(Ui.oneLine(Ui.text(app, it.name, 15, Ui.TEXT, Ui.MEDIUM)), Ui.lpw(0, -2, 1));
-        mid.addView(tl);
+        mid.addView(Ui.oneLine(Ui.text(app, it.name, 14, Ui.TEXT, Ui.MEDIUM)), Ui.lp(-1, -2));
         StringBuilder meta = new StringBuilder();
         if (!it.author.isEmpty()) meta.append(it.author);
-        if (it.downloads > 0) { if (meta.length() > 0) meta.append("  ·  "); meta.append("↓ ").append(Ui.formatCount(it.downloads)); }
-        if (source == MainActivity.SRC_CATALOG && !it.category.isEmpty()) { if (meta.length() > 0) meta.append("  ·  "); meta.append(it.category); }
-        if (meta.length() > 0) mid.addView(Ui.oneLine(Ui.text(app, meta.toString(), 12, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lp(-1, -2), 0, 4, 0, 0));
-        if (!it.summary.isEmpty()) {
-            TextView s = Ui.text(app, it.summary, 12.5f, Ui.TEXT2, Ui.REGULAR);
-            s.setMaxLines(app.landscape ? 1 : 2);
-            s.setEllipsize(android.text.TextUtils.TruncateAt.END);
-            mid.addView(s, Ui.margins(Ui.lp(-1, -2), 0, 4, 0, 0));
-        }
+        if (it.downloads > 0) { if (meta.length() > 0) meta.append(" · "); meta.append("↓ ").append(Ui.formatCount(it.downloads)); }
+        if (source == MainActivity.SRC_CATALOG && !it.category.isEmpty()) { if (meta.length() > 0) meta.append(" · "); meta.append(it.category); }
+        if (meta.length() == 0 && !it.summary.isEmpty()) meta.append(it.summary);
+        if (meta.length() > 0) mid.addView(Ui.oneLine(Ui.text(app, meta.toString(), 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
 
         Model.Entry e = app.store.entry(it.key());
         if (app.busy.containsKey(it.key())) {
             row.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
         } else if (e != null) {
-            row.addView(Ui.pill(app, s(R.string.pill_installed), Ui.GREEN, Ui.GREEN_SOFT));
+            row.addView(installedPill());
+        } else if (app.layout.listDp < ROW_LABELS_DP) {
+            LinearLayout b = Ui.button(app, null, R.drawable.ic_download, Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
+            b.setBackground(Ui.selectable(Ui.SURFACE3, 18, 0));
+            b.setPadding(0, 0, 0, 0);
+            b.setMinimumHeight(0);
+            b.setFocusable(false);
+            b.setContentDescription(s(R.string.action_install));
+            b.setTooltipText(s(R.string.action_install));
+            row.addView(b, Ui.lp(Ui.dp(36), Ui.dp(36)));
         } else {
             LinearLayout b = Ui.button(app, s(R.string.action_install), R.drawable.ic_download, Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
             b.setFocusable(false);
-            b.setMinimumHeight(Ui.dp(34));
-            b.setPadding(Ui.dp(10), Ui.dp(6), Ui.dp(12), Ui.dp(6));
-            row.addView(b);
+            b.setMinimumHeight(Ui.dp(36));
+            b.setPadding(Ui.dp(11), 0, Ui.dp(14), 0);
+            row.addView(b, Ui.lp(-2, Ui.dp(36)));
         }
         return row;
+    }
+
+    /** Selected row: raised surface with a gold edge on the left; the gamepad ring still wins. */
+    private android.graphics.drawable.Drawable activeRowBackground() {
+        android.graphics.drawable.LayerDrawable edge = new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{
+                Ui.round(Ui.ACCENT, 14), Ui.round(Ui.SURFACE2, 14, Ui.STROKE, 1f)});
+        edge.setLayerInset(1, Ui.dp(3), 0, 0, 0);
+        android.graphics.drawable.StateListDrawable s = new android.graphics.drawable.StateListDrawable();
+        s.addState(new int[]{android.R.attr.state_selected}, Ui.round(Ui.SURFACE2, 14, Ui.FOCUS, 2f));
+        s.addState(new int[]{android.R.attr.state_pressed}, Ui.round(Ui.SURFACE3, 14));
+        s.addState(new int[]{}, edge);
+        return s;
+    }
+
+    private View installedPill() {
+        LinearLayout p = Ui.hbox(app);
+        p.setBackground(Ui.round(Ui.GREEN_SOFT, 12));
+        p.setPadding(Ui.dp(8), 0, Ui.dp(9), 0);
+        p.setMinimumHeight(Ui.dp(24));
+        p.addView(Ui.icon(app, R.drawable.ic_check, Ui.GREEN, 13));
+        p.addView(Ui.oneLine(Ui.text(app, s(R.string.pill_installed), 11, Ui.GREEN, Ui.MEDIUM)), Ui.margins(Ui.lp(-2, -2), 5, 0, 0, 0));
+        return p;
     }
 
     void ensureResults(boolean force) {
