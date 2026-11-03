@@ -15,7 +15,6 @@
     <string name="perm_settings_hint">Open Settings → Apps → %1$s → All files access</string>
     <string name="setup_step_access">File access</string>
     <string name="setup_step_folder">Game folder</string>
-    <string name="setup_step_curse">Connect CurseForge (optional)</string>
     <string name="game_not_set">No game folder selected</string>
     <string name="game_where_title">Where is WoW Forever installed?</string>
     <string name="game_where_text">Usually it is \"WoW Forever\" in internal storage or on the SD card. Pick the folder that holds .build.info and _forever_.</string>
@@ -65,25 +64,19 @@
     <string name="browse_title">Browse addons</string>
     <string name="browse_subtitle">WoW Forever builds only · interface %1$s</string>
     <string name="browse_src_catalog">Forever catalog</string>
-    <string name="browse_hint_github">owner/repo or a GitHub link</string>
+    <string name="browse_hint_github">Search, or paste a github.com/owner/repo link</string>
     <string name="browse_hint_search">Search addons…</string>
-    <string name="action_find">Find</string>
     <string name="browse_cat_all">All</string>
     <string name="browse_set_folder">Set folder</string>
     <string name="browse_source">Source</string>
     <string name="browse_no_game">Game folder not set. Installing is off.</string>
-    <string name="curse_connect_title">Connect CurseForge</string>
-    <string name="curse_connect_text">CurseForge serves files only with a personal API key. Get one for free at console.curseforge.com and paste it in Settings; then you can search every addon that has a Forever version here.\n\nWithout a key, download the zip on the CurseForge site in your browser and install it with \"From ZIP\".</string>
-    <string name="action_enter_key">Enter key</string>
-    <string name="action_open_site">Open site</string>
     <string name="load_failed">Could not load</string>
     <string name="action_retry">Retry</string>
-    <string name="github_empty_title">Addon from GitHub</string>
-    <string name="github_empty_text">Paste a repository link, for example github.com/Questie/Questie. The Forever build is picked from release.json, and updates need no keys and have no limits.</string>
+    <string name="github_empty_title">Not in the GitHub index</string>
+    <string name="github_empty_text">Try another name, or paste a repository link such as github.com/Questie/Questie: the Forever build is picked from its release.json.</string>
     <string name="nothing_found">Nothing found</string>
     <string name="nothing_found_text">Try another search.</string>
     <string name="wowi_note">WoWInterface does not mark Forever versions. After install the app checks the TOC and warns you if the addon is not for Forever.</string>
-    <string name="github_repo_needed">Enter the repository as owner/repo or a github.com/owner/repo link</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -98,16 +91,9 @@
     <string name="settings_language">Language</string>
     <string name="settings_language_text">The app follows the system language. Pick another one here.</string>
     <string name="language_system">System</string>
-    <string name="settings_curse_key">CurseForge API key</string>
-    <string name="settings_curse_text">Enables search and updates for every CurseForge addon with a Forever version. The key is free: sign in at console.curseforge.com → API keys. It stays on this device and is sent only to api.curseforge.com and forgecdn.net.</string>
-    <string name="settings_paste_key">Paste the key</string>
     <string name="action_save">Save</string>
-    <string name="curse_key_saved">CurseForge key saved</string>
-    <string name="curse_key_removed">Key removed</string>
-    <string name="action_get_key">Get a key</string>
-    <string name="curse_key_works">CurseForge key works ✓</string>
     <string name="settings_github_token">GitHub token (optional)</string>
-    <string name="settings_github_text">The catalog works without a token. You need one only if you often add repositories without release.json and hit the limit of 60 requests per hour.</string>
+    <string name="settings_github_text">Search and installs work without a token. You need one only if you often install from repositories without release.json and hit the limit of 60 requests per hour.</string>
     <string name="saved">Saved</string>
     <string name="settings_about">About</string>
     <string name="settings_about_text">Addon manager for the WoW Forever client on Android. It installs only Forever builds (TOC _Forever / _Camelot, interface 16001), keeps them up to date and touches nothing in the game except Interface/AddOns.\n\nGamepad: L1/R1 switch tabs, X checks for updates, Y opens search, B goes back.</string>
@@ -121,8 +107,6 @@
     <string name="detail_pick_addon">Select an addon</string>
     <string name="detail_hint_library">Version, folders and the update and remove buttons show up here.</string>
     <string name="detail_hint_browse">Tap an addon in the list to see details and install it.</string>
-    <string name="action_download_site">Download on site</string>
-    <string name="note_distribution_off">The author allows downloads only on the CurseForge site. Download the zip in your browser and install it with \"From ZIP\".</string>
     <string name="note_wowi_version">WoWInterface does not state a Forever version. Make sure the addon supports Forever (interface 16001).</string>
     <string name="info_installed">Installed</string>
     <string name="info_version">Version</string>
@@ -140,7 +124,6 @@
     <string name="action_install_again">Install again</string>
     <string name="action_check_update">Check for update</string>
     <string name="action_track_catalog">Update via catalog</string>
-    <string name="action_track_curse">Update from CurseForge</string>
     <string name="action_track_wowi">Update from WoWInterface</string>
     <string name="action_page">Page</string>
     <string name="action_remove">Remove</string>
@@ -165,8 +148,6 @@
     <string name="md5_mismatch">The file got damaged while downloading (MD5 mismatch). Try again.</string>
     <string name="unpacking">Unpacking…</string>
     <string name="more_queued">+%1$d queued</string>
-    <string name="searching_curse">Searching CurseForge…</string>
-    <string name="curse_addon_not_found">Addon not found on CurseForge</string>
     <string name="remove_title">Remove %1$s?</string>
     <string name="remove_text">These folders will be deleted: %1$s.\nThe addon settings in WTF stay.</string>
     <string name="removing">Removing %1$s…</string>
@@ -203,11 +184,6 @@
     <string name="err_gh_rate_limit">GitHub request limit reached. Wait an hour or add a token in Settings.</string>
     <string name="err_gh_unexpected">GitHub sent an unexpected reply</string>
     <string name="err_gh_repo_not_found">Repository %1$s not found</string>
-    <string name="err_curse_key_needed">A CurseForge API key is needed (Settings)</string>
-    <string name="err_curse_unexpected">CurseForge sent an unexpected reply</string>
-    <string name="err_curse_key_rejected">CurseForge rejected the API key (code %1$d). Check the key in Settings.</string>
-    <string name="err_curse_no_files">CurseForge has no WoW Forever files for this addon</string>
-    <string name="err_curse_site_only">The author does not allow downloads outside the CurseForge site. Download the zip in your browser and install it with \"From ZIP\".</string>
     <string name="err_wowi_list">Could not read the WoWInterface list</string>
     <string name="err_wowi_unexpected">WoWInterface sent an unexpected reply</string>
     <string name="err_wowi_not_found">Addon not found on WoWInterface</string>
@@ -287,7 +263,7 @@
     <string name="sum_aio">Access to hidden client settings (CVars) through a handy menu.</string>
     <string name="sum_broker">A set of info panels: gold, FPS, latency, friends, guild, durability and much more.</string>
     <string name="sum_bugsack">Collects Lua errors into a \"sack\" so they do not get in the way of play.</string>
-    <string name="note_bugsack">Errors are caught by !BugGrabber, which you can find on CurseForge or WoWInterface.</string>
+    <string name="note_bugsack">Errors are caught by !BugGrabber, which you can find on GitHub or WoWInterface.</string>
 
     <!-- Background auto-update (settings, detail panel, notifications) -->
     <string name="auto_title">Auto-update</string>
@@ -326,4 +302,7 @@
         <item quantity="one">%d addon updated</item>
         <item quantity="other">%d addons updated</item>
     </plurals>
+    <string name="err_index_missing">The GitHub index is not published yet. Paste a repository link (owner/repo) to install an addon directly.</string>
+    <string name="err_index_broken">The GitHub index is damaged. Try again later.</string>
+    <string name="err_index_newer">The GitHub index is newer than this app. Update Runeloader.</string>
 </resources>

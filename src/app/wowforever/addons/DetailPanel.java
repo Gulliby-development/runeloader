@@ -196,8 +196,6 @@ final class DetailPanel extends Screen {
             LinearLayout b = Ui.button(app, app.busy.get(it.key()), 0, Ui.Kind.SECONDARY, null);
             b.setEnabled(false);
             primaryAction(col, b);
-        } else if (it.distributionOff) {
-            primaryAction(col, Ui.button(app, s(R.string.action_download_site), R.drawable.ic_open, Ui.Kind.PRIMARY, v -> app.openUrl(it.pageUrl)));
         } else {
             String label = s(e == null ? R.string.action_install : R.string.action_reinstall);
             LinearLayout b = Ui.button(app, label, R.drawable.ic_download, e == null ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
@@ -214,7 +212,6 @@ final class DetailPanel extends Screen {
         }
 
         if (it.note != null) noteCard(col, it.note, Ui.ORANGE, Ui.ORANGE_SOFT);
-        if (it.distributionOff) noteCard(col, s(R.string.note_distribution_off), Ui.ORANGE, Ui.ORANGE_SOFT);
         if (Model.SRC_WOWI.equals(it.source)) noteCard(col, s(R.string.note_wowi_version), Ui.BLUE, Ui.BLUE_SOFT);
 
         if (!it.summary.isEmpty()) {
@@ -232,7 +229,7 @@ final class DetailPanel extends Screen {
         }
 
         if (e != null) infoRow(col, s(R.string.info_installed), e.version, true);
-        if (it.version != null && !Model.SRC_CURSE.equals(it.source)) infoRow(col, s(R.string.info_version), it.version, true);
+        if (it.version != null) infoRow(col, s(R.string.info_version), it.version, true);
         if (!it.category.isEmpty()) infoRow(col, s(R.string.info_category), it.category);
         if (it.downloads > 0) infoRow(col, s(R.string.info_downloads), Ui.formatCount(it.downloads));
         if (it.updated > 0) infoRow(col, s(R.string.info_updated), Ui.formatDate(it.updated));
@@ -278,9 +275,6 @@ final class DetailPanel extends Screen {
             }
         } else if (e == null && r.catalogMatch != null) {
             primary = Ui.button(app, s(R.string.action_track_catalog), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.install(r.catalogMatch, null));
-        } else if (e == null && r.main() != null && r.main().curseId != null && Sources.hasCurseKey()) {
-            final String cid = r.main().curseId;
-            primary = Ui.button(app, s(R.string.action_track_curse), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.adoptCurse(cid, r));
         } else if (e == null && r.main() != null && r.main().wowiId != null) {
             final String wid = r.main().wowiId;
             primary = Ui.button(app, s(R.string.action_track_wowi), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.adoptWowi(wid, r));

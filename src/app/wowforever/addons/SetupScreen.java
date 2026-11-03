@@ -34,7 +34,7 @@ final class SetupScreen extends Screen {
                 Ui.button(app, s(R.string.game_pick_folder), R.drawable.ic_folder, Ui.Kind.SECONDARY, v -> app.gameFolder.openFolderPicker()));
     }
 
-    private static final int[] STEPS = {R.string.setup_step_access, R.string.setup_step_folder, R.string.setup_step_curse};
+    private static final int[] STEPS = {R.string.setup_step_access, R.string.setup_step_folder};
 
     private void onboarding(int step, String title, String text, View... actions) {
         LayoutSpec ls = app.layout;

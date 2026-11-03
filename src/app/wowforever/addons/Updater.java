@@ -49,9 +49,6 @@ final class Updater {
         for (String d : item.deps) { Model.Item c = Catalog.byKey(d); if (c != null) deps.add(c); }
         for (Model.Item d : deps) {
             if (store.entry(d.key()) != null) continue;
-            if (Model.SRC_CURSE.equals(d.source)) {
-                try { Model.Item full = Sources.Curse.mod(d.id); if (full != null) d = full; } catch (IOException ignored) {}
-            }
             installLocked(d, addons, done, seen, depth + 1, p);
         }
         File dl = new File(ctx.getCacheDir(), "dl");

@@ -9,13 +9,12 @@ final class Model {
 
     static final String SRC_CATALOG = "github";   // curated catalog entries are GitHub sources
     static final String SRC_GITHUB = "github";
-    static final String SRC_CURSE = "curse";
     static final String SRC_WOWI = "wowi";
     static final String SRC_ZIP = "zip";
 
     /** Something that can be installed: a catalog entry or a search result. */
     static final class Item {
-        String source;        // github | curse | wowi
+        String source;        // github | wowi
         String id;            // owner/repo | numeric id
         String name;
         String author = "";
@@ -27,7 +26,6 @@ final class Model {
         String pageUrl;
         String version;       // version string if known from the listing
         boolean foreverVerified;  // the source says it has a Forever build
-        boolean distributionOff;  // CurseForge: author forbids 3rd-party downloads
         List<String> folders = new ArrayList<>();   // known AddOns folders (to recognise manual installs)
         List<String> deps = new ArrayList<>();      // required items, as "source:id"
         String note;          // a Forever caveat to show
@@ -77,7 +75,7 @@ final class Model {
         String tocFile = "";
         boolean foreverToc;     // has a _Forever / _Camelot TOC or interface 160xx
         boolean loadOnDemand;
-        String curseId, wowiId, wagoId, website;
+        String wowiId, wagoId, website;
         List<String> deps = new ArrayList<>();
     }
 

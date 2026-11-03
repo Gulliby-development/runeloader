@@ -32,6 +32,7 @@ final class AddonManager {
         final File addons = app.store.addonsDir();
         MainActivity.net.execute(() -> {
             List<Model.LocalAddon> locals = addons.isDirectory() ? Toc.scan(addons) : new ArrayList<Model.LocalAddon>();
+            Index.loadCached();
             final List<Model.Installed> rows = group(locals);
             app.main.post(() -> {
                 if (app.isDestroyed()) return;
@@ -82,6 +83,7 @@ final class AddonManager {
         for (Model.LocalAddon a : locals) {
             if (owned.contains(a.folder.toLowerCase(Locale.ROOT))) continue;
             Model.Item c = Catalog.byFolder(a.folder);
+            if (c == null) c = Index.byFolder(a.folder);
             if (c != null) {
                 Model.Installed g = catalogGroups.get(c.key());
                 if (g == null) { g = new Model.Installed(); g.catalogMatch = c; catalogGroups.put(c.key(), g); }
@@ -282,20 +284,6 @@ final class AddonManager {
         if (e != null) return e.name;
         for (List<Model.Item> l : app.results.values()) for (Model.Item it : l) if (it.key().equals(key)) return it.name;
         return key;
-    }
-
-    void adoptCurse(final String id, final Model.Installed r) {
-        app.snack(app.getString(R.string.searching_curse));
-        MainActivity.net.execute(() -> {
-            try {
-                final Model.Item it = Sources.Curse.mod(id);
-                if (it == null) throw new IOException(app.getString(R.string.curse_addon_not_found));
-                app.main.post(() -> install(it, null));
-            } catch (Exception e) {
-                final String m = MainActivity.friendly(e);
-                app.main.post(() -> app.snack(m));
-            }
-        });
     }
 
     void adoptWowi(final String id, final Model.Installed r) {
