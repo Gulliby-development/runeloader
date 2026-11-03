@@ -147,8 +147,7 @@ final class AddonManager {
             MainActivity.net.execute(() -> {
                 String latest = null, err = null;
                 try {
-                    Model.Release r = Sources.latest(Sources.itemFor(e));
-                    latest = r.version;
+                    latest = Updater.latestVersion(e);
                 } catch (Exception ex) {
                     err = MainActivity.friendly(ex);
                 }
@@ -174,7 +173,7 @@ final class AddonManager {
         app.snack(app.getString(R.string.checking_one, e.name));
         MainActivity.net.execute(() -> {
             String latest = null, err = null;
-            try { latest = Sources.latest(Sources.itemFor(e)).version; } catch (Exception ex) { err = MainActivity.friendly(ex); }
+            try { latest = Updater.latestVersion(e); } catch (Exception ex) { err = MainActivity.friendly(ex); }
             final String fl = latest, fe = err;
             app.main.post(() -> {
                 e.checkError = fe;
@@ -185,11 +184,7 @@ final class AddonManager {
         });
     }
 
-    static boolean sameVersion(String a, String b) {
-        if (a == null || b == null) return false;
-        String x = a.trim().replaceFirst("^[vV]", ""), y = b.trim().replaceFirst("^[vV]", "");
-        return x.equalsIgnoreCase(y);
-    }
+    static boolean sameVersion(String a, String b) { return UpdatePolicy.sameVersion(a, b); }
 
     boolean requireGame() {
         if (!app.hasStorageAccess()) { app.requestStorage(); return false; }
@@ -249,74 +244,12 @@ final class AddonManager {
 
     /** Runs on the ops thread. */
     private void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth) throws IOException {
-        if (!seen.add(item.key()) || depth > 4) return;
-        progress(item, app.getString(R.string.finding_build), -1);
-        Model.Release rel = Sources.latest(item);
-        // dependencies first
-        List<Model.Item> deps = new ArrayList<>(rel.deps);
-        for (String d : item.deps) { Model.Item c = Catalog.byKey(d); if (c != null) deps.add(c); }
-        for (Model.Item d : deps) {
-            if (app.store.entry(d.key()) != null) continue;
-            if (Model.SRC_CURSE.equals(d.source)) {
-                try { Model.Item full = Sources.Curse.mod(d.id); if (full != null) d = full; } catch (IOException ignored) {}
-            }
-            installWithDeps(d, addons, done, seen, depth + 1);
-        }
-        File dl = new File(app.getCacheDir(), "dl");
-        dl.mkdirs();
-        File zip = new File(dl, safeName(rel.fileName == null ? item.name + ".zip" : rel.fileName));
-        final Model.Item fItem = item;
-        progress(item, app.getString(R.string.downloading, rel.version == null ? "" : rel.version), 0);
-        Http.download(rel.url, rel.headers, zip, (d, t) -> progress(fItem, t > 0 ? app.getString(R.string.downloading_of, Ui.formatBytes(d), Ui.formatBytes(t)) : app.getString(R.string.downloading, Ui.formatBytes(d)), t > 0 ? (float) d / t : -1));
-        if (rel.md5 != null && rel.md5.length() == 32) {
-            String got = Installer.md5(zip);
-            if (!got.equalsIgnoreCase(rel.md5)) { zip.delete(); throw new IOException(app.getString(R.string.md5_mismatch)); }
-        }
-        progress(item, app.getString(R.string.unpacking), -1);
-        Model.Entry old = app.store.entry(item.key());
-        List<String> folders = Installer.install(zip, addons, text -> progress(fItem, text, -1));
-        zip.delete();
-        if (old != null) {
-            List<String> gone = new ArrayList<>();
-            for (String f : old.folders) if (!containsIgnoreCase(folders, f)) gone.add(f);
-            Installer.remove(addons, gone);
-        }
-        // folders taken over from another managed entry
-        for (String f : folders) {
-            Model.Entry other = app.store.owner(f);
-            if (other != null && !other.key.equals(item.key())) {
-                other.folders = new ArrayList<>(other.folders);
-                other.folders.remove(f);
-                if (other.folders.isEmpty()) app.store.remove(other.key); else app.store.put(other);
-            }
-        }
-        Model.Entry e = new Model.Entry();
-        e.key = item.key();
-        e.source = item.source;
-        e.id = item.id;
-        e.name = item.name;
-        e.author = item.author == null ? "" : item.author;
-        e.iconUrl = item.iconUrl;
-        e.pageUrl = item.pageUrl;
-        e.version = rel.version == null ? "" : rel.version;
-        e.folders = folders;
-        e.installedAt = System.currentTimeMillis();
-        e.latest = e.version;
-        e.updateAvailable = false;
-        app.store.put(e);
-        done.add(item.name);
+        new Updater(app, app.store).installWithDeps(item, addons, done, seen, depth, this::progress);
     }
 
-    private static boolean containsIgnoreCase(List<String> l, String s) {
-        for (String x : l) if (x.equalsIgnoreCase(s)) return true;
-        return false;
-    }
+    private static boolean containsIgnoreCase(List<String> l, String s) { return Updater.containsIgnoreCase(l, s); }
 
-    private static String safeName(String s) {
-        String n = s.replaceAll("[^A-Za-z0-9._+-]", "_");
-        if (!n.toLowerCase(Locale.ROOT).endsWith(".zip")) n += ".zip";
-        return n.length() > 120 ? n.substring(n.length() - 120) : n;
-    }
+    private static String safeName(String s) { return Updater.safeName(s); }
 
     private void progress(final Model.Item item, final String text, final float fraction) {
         app.main.post(() -> {
@@ -387,8 +320,10 @@ final class AddonManager {
             MainActivity.ops.execute(() -> {
                 String err = null;
                 try {
-                    Installer.remove(addons, folders);
-                    if (r.entry != null) app.store.remove(r.entry.key);
+                    synchronized (Updater.LOCK) {
+                        Installer.remove(addons, folders);
+                        if (r.entry != null) app.store.remove(r.entry.key);
+                    }
                 } catch (IOException e) {
                     err = MainActivity.friendly(e);
                 }
@@ -432,15 +367,17 @@ final class AddonManager {
                     int n;
                     while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
                 } finally { out.close(); in.close(); }
-                folders = Installer.install(zip, addons, null);
-                zip.delete();
-                // folders taken over from managed entries stay managed by them only if unchanged — release them
-                for (String f : folders) {
-                    Model.Entry other = app.store.owner(f);
-                    if (other != null) {
-                        other.folders = new ArrayList<>(other.folders);
-                        other.folders.remove(f);
-                        if (other.folders.isEmpty()) app.store.remove(other.key); else app.store.put(other);
+                synchronized (Updater.LOCK) {
+                    folders = Installer.install(zip, addons, null);
+                    zip.delete();
+                    // folders taken over from managed entries stay managed by them only if unchanged — release them
+                    for (String f : folders) {
+                        Model.Entry other = app.store.owner(f);
+                        if (other != null) {
+                            other.folders = new ArrayList<>(other.folders);
+                            other.folders.remove(f);
+                            if (other.folders.isEmpty()) app.store.remove(other.key); else app.store.put(other);
+                        }
                     }
                 }
             } catch (Exception e) {
