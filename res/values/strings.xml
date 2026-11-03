@@ -240,6 +240,8 @@
     <string name="cat_map">Map</string>
     <string name="cat_tools">Utilities</string>
     <string name="cat_other">Other</string>
+    <string name="cat_gamepad">Gamepad &amp; handheld</string>
+    <string name="tag_gamepad">Gamepad</string>
     <string name="browse_mode_popular">Popular</string>
     <string name="browse_mode_categories">Categories</string>
     <string name="browse_all_categories">All categories</string>

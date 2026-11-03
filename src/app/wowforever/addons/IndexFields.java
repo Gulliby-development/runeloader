@@ -7,13 +7,14 @@ import java.util.Locale;
 
 /**
  * Maps the optional metadata keys of a runeloader-index entry onto an Item: icon, description,
- * screenshots, category, stars, changelog and recent releases. Every key may be missing.
+ * screenshots, category, tags, stars, changelog and recent releases. Every key may be missing.
  */
 final class IndexFields {
 
     static final int MAX_TEXT = 4000;
     static final int MAX_SCREENSHOTS = 6;
     static final int MAX_RELEASES = 5;
+    static final int MAX_TAGS = 10;
 
     /** @param base the index URL's directory, ending in "/", for relative icon paths. */
     static void fill(JSONObject a, String base, Model.Item it) {
@@ -31,6 +32,12 @@ final class IndexFields {
         if (cat != 0 && (it.category == null || it.category.isEmpty())) {   // a catalog category wins
             it.category = Lang.s(cat);
             it.categoryKey = Categories.key(str(a, "category"));
+        }
+        it.tags.clear();
+        JSONArray tags = a.optJSONArray("tags");
+        if (tags != null) for (int i = 0; i < tags.length() && it.tags.size() < MAX_TAGS; i++) {
+            String t = tags.optString(i, "").trim().toLowerCase(Locale.ROOT);
+            if (!t.isEmpty() && !it.tags.contains(t)) it.tags.add(t);
         }
         if (a.has("stars")) it.stars = a.optLong("stars", -1);
         it.changelog = cap(str(a, "changelog"));

@@ -229,6 +229,8 @@
     <string name="cat_map">Mapa</string>
     <string name="cat_tools">Utilidades</string>
     <string name="cat_other">Otros</string>
+    <string name="cat_gamepad">Mando y portátiles</string>
+    <string name="tag_gamepad">Mando</string>
     <string name="browse_mode_popular">Populares</string>
     <string name="browse_mode_categories">Categorías</string>
     <string name="browse_all_categories">Todas las categorías</string>

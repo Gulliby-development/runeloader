@@ -21,6 +21,7 @@ final class Model {
         String summary = "";
         String category = "";
         String categoryKey = "";   // a Categories key, "" when unknown
+        List<String> tags = new ArrayList<>();   // index tags such as "gamepad", lower case
         long downloads = -1;
         long updated = 0;     // epoch millis
         String iconUrl;

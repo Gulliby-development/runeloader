@@ -15,6 +15,12 @@ public class IndexFieldsTest {
     check(it.screenshots.size() == 2, "only https screenshots kept");
     check(Categories.key("MAP").equals("map") && Categories.key("weird").isEmpty(), "category keys normalized");
     check(IndexFields.categoryRes("MAP") == R.string.cat_map && IndexFields.categoryRes("weird") == 0, "category keys map to the app categories");
+    Model.Item pad = new Model.Item();
+    IndexFields.fill(new JSONObject("{\"repo\":\"o/p\",\"category\":\"bags\",\"tags\":[\"Gamepad\",\"gamepad\",\"\"]}"), base, pad);
+    check(pad.tags.size() == 1 && Categories.matches(pad, Categories.GAMEPAD) && Categories.matches(pad, "bags")
+        && !Categories.matches(it, Categories.GAMEPAD), "gamepad tag selects across categories");
+    check(Categories.key("gamepad").isEmpty(), "gamepad is a tag, never a category value");
+    check(Categories.order(true)[0].equals(Categories.GAMEPAD) && Categories.order(true).length == Categories.KEYS.length, "gamepad tile first with a controller");
     check(it.stars == 42, "stars");
     check(it.releases.size() == 2 && it.releases.get(0).prerelease && it.releases.get(0).released > 0, "releases parsed");
     check(it.releases.get(1).version.equals("v1.0"), "version falls back to the tag");

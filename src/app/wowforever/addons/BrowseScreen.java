@@ -196,22 +196,35 @@ final class BrowseScreen extends Screen {
         col.setPadding(Ui.dp(gutter()), Ui.dp(2), Ui.dp(16), Ui.dp(96));
         sv.addView(col);
         int cols = app.layout.listDp >= 600 ? 4 : app.layout.listDp >= 400 ? 3 : 2;
+        String[] keys = Categories.order(gamepadConnected());
         LinearLayout row = null;
-        for (int i = 0; i < Categories.KEYS.length; i++) {
+        for (int i = 0; i < keys.length; i++) {
             if (i % cols == 0) {
                 row = Ui.hbox(app);
                 row.setBaselineAligned(false);
                 col.addView(row, Ui.margins(Ui.lp(-1, -2), 0, i == 0 ? 0 : 8, 0, 0));
             }
-            View tile = categoryTile(Categories.KEYS[i]);
+            View tile = categoryTile(keys[i]);
             // DPAD Up from the first row goes to the search field, not past it to the switch.
             if (i < cols && app.searchField != null) tile.setNextFocusUpId(app.searchField.getId());
             row.addView(tile, Ui.margins(Ui.lpw(0, -2, 1), i % cols == 0 ? 0 : 8, 0, 0, 0));
         }
         // Keep the last row's tiles the same width as the others.
-        for (int i = Categories.KEYS.length % cols; i > 0 && i < cols; i++)
+        for (int i = keys.length % cols; i > 0 && i < cols; i++)
             row.addView(new View(app), Ui.margins(Ui.lpw(0, 0, 1), 8, 0, 0, 0));
         app.bodyBox.addView(sv, new FrameLayout.LayoutParams(-1, -1));
+    }
+
+    /** A game controller is attached, or built in as on Android handhelds. */
+    private static boolean gamepadConnected() {
+        for (int id : android.view.InputDevice.getDeviceIds()) {
+            android.view.InputDevice d = android.view.InputDevice.getDevice(id);
+            if (d == null || d.isVirtual()) continue;
+            int s = d.getSources();
+            if ((s & android.view.InputDevice.SOURCE_GAMEPAD) == android.view.InputDevice.SOURCE_GAMEPAD
+                    || (s & android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK) return true;
+        }
+        return false;
     }
 
     private View categoryTile(final String key) {
@@ -323,6 +336,12 @@ final class BrowseScreen extends Screen {
         tag.setBackground(Ui.round(Ui.SURFACE3, 6));
         tag.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
         metaRow.addView(tag, Ui.lp(-2, -2));
+        if (it.tags.contains(Categories.GAMEPAD)) {
+            TextView pad = Ui.oneLine(Ui.text(app, s(R.string.tag_gamepad), 10, Ui.ACCENT, Ui.MEDIUM));
+            pad.setBackground(Ui.round(Ui.ACCENT_SOFT, 6));
+            pad.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
+            metaRow.addView(pad, Ui.margins(Ui.lp(-2, -2), 4, 0, 0, 0));
+        }
         if (meta.length() > 0) metaRow.addView(Ui.oneLine(Ui.text(app, meta.toString(), 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lpw(0, -2, 1), 6, 0, 0, 0));
         mid.addView(metaRow, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
