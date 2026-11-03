@@ -17,6 +17,9 @@
     <string name="perm_text">To install addons into the game folder, the app needs \"All files access\", just like the WoW Forever client itself.</string>
     <string name="perm_grant">Allow access</string>
     <string name="perm_settings_hint">Open Settings → Apps → %1$s → All files access</string>
+    <string name="setup_step_access">File access</string>
+    <string name="setup_step_folder">Game folder</string>
+    <string name="setup_step_curse">Connect CurseForge (optional)</string>
     <string name="game_not_set">No game folder selected</string>
     <string name="game_where_title">Where is WoW Forever installed?</string>
     <string name="game_where_text">Usually it is \"WoW Forever\" in internal storage or on the SD card. Pick the folder that holds .build.info and _forever_.</string>

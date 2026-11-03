@@ -13,6 +13,9 @@
     <string name="perm_text">Aby instalować dodatki w folderze gry, aplikacja potrzebuje uprawnienia „Dostęp do wszystkich plików”, tak samo jak sam klient WoW Forever.</string>
     <string name="perm_grant">Zezwól na dostęp</string>
     <string name="perm_settings_hint">Otwórz Ustawienia → Aplikacje → %1$s → Dostęp do wszystkich plików</string>
+    <string name="setup_step_access">Dostęp do plików</string>
+    <string name="setup_step_folder">Folder gry</string>
+    <string name="setup_step_curse">Połącz z CurseForge (opcjonalnie)</string>
     <string name="game_not_set">Nie wybrano folderu gry</string>
     <string name="game_where_title">Gdzie jest zainstalowany WoW Forever?</string>
     <string name="game_where_text">Zwykle jest to „WoW Forever” w pamięci wewnętrznej lub na karcie SD. Wybierz folder, w którym są .build.info i _forever_.</string>
