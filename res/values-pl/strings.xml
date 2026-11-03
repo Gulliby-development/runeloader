@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="nav_installed">Dodatki</string>
+    <string name="nav_browse">Katalog</string>
+    <string name="nav_settings">Opcje</string>
     <string name="app_tagline">Menedżer dodatków do WoW Forever</string>
-
-    <string name="nav_installed_short">Moje</string>
-    <string name="nav_browse_short">Katalog</string>
-    <string name="nav_settings_short">Opcje</string>
-    <string name="nav_installed">Moje dodatki</string>
-    <string name="nav_browse">Przeglądaj</string>
-    <string name="nav_settings">Ustawienia</string>
 
     <string name="perm_title">Potrzebny dostęp do plików</string>
     <string name="perm_text">Aby instalować dodatki w folderze gry, aplikacja potrzebuje uprawnienia „Dostęp do wszystkich plików”, tak samo jak sam klient WoW Forever.</string>

@@ -419,6 +419,12 @@ final class Ui {
         return java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Lang.locale()).format(new java.util.Date(ms));
     }
 
+    /** Fades a chip row at the edge that has more chips, so a cut chip reads as "scroll for more". */
+    static void scrollHint(android.widget.HorizontalScrollView v) {
+        v.setHorizontalFadingEdgeEnabled(true);
+        v.setFadingEdgeLength(dp(28));
+    }
+
     static void setMatchParent(View v) {
         v.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
     }

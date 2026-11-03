@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_tagline">Менеджер аддонов для WoW Forever</string>
-
-    <string name="nav_installed_short">Мои</string>
-    <string name="nav_browse_short">Обзор</string>
-    <string name="nav_settings_short">Настройки</string>
-    <string name="nav_installed">Мои аддоны</string>
+    <string name="nav_installed">Аддоны</string>
     <string name="nav_browse">Обзор</string>
     <string name="nav_settings">Настройки</string>
+    <string name="app_tagline">Менеджер аддонов для WoW Forever</string>
 
     <string name="perm_title">Нужен доступ к файлам</string>
     <string name="perm_text">Чтобы устанавливать аддоны в папку игры, приложению нужен «Доступ ко всем файлам» — так же, как самому клиенту WoW Forever.</string>
