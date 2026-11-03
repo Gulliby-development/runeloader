@@ -103,6 +103,8 @@ public class MainActivity extends Activity {
         android.view.WindowManager.LayoutParams wl = getWindow().getAttributes();
         wl.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         getWindow().setAttributes(wl);
+        // Draw edge to edge, including under the cutout; applyInsets keeps the content clear.
+        if (Build.VERSION.SDK_INT >= 30) getWindow().setDecorFitsSystemWindows(false);
         ImageLoader.dir = new File(getCacheDir(), "img");
         ImageLoader.dir.mkdirs();
         store = new Store(this);
@@ -154,10 +156,9 @@ public class MainActivity extends Activity {
                 c.show(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
             }
         } else {
-            int flags = isLandscape()
-                    ? View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    : 0;
+            // Lay out edge to edge; applyInsets pads around the visible bars and the cutout.
+            int flags = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+            if (isLandscape()) flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             getWindow().getDecorView().setSystemUiVisibility(flags);
         }
     }
@@ -283,7 +284,7 @@ public class MainActivity extends Activity {
         root.addView(modalLayer, new FrameLayout.LayoutParams(-1, -1));
 
         root.setOnApplyWindowInsetsListener((v, insets) -> {
-            applyCutout(insets.getDisplayCutout());
+            applyInsets(insets);
             return insets;
         });
         setContentView(root);
@@ -299,20 +300,32 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * The window draws under the camera cutout (see onCreate). The rail grows into the cutout
-     * on the left; the content keeps clear of a cutout on the right.
+     * The window draws edge to edge, under the camera cutout and the system bars. Pad the content
+     * around the visible bars and the cutout; in landscape the rail grows into the left inset
+     * instead, so no black strip is left next to the camera.
      */
-    private void applyCutout(android.view.DisplayCutout c) {
-        int l = c == null ? 0 : c.getSafeInsetLeft();
-        int r = c == null ? 0 : c.getSafeInsetRight();
+    @SuppressWarnings("deprecation")
+    private void applyInsets(WindowInsets in) {
+        int l, t, r, b;
+        if (Build.VERSION.SDK_INT >= 30) {
+            android.graphics.Insets i = in.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+            l = i.left; t = i.top; r = i.right; b = i.bottom;
+        } else {
+            android.view.DisplayCutout c = in.getDisplayCutout();
+            l = Math.max(in.getSystemWindowInsetLeft(), c == null ? 0 : c.getSafeInsetLeft());
+            t = Math.max(in.getSystemWindowInsetTop(), c == null ? 0 : c.getSafeInsetTop());
+            r = Math.max(in.getSystemWindowInsetRight(), c == null ? 0 : c.getSafeInsetRight());
+            b = Math.max(in.getSystemWindowInsetBottom(), c == null ? 0 : c.getSafeInsetBottom());
+        }
         if (rail != null) {
             rail.setPadding(l, rail.getPaddingTop(), 0, rail.getPaddingBottom());
-            rail.getLayoutParams().width = Ui.dp(LayoutSpec.RAIL_DP) + l;
-            rail.requestLayout();
-            shell.setPadding(0, 0, r, 0);
-        } else {
-            shell.setPadding(l, 0, r, 0);
+            if (rail.getLayoutParams().width != Ui.dp(LayoutSpec.RAIL_DP) + l) {
+                rail.getLayoutParams().width = Ui.dp(LayoutSpec.RAIL_DP) + l;
+                rail.requestLayout();
+            }
+            l = 0;
         }
+        root.setPadding(l, t, r, b);
     }
 
     private View buildRail() {

@@ -67,8 +67,14 @@ abstract class Screen {
         if (actions.length > 0) {
             LinearLayout row = Ui.hbox(app);
             row.setGravity(Gravity.CENTER);
-            for (View a : actions) row.addView(a, Ui.margins(Ui.lp(-2, Ui.dp(42)), 4, 0, 4, 0));
-            box.addView(row, Ui.margins(Ui.lp(-2, -2), 0, 18, 0, 0));
+            // Side by side only where they fit; stacked full width on narrow screens.
+            boolean stack = actions.length > 1 && app.layout.listDp < 480;
+            if (stack) row.setOrientation(LinearLayout.VERTICAL);
+            for (View a : actions) {
+                if (stack) row.addView(a, Ui.margins(Ui.lp(-1, Ui.dp(44)), 0, 4, 0, 4));
+                else row.addView(a, Ui.margins(Ui.lp(-2, Ui.dp(42)), 4, 0, 4, 0));
+            }
+            box.addView(row, Ui.margins(Ui.lp(stack ? -1 : -2, -2), 0, 18, 0, 0));
         }
         ScrollView sv = new ScrollView(app);
         sv.setFillViewport(true);
