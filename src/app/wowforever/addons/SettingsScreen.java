@@ -42,6 +42,7 @@ final class SettingsScreen extends Screen {
         curseCard(right);
         languageCard(left);
         githubCard(right);
+        autoUpdateCard(right);
         aboutCard(left);
 
         app.bodyBox.addView(sv, new FrameLayout.LayoutParams(-1, -1));
@@ -174,13 +175,10 @@ final class SettingsScreen extends Screen {
         }));
 
         c.addView(Ui.text(app, s(R.string.auto_conditions), 13, Ui.TEXT2, Ui.MEDIUM), Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 6));
-        LinearLayout toggles = Ui.hbox(app);
-        toggles.addView(chip(s(R.string.auto_wifi_only), st.autoWifiOnly(), v -> { st.setAutoWifiOnly(!st.autoWifiOnly()); AutoUpdate.apply(app); app.render(); }), Ui.margins(Ui.lp(-2, -2), 0, 0, 8, 0));
-        toggles.addView(chip(s(R.string.auto_charging_only), st.autoChargingOnly(), v -> { st.setAutoChargingOnly(!st.autoChargingOnly()); AutoUpdate.apply(app); app.render(); }), Ui.margins(Ui.lp(-2, -2), 0, 0, 8, 0));
-        HorizontalScrollView ts = new HorizontalScrollView(app);
-        ts.setHorizontalScrollBarEnabled(false);
-        ts.addView(toggles);
-        c.addView(ts);
+        Ui.FlowRow toggles = new Ui.FlowRow(app, 8, 8);
+        toggles.addView(chip(s(R.string.auto_wifi_only), st.autoWifiOnly(), v -> { st.setAutoWifiOnly(!st.autoWifiOnly()); AutoUpdate.apply(app); app.render(); }));
+        toggles.addView(chip(s(R.string.auto_charging_only), st.autoChargingOnly(), v -> { st.setAutoChargingOnly(!st.autoChargingOnly()); AutoUpdate.apply(app); app.render(); }));
+        c.addView(toggles, Ui.lp(-1, -2));
 
         c.addView(Ui.text(app, autoStatus(st), 12.5f, st.autoLastError() != null ? Ui.ORANGE : Ui.TEXT3, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 0));
         if (!AutoUpdate.canNotify(app)) c.addView(Ui.text(app, s(R.string.auto_no_notifications), 12.5f, Ui.TEXT3, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 6, 0, 0));
@@ -213,15 +211,12 @@ final class SettingsScreen extends Screen {
     private interface IntPick { void pick(int value); }
 
     private View chipRow(String[] labels, int[] values, int current, IntPick onPick) {
-        HorizontalScrollView hs = new HorizontalScrollView(app);
-        hs.setHorizontalScrollBarEnabled(false);
-        LinearLayout row = Ui.hbox(app);
+        Ui.FlowRow row = new Ui.FlowRow(app, 8, 8);
         for (int i = 0; i < labels.length; i++) {
             final int v = values[i];
-            row.addView(chip(labels[i], v == current, x -> { if (v != current) onPick.pick(v); }), Ui.margins(Ui.lp(-2, -2), 0, 0, 8, 0));
+            row.addView(chip(labels[i], v == current, x -> { if (v != current) onPick.pick(v); }));
         }
-        hs.addView(row);
-        return hs;
+        return row;
     }
 
     private TextView chip(String label, boolean on, View.OnClickListener click) {
