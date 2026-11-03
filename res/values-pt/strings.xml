@@ -307,4 +307,29 @@
     <string name="err_index_missing">O índice do GitHub ainda não foi publicado. Cole o link de um repositório (owner/repo) para instalar um addon diretamente.</string>
     <string name="err_index_broken">O índice do GitHub está corrompido. Tente mais tarde.</string>
     <string name="err_index_newer">O índice do GitHub é mais novo que o app. Atualize o Runeloader.</string>
+
+    <!-- Runeloader's own update -->
+    <string name="self_check">Procurar atualizações</string>
+    <string name="self_checking">Procurando uma nova versão…</string>
+    <string name="self_available">Runeloader %1$s está disponível</string>
+    <string name="self_update_to">Atualizar para %1$s</string>
+    <string name="self_up_to_date">Você tem a versão mais recente (%1$s).</string>
+    <string name="self_check_failed">Não foi possível procurar atualizações: %1$s</string>
+    <string name="self_offer_title">Runeloader %1$s</string>
+    <string name="self_offer_text">Você tem a %1$s. A versão %2$s está pronta para instalar.</string>
+    <string name="self_later">Depois</string>
+    <string name="self_update_now">Atualizar</string>
+    <string name="self_allow_title">Permitir atualizações</string>
+    <string name="self_allow_text">O Android precisa da sua permissão para o Runeloader instalar a própria atualização. Ative \"Permitir desta fonte\" e volte.</string>
+    <string name="self_allow_action">Abrir configurações</string>
+    <string name="self_not_allowed">O Runeloader ainda não pode instalar atualizações. Permita nas configurações e tente de novo.</string>
+    <string name="self_downloading">Baixando…</string>
+    <string name="self_downloading_bytes">Baixado %1$s de %2$s</string>
+    <string name="self_installing">Instalando…</string>
+    <string name="self_failed_title">Falha na atualização</string>
+    <string name="self_bad_checksum">O download está corrompido (checksum diferente). Tente mais tarde.</string>
+    <string name="self_bad_apk">Este arquivo não é uma atualização do Runeloader.</string>
+    <string name="self_not_newer">O arquivo baixado não é mais novo que %1$s.</string>
+    <string name="self_cancelled">Atualização cancelada.</string>
+    <string name="self_conflict">Esta atualização foi assinada com outra chave. Desinstale o Runeloader e instale o novo APK manualmente.</string>
 </resources>

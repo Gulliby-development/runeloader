@@ -26,6 +26,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
 - **One-tap install.** The app finds the right folder and the right files for you.
 - **Updates.** See which addons are out of date and update them all at once.
+- **Updates itself.** When a new Runeloader comes out, the app tells you. Tap **Update**, and Android installs it.
 - **Auto-update.** Turn it on in **Settings**, and Runeloader checks for updates in the background, even when the app is closed. It can tell you, or install the updates for you.
 - **Your own zips.** Got an addon from somewhere else? Install it from a zip file.
 - **Safe.** An addon is replaced only after the new version is fully unpacked, so a broken download never breaks your game.
@@ -87,7 +88,9 @@ Restart the game after you install or update addons. On the character screen, op
 <details>
 <summary><b>How do I update Runeloader itself?</b></summary>
 
-Download the new APK from the [latest release](../../releases/latest) and install it over the old one. Your settings and addon list stay.
+Runeloader checks for a new version when you open it. When there is one, tap **Update** and confirm the install. You can also check by hand: **Settings**, **About**, **Check for updates**. The first time, Android asks you to allow installs from Runeloader. Your settings and addon list stay.
+
+You can still download the new APK from the [latest release](../../releases/latest) and install it over the old one.
 </details>
 
 ## For developers
