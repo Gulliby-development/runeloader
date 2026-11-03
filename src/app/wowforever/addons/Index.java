@@ -31,7 +31,7 @@ final class Index {
     private static Map<String, Model.Item> byFolder = new HashMap<>();
     private static long loadedAt;
 
-    /** All index entries, most starred first. Uses the disk cache when fresh or when offline. */
+    /** All index entries, most popular first (see Popularity). Uses the disk cache when fresh or when offline. */
     static synchronized List<Model.Item> items(boolean forceRefresh) throws IOException {
         long now = System.currentTimeMillis();
         if (items != null && !forceRefresh && now - loadedAt < FRESH_MS) return items;
