@@ -277,4 +277,46 @@
     <string name="sum_broker">Zestaw wskaźników: złoto, FPS, opóźnienie, znajomi, gildia, wytrzymałość i wiele więcej.</string>
     <string name="sum_bugsack">Zbiera błędy Lua do „worka”, żeby nie przeszkadzały w grze.</string>
     <string name="note_bugsack">Błędy przechwytuje !BugGrabber, który znajdziesz na CurseForge lub WoWInterface.</string>
+
+    <!-- Background auto-update (settings, detail panel, notifications) -->
+    <string name="auto_title">Automatyczne aktualizacje</string>
+    <string name="auto_text">Sprawdza aktualizacje dodatków w tle, także gdy aplikacja jest zamknięta. Dokładny czas wybiera Android, więc sprawdzenie może się opóźnić o kilka godzin.</string>
+    <string name="auto_mode_off">Wyłączone</string>
+    <string name="auto_mode_notify">Tylko powiadamiaj</string>
+    <string name="auto_mode_install">Instaluj automatycznie</string>
+    <string name="auto_frequency">Jak często</string>
+    <string name="auto_every_hours">Co %1$d godz.</string>
+    <string name="auto_conditions">Kiedy</string>
+    <string name="auto_wifi_only">Tylko przez Wi-Fi</string>
+    <string name="auto_charging_only">Tylko podczas ładowania</string>
+    <string name="auto_no_notifications">Powiadomienia są wyłączone, więc aktualizacje odbywają się po cichu. Zezwól na powiadomienia Runeloader w ustawieniach systemu, aby je widzieć.</string>
+    <string name="auto_battery_text">Niektóre telefony zatrzymują pracę w tle, aby oszczędzać baterię. Jeśli sprawdzenia się nie odbywają, wyłącz optymalizację baterii dla Runeloader.</string>
+    <string name="auto_battery_action">Ustawienia baterii</string>
+    <string name="auto_status_never">Nie było jeszcze sprawdzenia w tle.</string>
+    <string name="auto_status_none">Ostatnie sprawdzenie: %1$s. Wszystko jest aktualne.</string>
+    <string name="auto_status_found">Ostatnie sprawdzenie: %1$s. Znalezione aktualizacje: %2$d.</string>
+    <string name="auto_status_updated">Ostatnie sprawdzenie: %1$s. Zaktualizowane dodatki: %2$d.</string>
+    <string name="auto_status_error">Ostatnie sprawdzenie: %1$s. %2$s</string>
+    <string name="auto_channel">Aktualizacje dodatków</string>
+    <string name="auto_channel_text">Co znalazła i zainstalowała automatyczna aktualizacja w tle.</string>
+    <string name="auto_err_title">Automatyczna aktualizacja nie mogła się uruchomić</string>
+    <string name="auto_err_access">Runeloader utracił dostęp do wszystkich plików. Otwórz aplikację, aby przyznać go ponownie.</string>
+    <string name="auto_err_game">Nie znaleziono folderu gry. Otwórz aplikację i wybierz go ponownie.</string>
+    <string name="auto_err_update">Nie udało się zaktualizować dodatków</string>
+    <string name="auto_reload_hint">Jeśli gra jest uruchomiona, wpisz /reload.</string>
+    <string name="auto_pin">Nie aktualizuj automatycznie</string>
+    <string name="auto_unpin">Aktualizuj automatycznie</string>
+    <string name="auto_pinned_note">Automatyczna aktualizacja pomija ten dodatek. Nadal możesz go zaktualizować ręcznie.</string>
+    <plurals name="auto_found">
+        <item quantity="one">Dostępna %d aktualizacja dodatku</item>
+        <item quantity="few">Dostępne %d aktualizacje dodatków</item>
+        <item quantity="many">Dostępnych %d aktualizacji dodatków</item>
+        <item quantity="other">Dostępne aktualizacje dodatków: %d</item>
+    </plurals>
+    <plurals name="auto_updated">
+        <item quantity="one">Zaktualizowano %d dodatek</item>
+        <item quantity="few">Zaktualizowano %d dodatki</item>
+        <item quantity="many">Zaktualizowano %d dodatków</item>
+        <item quantity="other">Zaktualizowane dodatki: %d</item>
+    </plurals>
 </resources>

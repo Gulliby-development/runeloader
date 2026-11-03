@@ -22,7 +22,16 @@ final class Store {
     private final File appState;
     final Map<String, Model.Entry> entries = new LinkedHashMap<>();
 
-    Store(Context ctx) {
+    private static Store instance;
+    private boolean loaded;
+
+    /** One Store per process, so the screens and the background job see the same addon list. */
+    static synchronized Store get(Context ctx) {
+        if (instance == null) instance = new Store(ctx.getApplicationContext() != null ? ctx.getApplicationContext() : ctx);
+        return instance;
+    }
+
+    private Store(Context ctx) {
         prefs = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE);
         appState = new File(ctx.getFilesDir(), STATE_FILE);
         Sources.cacheDir = ctx.getCacheDir();
@@ -40,6 +49,23 @@ final class Store {
     void setGithubToken(String t) { prefs.edit().putString("githubToken", t == null ? "" : t.trim()).apply(); Sources.githubToken = githubToken(); }
     long lastCheck() { return prefs.getLong("lastCheck", 0); }
     void setLastCheck(long t) { prefs.edit().putLong("lastCheck", t).apply(); }
+
+    // ── background auto-update ──
+    int autoMode() { return UpdatePolicy.mode(prefs.getInt("autoMode", UpdatePolicy.MODE_OFF)); }
+    void setAutoMode(int m) { prefs.edit().putInt("autoMode", UpdatePolicy.mode(m)).apply(); }
+    int autoIntervalHours() { return UpdatePolicy.intervalHours(prefs.getInt("autoInterval", UpdatePolicy.DEFAULT_INTERVAL_H)); }
+    void setAutoIntervalHours(int h) { prefs.edit().putInt("autoInterval", UpdatePolicy.intervalHours(h)).apply(); }
+    boolean autoWifiOnly() { return prefs.getBoolean("autoWifiOnly", true); }
+    void setAutoWifiOnly(boolean b) { prefs.edit().putBoolean("autoWifiOnly", b).apply(); }
+    boolean autoChargingOnly() { return prefs.getBoolean("autoCharging", false); }
+    void setAutoChargingOnly(boolean b) { prefs.edit().putBoolean("autoCharging", b).apply(); }
+    long autoLastRun() { return prefs.getLong("autoLastRun", 0); }
+    int autoLastUpdated() { return prefs.getInt("autoLastUpdated", 0); }
+    int autoLastFound() { return prefs.getInt("autoLastFound", 0); }
+    String autoLastError() { return prefs.getString("autoLastError", null); }
+    void setAutoLastRun(long t, int found, int updated, String error) {
+        prefs.edit().putLong("autoLastRun", t).putInt("autoLastFound", found).putInt("autoLastUpdated", updated).putString("autoLastError", error).apply();
+    }
 
     File root() { String r = gameRoot(); return r == null ? null : new File(r); }
 
@@ -97,7 +123,10 @@ final class Store {
         return f == null ? null : new File(f, "Interface/" + STATE_FILE);
     }
 
+    synchronized boolean isLoaded() { return loaded; }
+
     synchronized void load() {
+        loaded = true;
         entries.clear();
         File gs = gameState();
         File src = gs != null && gs.exists() ? gs : appState;
@@ -119,6 +148,7 @@ final class Store {
                 e.iconUrl = j.isNull("icon") ? null : j.optString("icon", null);
                 e.pageUrl = j.isNull("page") ? null : j.optString("page", null);
                 e.installedAt = j.optLong("installedAt");
+                e.pinned = j.optBoolean("pinned", false);
                 JSONArray fs = j.optJSONArray("folders");
                 if (fs != null) for (int k = 0; k < fs.length(); k++) e.folders.add(fs.optString(k));
                 entries.put(e.key, e);
@@ -140,6 +170,7 @@ final class Store {
                 if (e.iconUrl != null) j.put("icon", e.iconUrl);
                 if (e.pageUrl != null) j.put("page", e.pageUrl);
                 j.put("installedAt", e.installedAt);
+                if (e.pinned) j.put("pinned", true);
                 JSONArray fs = new JSONArray();
                 for (String f : e.folders) fs.put(f);
                 j.put("folders", fs);

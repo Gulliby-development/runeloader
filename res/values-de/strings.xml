@@ -269,4 +269,42 @@
     <string name="sum_broker">Eine Sammlung von Infoanzeigen: Gold, FPS, Latenz, Freunde, Gilde, Haltbarkeit und vieles mehr.</string>
     <string name="sum_bugsack">Sammelt Lua-Fehler in einem \"Sack\", damit sie beim Spielen nicht stören.</string>
     <string name="note_bugsack">Die Fehler fängt !BugGrabber ab, das du auf CurseForge oder WoWInterface findest.</string>
+
+    <!-- Background auto-update (settings, detail panel, notifications) -->
+    <string name="auto_title">Automatische Updates</string>
+    <string name="auto_text">Sucht im Hintergrund nach Addon-Updates, auch wenn die App geschlossen ist. Android wählt den genauen Zeitpunkt, daher kann eine Prüfung ein paar Stunden später laufen.</string>
+    <string name="auto_mode_off">Aus</string>
+    <string name="auto_mode_notify">Nur benachrichtigen</string>
+    <string name="auto_mode_install">Automatisch installieren</string>
+    <string name="auto_frequency">Wie oft</string>
+    <string name="auto_every_hours">Alle %1$d Std.</string>
+    <string name="auto_conditions">Wann</string>
+    <string name="auto_wifi_only">Nur über WLAN</string>
+    <string name="auto_charging_only">Nur beim Laden</string>
+    <string name="auto_no_notifications">Benachrichtigungen sind aus, Updates laufen also still. Erlaube Benachrichtigungen für Runeloader in den Systemeinstellungen, um sie zu sehen.</string>
+    <string name="auto_battery_text">Manche Geräte stoppen Hintergrundarbeit, um Akku zu sparen. Wenn nie geprüft wird, schalte die Akkuoptimierung für Runeloader aus.</string>
+    <string name="auto_battery_action">Akku-Einstellungen</string>
+    <string name="auto_status_never">Noch keine Prüfung im Hintergrund.</string>
+    <string name="auto_status_none">Letzte Prüfung: %1$s. Alles ist aktuell.</string>
+    <string name="auto_status_found">Letzte Prüfung: %1$s. Gefundene Updates: %2$d.</string>
+    <string name="auto_status_updated">Letzte Prüfung: %1$s. Aktualisierte Addons: %2$d.</string>
+    <string name="auto_status_error">Letzte Prüfung: %1$s. %2$s</string>
+    <string name="auto_channel">Addon-Updates</string>
+    <string name="auto_channel_text">Was die automatische Hintergrundaktualisierung gefunden und installiert hat.</string>
+    <string name="auto_err_title">Automatische Updates konnten nicht laufen</string>
+    <string name="auto_err_access">Runeloader hat den Zugriff auf alle Dateien verloren. Öffne die App, um ihn erneut zu erteilen.</string>
+    <string name="auto_err_game">Der Spielordner wurde nicht gefunden. Öffne die App und wähle ihn erneut.</string>
+    <string name="auto_err_update">Addon-Updates fehlgeschlagen</string>
+    <string name="auto_reload_hint">Wenn das Spiel läuft, gib /reload ein.</string>
+    <string name="auto_pin">Nicht automatisch aktualisieren</string>
+    <string name="auto_unpin">Automatisch aktualisieren</string>
+    <string name="auto_pinned_note">Automatische Updates überspringen dieses Addon. Von Hand kannst du es weiterhin aktualisieren.</string>
+    <plurals name="auto_found">
+        <item quantity="one">%d Addon-Update verfügbar</item>
+        <item quantity="other">%d Addon-Updates verfügbar</item>
+    </plurals>
+    <plurals name="auto_updated">
+        <item quantity="one">%d Addon aktualisiert</item>
+        <item quantity="other">%d Addons aktualisiert</item>
+    </plurals>
 </resources>

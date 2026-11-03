@@ -59,6 +59,7 @@ final class Model {
         String pageUrl;
         List<String> folders = new ArrayList<>();
         long installedAt;
+        boolean pinned;       // the background auto-update skips it
         // runtime only
         String latest;
         boolean updateAvailable;
