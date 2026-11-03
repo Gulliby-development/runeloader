@@ -9,14 +9,14 @@
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:textColorPrimary">#E8ECF2</item>
-        <item name="android:textColorSecondary">#9AA4B2</item>
-        <item name="android:textColorHint">#6B7585</item>
+        <item name="android:textColorPrimary">#F3EAD6</item>
+        <item name="android:textColorSecondary">#AEBBB2</item>
+        <item name="android:textColorHint">#6E847C</item>
         <item name="android:colorControlActivated">@color/accent</item>
-        <item name="android:colorControlNormal">#6B7585</item>
+        <item name="android:colorControlNormal">#6E847C</item>
         <item name="android:textCursorDrawable">@null</item>
     </style>
-    <color name="bg">#0B0E13</color>
-    <color name="accent">#F2B640</color>
-    <color name="icon_bg">#121822</color>
+    <color name="bg">#0A1513</color>
+    <color name="accent">#D9A441</color>
+    <color name="icon_bg">#17302D</color>
 </resources>

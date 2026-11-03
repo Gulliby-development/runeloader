@@ -25,28 +25,34 @@ import android.widget.TextView;
 
 /** Theme and view factories; everything is built in code. */
 final class Ui {
-    // Palette
-    static final int BG = 0xFF0B0E13;
-    static final int RAIL = 0xFF0E1218;
-    static final int SURFACE = 0xFF141922;
-    static final int SURFACE2 = 0xFF1A202B;
-    static final int SURFACE3 = 0xFF222A37;
-    static final int STROKE = 0xFF262F3D;
-    static final int TEXT = 0xFFE8ECF2;
-    static final int TEXT2 = 0xFF9AA4B2;
-    static final int TEXT3 = 0xFF6B7585;
-    static final int ACCENT = 0xFFF2B640;
-    static final int ACCENT_DARK = 0xFF1A1405;
-    static final int ACCENT_SOFT = 0x26F2B640;
-    static final int BLUE = 0xFF5AA9FF;
-    static final int BLUE_SOFT = 0x225AA9FF;
-    static final int GREEN = 0xFF3DDC97;
-    static final int GREEN_SOFT = 0x223DDC97;
-    static final int ORANGE = 0xFFFF9F43;
-    static final int ORANGE_SOFT = 0x26FF9F43;
-    static final int RED = 0xFFFF5C6C;
-    static final int RED_SOFT = 0x22FF5C6C;
-    static final int FOCUS = 0xFFF2B640;
+    // Palette: the Runeloader icon. Deep teal surfaces, cream text like the rune strokes, gold
+    // like its arrowhead for actions and updates, and a mint "rune light" for the installed
+    // state and gamepad focus (so focus stays visible on gold buttons).
+    static final int BG = 0xFF0A1513;
+    static final int RAIL = 0xFF0D1B18;
+    static final int SURFACE = 0xFF11221E;
+    static final int SURFACE2 = 0xFF162B26;
+    static final int SURFACE3 = 0xFF1D3730;
+    static final int STROKE = 0xFF24423A;
+    static final int TEXT = 0xFFF3EAD6;
+    static final int TEXT2 = 0xFFAEBBB2;
+    static final int TEXT3 = 0xFF6E847C;
+    static final int ACCENT = 0xFFD9A441;
+    static final int ACCENT_DARK = 0xFF1B1405;
+    static final int ACCENT_SOFT = 0x29D9A441;
+    static final int BLUE = 0xFF7DB8E8;
+    static final int BLUE_SOFT = 0x247DB8E8;
+    static final int GREEN = 0xFF6FE3C6;
+    static final int GREEN_SOFT = 0x226FE3C6;
+    static final int ORANGE = 0xFFE8944A;
+    static final int ORANGE_SOFT = 0x24E8944A;
+    static final int RED = 0xFFE86A5F;
+    static final int RED_SOFT = 0x26E86A5F;
+    static final int FOCUS = 0xFF6FE3C6;
+    /** Snackbar and toast background. */
+    static final int SNACK = 0xFF223F38;
+    /** Dim layer behind sheets and dialogs. */
+    static final int SCRIM = 0x9E030807;
 
     static final Typeface MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
     static final Typeface BOLD = Typeface.create("sans-serif", Typeface.BOLD);
@@ -113,9 +119,13 @@ final class Ui {
 
     enum Kind { PRIMARY, SECONDARY, GHOST, DANGER, SUCCESS }
 
-    /** A pill button with optional icon. */
+    /**
+     * A pill button with optional icon. When the parent gives it less width than its label needs,
+     * a button with an icon drops the label (keeping it as content description and tooltip)
+     * instead of cutting the text.
+     */
     static LinearLayout button(Context c, String label, int iconRes, Kind kind, View.OnClickListener l) {
-        LinearLayout b = new LinearLayout(c);
+        LinearLayout b = new CollapsingButton(c);
         b.setOrientation(LinearLayout.HORIZONTAL);
         b.setGravity(Gravity.CENTER);
         int bg, fg, stroke = 0;
@@ -142,9 +152,81 @@ final class Ui {
             if (iconRes != 0) lp.leftMargin = dp(8);
             b.addView(t, lp);
         }
+        if (label != null) {
+            b.setContentDescription(label);
+            if (iconRes != 0) b.setTooltipText(label);
+        }
         b.setOnClickListener(l);
         b.setTag(kind);
         return b;
+    }
+
+    /** See {@link #button}: hides its label when it does not fit, so text is never cut. */
+    static final class CollapsingButton extends LinearLayout {
+        CollapsingButton(Context c) { super(c); }
+
+        @Override protected void onMeasure(int w, int h) {
+            TextView label = null;
+            boolean hasIcon = false;
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getChildAt(i);
+                if (v instanceof TextView) label = (TextView) v;
+                else if (v instanceof ImageView) hasIcon = true;
+            }
+            if (label != null && hasIcon) label.setVisibility(VISIBLE);
+            super.onMeasure(w, h);
+            if (label == null || !hasIcon || MeasureSpec.getMode(w) == MeasureSpec.UNSPECIFIED) return;
+            label.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+            int need = getPaddingLeft() + getPaddingRight() + dp(18 + 8) + label.getMeasuredWidth();
+            if (need > MeasureSpec.getSize(w)) {
+                label.setVisibility(GONE);
+                super.onMeasure(w, h);
+            }
+        }
+    }
+
+    /** Lays children out left to right and wraps to a new line when the width runs out. */
+    static final class FlowRow extends ViewGroup {
+        private final int hGap, vGap;
+
+        FlowRow(Context c, int hGapDp, int vGapDp) {
+            super(c);
+            hGap = dp(hGapDp);
+            vGap = dp(vGapDp);
+        }
+
+        @Override protected void onMeasure(int wSpec, int hSpec) {
+            int max = MeasureSpec.getMode(wSpec) == MeasureSpec.UNSPECIFIED ? Integer.MAX_VALUE
+                    : MeasureSpec.getSize(wSpec) - getPaddingLeft() - getPaddingRight();
+            int x = 0, y = 0, lineH = 0, widest = 0;
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getChildAt(i);
+                if (v.getVisibility() == GONE) continue;
+                v.measure(MeasureSpec.makeMeasureSpec(max == Integer.MAX_VALUE ? 0 : max, max == Integer.MAX_VALUE ? MeasureSpec.UNSPECIFIED : MeasureSpec.AT_MOST),
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                int cw = v.getMeasuredWidth(), ch = v.getMeasuredHeight();
+                if (x > 0 && x + cw > max) { y += lineH + vGap; x = 0; lineH = 0; }
+                x += cw + hGap;
+                lineH = Math.max(lineH, ch);
+                widest = Math.max(widest, x - hGap);
+            }
+            int width = MeasureSpec.getMode(wSpec) == MeasureSpec.EXACTLY ? MeasureSpec.getSize(wSpec) : widest + getPaddingLeft() + getPaddingRight();
+            setMeasuredDimension(width, resolveSize(y + lineH + getPaddingTop() + getPaddingBottom(), hSpec));
+        }
+
+        @Override protected void onLayout(boolean changed, int l, int t, int r, int b) {
+            int max = r - l - getPaddingLeft() - getPaddingRight();
+            int x = 0, y = 0, lineH = 0;
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getChildAt(i);
+                if (v.getVisibility() == GONE) continue;
+                int cw = v.getMeasuredWidth(), ch = v.getMeasuredHeight();
+                if (x > 0 && x + cw > max) { y += lineH + vGap; x = 0; lineH = 0; }
+                v.layout(getPaddingLeft() + x, getPaddingTop() + y, getPaddingLeft() + x + cw, getPaddingTop() + y + ch);
+                x += cw + hGap;
+                lineH = Math.max(lineH, ch);
+            }
+        }
     }
 
     static void setButtonLabel(LinearLayout b, String label) {
@@ -204,7 +286,7 @@ final class Ui {
         return l;
     }
 
-    static final int[] AVATAR_COLORS = {0xFF3B4D7A, 0xFF5B3B7A, 0xFF7A3B55, 0xFF7A5A3B, 0xFF3B7A6A, 0xFF3B6A7A, 0xFF6A7A3B, 0xFF4A3B7A};
+    static final int[] AVATAR_COLORS = {0xFF2F5A6E, 0xFF5B3B6E, 0xFF7A3B4D, 0xFF7A5A2F, 0xFF2F6E5E, 0xFF3B5A7A, 0xFF5E6E2F, 0xFF4A3B7A};
 
     /** Rounded square with the first letters of a name; used until a logo loads. */
     static final class LetterDrawable extends Drawable {
@@ -222,7 +304,7 @@ final class Ui {
             letters = l.toUpperCase();
             int color = AVATAR_COLORS[Math.abs((name == null ? 0 : name.hashCode()) % AVATAR_COLORS.length)];
             bg.setColor(color);
-            fg.setColor(0xFFF4F6FA);
+            fg.setColor(TEXT);
             fg.setTypeface(BOLD);
             fg.setTextAlign(Paint.Align.CENTER);
         }

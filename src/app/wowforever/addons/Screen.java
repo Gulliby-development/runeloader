@@ -116,7 +116,7 @@ abstract class Screen {
         android.graphics.drawable.StateListDrawable s = new android.graphics.drawable.StateListDrawable();
         s.addState(new int[]{android.R.attr.state_selected}, Ui.round(Ui.SURFACE2, 14, Ui.FOCUS, 2f));
         s.addState(new int[]{android.R.attr.state_pressed}, Ui.round(Ui.SURFACE3, 14));
-        s.addState(new int[]{}, active ? Ui.round(Ui.SURFACE2, 14, 0x80F2B640, 1.2f) : Ui.round(Ui.SURFACE, 14, Ui.STROKE, 1f));
+        s.addState(new int[]{}, active ? Ui.round(Ui.SURFACE2, 14, 0x80D9A441, 1.2f) : Ui.round(Ui.SURFACE, 14, Ui.STROKE, 1f));
         v.setBackground(s);
     }
 
