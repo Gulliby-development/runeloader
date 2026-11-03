@@ -39,15 +39,15 @@ final class BrowseScreen extends Screen {
     BrowseScreen(MainActivity app) { super(app); }
 
     void renderBrowse() {
-        LinearLayout h = header("Обзор аддонов", "Только сборки для WoW Forever · интерфейс " + Toc.FOREVER_INTERFACE_PREFIX + "01");
-        addHeaderButton(h, "Из ZIP", R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
+        LinearLayout h = header(s(R.string.browse_title), s(R.string.browse_subtitle, Toc.FOREVER_INTERFACE_PREFIX + "01"));
+        addHeaderButton(h, s(R.string.action_from_zip), R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
 
         // source segmented control
         HorizontalScrollView hs = new HorizontalScrollView(app);
         hs.setHorizontalScrollBarEnabled(false);
         LinearLayout seg = Ui.hbox(app);
         seg.setPadding(Ui.dp(app.landscape ? 20 : 16), 0, Ui.dp(16), Ui.dp(8));
-        String[] names = {"Forever-каталог", "CurseForge", "WoWInterface", "GitHub"};
+        String[] names = {s(R.string.browse_src_catalog), "CurseForge", "WoWInterface", "GitHub"};
         int[] icons = {R.drawable.ic_star, R.drawable.ic_download, R.drawable.ic_apps, R.drawable.ic_link};
         for (int i = 0; i < names.length; i++) {
             final int s = i;
@@ -80,7 +80,7 @@ final class BrowseScreen extends Screen {
         app.searchField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
         app.searchField.setTextColor(Ui.TEXT);
         app.searchField.setHintTextColor(Ui.TEXT3);
-        app.searchField.setHint(source == MainActivity.SRC_GITHUB ? "owner/repo или ссылка на GitHub" : "Поиск аддонов…");
+        app.searchField.setHint(source == MainActivity.SRC_GITHUB ? s(R.string.browse_hint_github) : s(R.string.browse_hint_search));
         app.searchField.setText(queries[source]);
         app.searchField.setSelection(app.searchField.getText().length());
         app.searchField.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN);
@@ -115,7 +115,7 @@ final class BrowseScreen extends Screen {
         });
         sr.addView(app.searchField, Ui.lpw(0, Ui.dp(42), 1));
         if (source == MainActivity.SRC_GITHUB) {
-            LinearLayout go = Ui.button(app, "Найти", R.drawable.ic_search, Ui.Kind.PRIMARY, v -> { app.hideKeyboard(); runSearch(MainActivity.SRC_GITHUB, false); });
+            LinearLayout go = Ui.button(app, s(R.string.action_find), R.drawable.ic_search, Ui.Kind.PRIMARY, v -> { app.hideKeyboard(); runSearch(MainActivity.SRC_GITHUB, false); });
             sr.addView(go, Ui.margins(Ui.lp(-2, Ui.dp(42)), 8, 0, 0, 0));
         }
         app.headerBox.addView(sr);
@@ -127,10 +127,10 @@ final class BrowseScreen extends Screen {
             cats.setPadding(Ui.dp(app.landscape ? 20 : 16), 0, Ui.dp(16), Ui.dp(8));
             List<String> all = new ArrayList<>();
             all.add(null);
-            all.addAll(Catalog.CATEGORIES);
+            all.addAll(Catalog.categories());
             for (final String c : all) {
                 boolean on = c == null ? catalogCategory == null : c.equals(catalogCategory);
-                TextView chip = Ui.text(app, c == null ? "Все" : c, 12.5f, on ? Ui.TEXT : Ui.TEXT2, Ui.MEDIUM);
+                TextView chip = Ui.text(app, c == null ? s(R.string.browse_cat_all) : c, 12.5f, on ? Ui.TEXT : Ui.TEXT2, Ui.MEDIUM);
                 chip.setBackground(Ui.selectable(on ? Ui.SURFACE3 : 0x00000000, 16, on ? 0 : Ui.STROKE));
                 chip.setPadding(Ui.dp(12), Ui.dp(6), Ui.dp(12), Ui.dp(6));
                 chip.setFocusable(true);
@@ -143,7 +143,7 @@ final class BrowseScreen extends Screen {
         }
 
         if (app.store.gameRoot() == null || !app.store.gameReady()) {
-            TextView warn = Ui.text(app, "Папка игры не выбрана — установка будет недоступна. Укажите её в настройках.", 12.5f, Ui.ORANGE, Ui.REGULAR);
+            TextView warn = Ui.text(app, s(R.string.browse_no_game), 12.5f, Ui.ORANGE, Ui.REGULAR);
             warn.setBackground(Ui.round(Ui.ORANGE_SOFT, 10));
             warn.setPadding(Ui.dp(12), Ui.dp(8), Ui.dp(12), Ui.dp(8));
             app.headerBox.addView(warn, Ui.margins(Ui.lp(-1, -2), app.landscape ? 20 : 16, 0, 16, 8));
@@ -170,10 +170,10 @@ final class BrowseScreen extends Screen {
         app.currentAdapter = null;
         final int src = source;
         if (src == MainActivity.SRC_CURSE && !Sources.hasCurseKey()) {
-            app.bodyBox.addView(emptyState(R.drawable.ic_key, "Подключите CurseForge",
-                    "CurseForge выдаёт файлы только по личному API-ключу. Получите его бесплатно на console.curseforge.com и вставьте в настройках — после этого здесь появится поиск по всем аддонам с версией для Forever.\n\nБез ключа можно скачать zip на сайте CurseForge в браузере и установить его кнопкой «Из ZIP».",
-                    Ui.button(app, "Ввести ключ", R.drawable.ic_key, Ui.Kind.PRIMARY, v -> app.switchTab(MainActivity.TAB_SETTINGS)),
-                    Ui.button(app, "Открыть сайт", R.drawable.ic_open, Ui.Kind.SECONDARY, v -> app.openUrl("https://www.curseforge.com/wow/search?class=addons&gameVersionTypeId=" + Sources.CURSE_FOREVER_TYPE))));
+            app.bodyBox.addView(emptyState(R.drawable.ic_key, s(R.string.curse_connect_title),
+                    s(R.string.curse_connect_text),
+                    Ui.button(app, s(R.string.action_enter_key), R.drawable.ic_key, Ui.Kind.PRIMARY, v -> app.switchTab(MainActivity.TAB_SETTINGS)),
+                    Ui.button(app, s(R.string.action_open_site), R.drawable.ic_open, Ui.Kind.SECONDARY, v -> app.openUrl("https://www.curseforge.com/wow/search?class=addons&gameVersionTypeId=" + Sources.CURSE_FOREVER_TYPE))));
             return;
         }
         final List<Model.Item> list;
@@ -187,19 +187,19 @@ final class BrowseScreen extends Screen {
             if (loading.contains(src)) {
                 app.bodyBox.addView(centerSpinner());
             } else if (resultErrors.get(src) != null) {
-                app.bodyBox.addView(emptyState(R.drawable.ic_warning, "Не удалось загрузить", resultErrors.get(src),
-                        Ui.button(app, "Повторить", R.drawable.ic_refresh, Ui.Kind.PRIMARY, v -> runSearch(src, false))));
+                app.bodyBox.addView(emptyState(R.drawable.ic_warning, s(R.string.load_failed), resultErrors.get(src),
+                        Ui.button(app, s(R.string.action_retry), R.drawable.ic_refresh, Ui.Kind.PRIMARY, v -> runSearch(src, false))));
             } else if (src == MainActivity.SRC_GITHUB) {
-                app.bodyBox.addView(emptyState(R.drawable.ic_link, "Аддон с GitHub",
-                        "Вставьте ссылку на репозиторий, например github.com/Questie/Questie. Будет выбрана сборка для Forever из release.json, а обновления пойдут без ключей и лимитов.", new View[0]));
+                app.bodyBox.addView(emptyState(R.drawable.ic_link, s(R.string.github_empty_title),
+                        s(R.string.github_empty_text), new View[0]));
             } else {
-                app.bodyBox.addView(emptyState(R.drawable.ic_search, "Ничего не найдено", "Попробуйте другой запрос.", new View[0]));
+                app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found), s(R.string.nothing_found_text), new View[0]));
             }
             return;
         }
         ListView lv = makeList();
         if (src == MainActivity.SRC_WOWI) {
-            TextView note = Ui.text(app, "WoWInterface не помечает версии для Forever — после установки приложение проверит TOC и предупредит, если аддон не для Forever.", 12, Ui.TEXT3, Ui.REGULAR);
+            TextView note = Ui.text(app, s(R.string.wowi_note), 12, Ui.TEXT3, Ui.REGULAR);
             note.setPadding(Ui.dp(4), Ui.dp(2), Ui.dp(4), Ui.dp(8));
             lv.addHeaderView(note, null, false);
         }
@@ -245,11 +245,11 @@ final class BrowseScreen extends Screen {
 
         Model.Entry e = app.store.entry(it.key());
         if (app.busy.containsKey(it.key())) {
-            row.addView(Ui.pill(app, "Установка…", Ui.ACCENT, Ui.ACCENT_SOFT));
+            row.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
         } else if (e != null) {
-            row.addView(Ui.pill(app, "Установлено", Ui.GREEN, Ui.GREEN_SOFT));
+            row.addView(Ui.pill(app, s(R.string.pill_installed), Ui.GREEN, Ui.GREEN_SOFT));
         } else {
-            LinearLayout b = Ui.button(app, "Установить", R.drawable.ic_download, Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
+            LinearLayout b = Ui.button(app, s(R.string.action_install), R.drawable.ic_download, Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
             b.setFocusable(false);
             b.setMinimumHeight(Ui.dp(34));
             b.setPadding(Ui.dp(10), Ui.dp(6), Ui.dp(12), Ui.dp(6));
@@ -288,7 +288,7 @@ final class BrowseScreen extends Screen {
                     moreAvail = got.size() >= 60;
                 } else if (src == MainActivity.SRC_GITHUB) {
                     String repo = Sources.GitHub.normalize(q);
-                    if (repo == null) throw new IOException("Введите репозиторий в виде owner/repo или ссылку github.com/owner/repo");
+                    if (repo == null) throw new IOException(s(R.string.github_repo_needed));
                     got = new ArrayList<>();
                     got.add(Sources.GitHub.info(repo));
                 }

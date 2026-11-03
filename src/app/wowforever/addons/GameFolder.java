@@ -24,7 +24,7 @@ final class GameFolder extends Screen {
     void autoDetect(boolean interactive) {
         List<File> found = Store.detect();
         if (found.isEmpty()) {
-            if (interactive) app.confirm("WoW Forever не найден", "Не нашёл папку с игрой во внутренней памяти и на SD-картах. Выберите её вручную.", "Выбрать папку", this::openFolderPicker);
+            if (interactive) app.confirm(s(R.string.game_not_found_title), s(R.string.game_not_found_text), s(R.string.game_pick_folder), this::openFolderPicker);
             return;
         }
         if (found.size() == 1 || !interactive) {
@@ -38,7 +38,7 @@ final class GameFolder extends Screen {
             b.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
             col.addView(b, Ui.margins(Ui.lp(-1, Ui.dp(44)), 0, 0, 0, 8));
         }
-        app.modal("Найдено несколько установок", null, col, null);
+        app.modal(s(R.string.game_multiple_found), null, col, null);
     }
 
     private void setGame(File root, boolean announce) {
@@ -47,7 +47,7 @@ final class GameFolder extends Screen {
         app.scanned = false;
         app.installed = new ArrayList<>();
         app.checkedOnce = false;
-        if (announce) app.snack("Папка игры: " + root.getPath());
+        if (announce) app.snack(s(R.string.game_folder_set, root.getPath()));
         if (app.root != null) app.render();
         app.manager.rescan();
     }
@@ -74,7 +74,7 @@ final class GameFolder extends Screen {
         if (st != null) for (File v : st) if (!v.getName().equals("emulated") && !v.getName().equals("self") && v.isDirectory()) vols.add(v);
         for (final File v : vols) {
             boolean internal = v.equals(Environment.getExternalStorageDirectory());
-            LinearLayout b = Ui.button(app, internal ? "Внутренняя память" : "SD " + v.getName(), internal ? R.drawable.ic_folder : R.drawable.ic_sd, Ui.Kind.GHOST, x -> { pickerDir = v; app.closeModal(); showPicker(); });
+            LinearLayout b = Ui.button(app, internal ? s(R.string.picker_internal) : s(R.string.picker_sd, v.getName()), internal ? R.drawable.ic_folder : R.drawable.ic_sd, Ui.Kind.GHOST, x -> { pickerDir = v; app.closeModal(); showPicker(); });
             roots.addView(b, Ui.margins(Ui.lp(-2, Ui.dp(38)), 0, 0, 8, 0));
         }
         hs.addView(roots);
@@ -95,7 +95,7 @@ final class GameFolder extends Screen {
 
         File detected = Store.normalizeRoot(pickerDir);
         if (detected != null) {
-            TextView ok = Ui.text(app, "✓ Здесь найден WoW Forever: " + detected.getName(), 12.5f, Ui.GREEN, Ui.MEDIUM);
+            TextView ok = Ui.text(app, s(R.string.picker_found, detected.getName()), 12.5f, Ui.GREEN, Ui.MEDIUM);
             col.addView(ok, Ui.margins(Ui.lp(-1, -2), 2, 0, 0, 8));
         }
 
@@ -135,18 +135,18 @@ final class GameFolder extends Screen {
         int h = app.landscape ? Math.max(Ui.dp(110), screenH - Ui.dp(detected != null ? 300 : 276)) : (int) (screenH * 0.5f);
         col.addView(lv, Ui.lp(-1, h));
         if (dirs.isEmpty()) {
-            TextView empty = Ui.text(app, "Пусто", 13, Ui.TEXT3, Ui.REGULAR);
+            TextView empty = Ui.text(app, s(R.string.picker_empty), 13, Ui.TEXT3, Ui.REGULAR);
             col.addView(empty, Ui.margins(Ui.lp(-2, -2), 4, 4, 0, 0));
         }
 
         LinearLayout btns = Ui.hbox(app);
         btns.setGravity(Gravity.END);
-        btns.addView(Ui.button(app, "Отмена", 0, Ui.Kind.GHOST, v -> app.closeModal()), Ui.lp(-2, Ui.dp(42)));
-        LinearLayout choose = Ui.button(app, "Выбрать эту папку", R.drawable.ic_check, Ui.Kind.PRIMARY, v -> {
+        btns.addView(Ui.button(app, s(R.string.action_cancel), 0, Ui.Kind.GHOST, v -> app.closeModal()), Ui.lp(-2, Ui.dp(42)));
+        LinearLayout choose = Ui.button(app, s(R.string.action_choose_this), R.drawable.ic_check, Ui.Kind.PRIMARY, v -> {
             File r = Store.normalizeRoot(pickerDir);
             app.closeModal();
             if (r == null) {
-                app.confirm("Это не папка WoW Forever", "Здесь нет .build.info или _forever_. Если игра ещё не установлена, сначала установите её в приложении WoW Forever.", "Всё равно выбрать", () -> {
+                app.confirm(s(R.string.picker_not_game_title), s(R.string.picker_not_game_text), s(R.string.action_choose_anyway), () -> {
                     new File(pickerDir, Store.FLAVOR_DIR + "/Interface/AddOns").mkdirs();
                     setGame(pickerDir, true);
                 });
@@ -156,7 +156,7 @@ final class GameFolder extends Screen {
         });
         btns.addView(choose, Ui.margins(Ui.lp(-2, Ui.dp(42)), 8, 0, 0, 0));
         col.addView(btns, Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 0));
-        app.modal("Папка игры", null, col, null);
+        app.modal(s(R.string.settings_game_folder), null, col, null);
         if (detected != null) choose.post(choose::requestFocus); else lv.post(lv::requestFocus);
     }
 }

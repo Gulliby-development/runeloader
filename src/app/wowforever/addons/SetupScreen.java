@@ -6,17 +6,17 @@ final class SetupScreen extends Screen {
     SetupScreen(MainActivity app) { super(app); }
 
     void renderPermission() {
-        header("WoW Addons", "Менеджер аддонов для WoW Forever");
-        app.bodyBox.addView(emptyState(R.drawable.ic_folder, "Нужен доступ к файлам",
-                "Чтобы устанавливать аддоны в папку игры, приложению нужен «Доступ ко всем файлам» — так же, как самому клиенту WoW Forever.",
-                Ui.button(app, "Разрешить доступ", R.drawable.ic_check, Ui.Kind.PRIMARY, v -> app.requestStorage())));
+        header(s(R.string.app_name), s(R.string.app_tagline));
+        app.bodyBox.addView(emptyState(R.drawable.ic_folder, s(R.string.perm_title),
+                s(R.string.perm_text),
+                Ui.button(app, s(R.string.perm_grant), R.drawable.ic_check, Ui.Kind.PRIMARY, v -> app.requestStorage())));
     }
 
     void renderNoGame() {
-        header("Мои аддоны", "Папка игры не выбрана");
-        app.bodyBox.addView(emptyState(R.drawable.ic_folder, "Где установлен WoW Forever?",
-                "Обычно это «WoW Forever» во внутренней памяти или на SD-карте. Выберите папку, в которой лежат .build.info и _forever_.",
-                Ui.button(app, "Найти автоматически", R.drawable.ic_search, Ui.Kind.SECONDARY, v -> app.gameFolder.autoDetect(true)),
-                Ui.button(app, "Выбрать папку", R.drawable.ic_folder, Ui.Kind.PRIMARY, v -> app.gameFolder.openFolderPicker())));
+        header(s(R.string.nav_installed), s(R.string.game_not_set));
+        app.bodyBox.addView(emptyState(R.drawable.ic_folder, s(R.string.game_where_title),
+                s(R.string.game_where_text),
+                Ui.button(app, s(R.string.game_auto_detect), R.drawable.ic_search, Ui.Kind.SECONDARY, v -> app.gameFolder.autoDetect(true)),
+                Ui.button(app, s(R.string.game_pick_folder), R.drawable.ic_folder, Ui.Kind.PRIMARY, v -> app.gameFolder.openFolderPicker())));
     }
 }

@@ -93,16 +93,26 @@ public class MainActivity extends Activity {
 
     // ─────────────────────────── lifecycle ───────────────────────────
 
+    @Override protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(Lang.wrap(base));
+    }
+
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         Ui.density = getResources().getDisplayMetrics().density;
         ImageLoader.dir = new File(getCacheDir(), "img");
         ImageLoader.dir.mkdirs();
         store = new Store(this);
+        if (b != null) tab = b.getInt("tab", tab);
         if (store.gameRoot() == null && hasStorageAccess()) gameFolder.autoDetect(false);
         store.load();
         buildShell();
         manager.rescan();
+    }
+
+    @Override protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putInt("tab", tab);   // a language change recreates the activity on the settings tab
     }
 
     private Boolean lastAccess;
@@ -273,11 +283,11 @@ public class MainActivity extends Activity {
         TextView brand = Ui.text(this, "Addons", 11, Ui.ACCENT, Ui.CONDENSED);
         brand.setLetterSpacing(0.08f);
         rail.addView(brand, Ui.margins(Ui.lp(-2, -2), 0, 4, 0, 18));
-        rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, "Мои", true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
-        rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, "Обзор", true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
+        rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
+        rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
         View spacer = new View(this);
         rail.addView(spacer, Ui.lpw(1, 0, 1));
-        rail.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, "Настройки", true), Ui.lp(Ui.dp(68), Ui.dp(60)));
+        rail.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, getString(R.string.nav_settings_short), true), Ui.lp(Ui.dp(68), Ui.dp(60)));
         return rail;
     }
 
@@ -285,9 +295,9 @@ public class MainActivity extends Activity {
         LinearLayout bar = Ui.hbox(this);
         bar.setBackgroundColor(Ui.RAIL);
         bar.setPadding(Ui.dp(8), Ui.dp(4), Ui.dp(8), Ui.dp(4));
-        bar.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, "Мои аддоны", false), Ui.lpw(0, -1, 1));
-        bar.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, "Обзор", false), Ui.lpw(0, -1, 1));
-        bar.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, "Настройки", false), Ui.lpw(0, -1, 1));
+        bar.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed), false), Ui.lpw(0, -1, 1));
+        bar.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse), false), Ui.lpw(0, -1, 1));
+        bar.addView(navItem(TAB_SETTINGS, R.drawable.ic_settings, getString(R.string.nav_settings), false), Ui.lpw(0, -1, 1));
         return bar;
     }
 
@@ -355,7 +365,7 @@ public class MainActivity extends Activity {
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("*/*");
         i.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/x-zip-compressed", "application/x-zip", "application/octet-stream"});
-        try { startActivityForResult(i, REQ_ZIP); } catch (Exception e) { snack("Не найден файловый менеджер"); }
+        try { startActivityForResult(i, REQ_ZIP); } catch (Exception e) { snack(getString(R.string.no_file_manager)); }
     }
 
     @Override protected void onActivityResult(int req, int res, Intent data) {
@@ -379,7 +389,7 @@ public class MainActivity extends Activity {
                 try {
                     startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
                 } catch (Exception e2) {
-                    snack("Откройте Настройки → Приложения → WoW Addons → Доступ ко всем файлам");
+                    snack(getString(R.string.perm_settings_hint, getString(R.string.app_name)));
                 }
             }
         } else {
@@ -437,11 +447,11 @@ public class MainActivity extends Activity {
     void confirm(String title, String message, String okLabel, final Runnable ok) {
         LinearLayout btns = Ui.hbox(this);
         btns.setGravity(Gravity.END);
-        LinearLayout cancel = Ui.button(this, ok == null ? "Понятно" : "Отмена", 0, ok == null ? Ui.Kind.PRIMARY : Ui.Kind.GHOST, v -> closeModal());
+        LinearLayout cancel = Ui.button(this, getString(ok == null ? R.string.action_ok : R.string.action_cancel), 0, ok == null ? Ui.Kind.PRIMARY : Ui.Kind.GHOST, v -> closeModal());
         btns.addView(cancel, Ui.lp(-2, Ui.dp(42)));
         LinearLayout okb = null;
         if (ok != null) {
-            boolean danger = okLabel != null && okLabel.startsWith("Удал");
+            boolean danger = okLabel != null && okLabel.equals(getString(R.string.action_remove));
             okb = Ui.button(this, okLabel, 0, danger ? Ui.Kind.DANGER : Ui.Kind.PRIMARY, v -> { closeModal(); ok.run(); });
             btns.addView(okb, Ui.margins(Ui.lp(-2, Ui.dp(42)), 8, 0, 0, 0));
         }
@@ -462,7 +472,7 @@ public class MainActivity extends Activity {
 
     void openUrl(String url) {
         if (url == null) return;
-        try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception e) { snack("Не найден браузер"); }
+        try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception e) { snack(getString(R.string.no_browser)); }
     }
 
     void hideKeyboard() {
@@ -477,14 +487,14 @@ public class MainActivity extends Activity {
     }
 
     static String friendly(Throwable e) {
-        if (e instanceof java.net.UnknownHostException) return "Нет подключения к интернету";
-        if (e instanceof java.net.SocketTimeoutException) return "Сервер не ответил вовремя. Попробуйте ещё раз.";
-        if (e instanceof javax.net.ssl.SSLException) return "Ошибка защищённого соединения";
-        if (e instanceof java.util.zip.ZipException) return "Файл не является zip-архивом или повреждён";
+        if (e instanceof java.net.UnknownHostException) return Lang.s(R.string.err_no_internet);
+        if (e instanceof java.net.SocketTimeoutException) return Lang.s(R.string.err_timeout);
+        if (e instanceof javax.net.ssl.SSLException) return Lang.s(R.string.err_ssl);
+        if (e instanceof java.util.zip.ZipException) return Lang.s(R.string.err_not_zip);
         if (e instanceof Http.HttpException) {
             int c = ((Http.HttpException) e).code;
-            if (c == 404) return "Файл не найден на сервере (404)";
-            if (c == 403 || c == 429) return "Сервер ограничил запросы (" + c + "). Попробуйте позже.";
+            if (c == 404) return Lang.s(R.string.err_http_404);
+            if (c == 403 || c == 429) return Lang.s(R.string.err_rate_limited, c);
         }
         String m = e.getMessage();
         return m == null || m.isEmpty() ? e.getClass().getSimpleName() : m;
