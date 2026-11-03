@@ -96,6 +96,8 @@ final class SettingsScreen extends Screen {
 
         // About
         LinearLayout ab = card(col, R.drawable.ic_info, s(R.string.settings_about));
+        int wmh = Math.min(40, Math.round((app.layout.listDp - 80) / Ui.WORDMARK_RATIO));
+        ab.addView(Ui.wordmark(app, wmh), Ui.margins(Ui.lp(Math.round(Ui.dp(wmh) * Ui.WORDMARK_RATIO), Ui.dp(wmh)), 0, 2, 0, 12));
         ab.addView(Ui.text(app, s(R.string.settings_about_text), 12.5f, Ui.TEXT2, Ui.REGULAR));
         LinearLayout abb = Ui.hbox(app);
         abb.addView(Ui.button(app, s(R.string.action_forever_client), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl("https://github.com/jaredgei/wow-forever-android")), Ui.lp(-2, Ui.dp(40)));

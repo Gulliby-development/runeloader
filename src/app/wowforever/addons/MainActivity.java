@@ -343,12 +343,11 @@ public class MainActivity extends Activity {
         rail.setBackgroundColor(Ui.RAIL);
         rail.setGravity(Gravity.CENTER_HORIZONTAL);
         rail.setPadding(0, Ui.dp(14), 0, Ui.dp(14));
+        // The rail is too narrow for the wordmark: the rune mark alone.
         ImageView logo = new ImageView(this);
-        logo.setImageResource(R.mipmap.ic_launcher);
-        rail.addView(logo, Ui.lp(Ui.dp(46), Ui.dp(46)));
-        TextView brand = Ui.text(this, "Addons", 11, Ui.ACCENT, Ui.CONDENSED);
-        brand.setLetterSpacing(0.08f);
-        rail.addView(brand, Ui.margins(Ui.lp(-2, -2), 0, 4, 0, 18));
+        logo.setImageResource(R.drawable.ic_rune);
+        logo.setContentDescription(getString(R.string.app_name));
+        rail.addView(logo, Ui.margins(Ui.lp(Ui.dp(40), Ui.dp(40)), 0, 2, 0, 20));
         rail.addView(navItem(TAB_INSTALLED, R.drawable.ic_extension, getString(R.string.nav_installed_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
         rail.addView(navItem(TAB_BROWSE, R.drawable.ic_apps, getString(R.string.nav_browse_short), true), Ui.margins(Ui.lp(Ui.dp(68), Ui.dp(60)), 0, 0, 0, 6));
         View spacer = new View(this);
