@@ -125,6 +125,7 @@ final class Catalog {
         it.name = name;
         it.author = author;
         it.category = Lang.s(cat);
+        it.categoryKey = keyOf(cat);
         it.summary = summary;
         it.pageUrl = "https://github.com/" + repo;
         it.iconUrl = "https://github.com/" + repo.substring(0, repo.indexOf('/')) + ".png?size=96";
@@ -132,6 +133,11 @@ final class Catalog {
         it.folders.addAll(Arrays.asList(folders));
         l.add(it);
         return it;
+    }
+
+    private static String keyOf(int cat) {
+        for (String k : Categories.KEYS) if (Categories.nameRes(k) == cat) return k;
+        return "";
     }
 
     static Model.Item byKey(String key) {

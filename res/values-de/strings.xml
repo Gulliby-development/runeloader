@@ -223,6 +223,10 @@
     <string name="cat_bags">Taschen und Gegenstände</string>
     <string name="cat_map">Karte</string>
     <string name="cat_tools">Werkzeuge</string>
+    <string name="cat_other">Sonstiges</string>
+    <string name="browse_mode_popular">Beliebt</string>
+    <string name="browse_mode_categories">Kategorien</string>
+    <string name="browse_all_categories">Alle Kategorien</string>
     <string name="addon_dbm_dungeons">DBM: Dungeons</string>
     <string name="addon_dbm_vanilla">DBM: Klassische Schlachtzüge</string>
     <string name="sum_questie">Quest-Helfer: Quests, Ziele und NPCs direkt auf Karte, Minikarte und in Tooltips. Ein Muss fürs Leveln.</string>

@@ -231,6 +231,10 @@
     <string name="cat_bags">Сумки и предметы</string>
     <string name="cat_map">Карта</string>
     <string name="cat_tools">Утилиты</string>
+    <string name="cat_other">Другое</string>
+    <string name="browse_mode_popular">Популярные</string>
+    <string name="browse_mode_categories">Категории</string>
+    <string name="browse_all_categories">Все категории</string>
     <string name="addon_dbm_dungeons">DBM — Подземелья</string>
     <string name="addon_dbm_vanilla">DBM — Классические рейды</string>
     <string name="sum_questie">Квест-помощник: задания, цели и NPC прямо на карте, миникарте и в подсказках. Must-have для прокачки.</string>

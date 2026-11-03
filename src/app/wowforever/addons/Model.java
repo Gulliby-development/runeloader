@@ -20,6 +20,7 @@ final class Model {
         String author = "";
         String summary = "";
         String category = "";
+        String categoryKey = "";   // a Categories key, "" when unknown
         long downloads = -1;
         long updated = 0;     // epoch millis
         String iconUrl;

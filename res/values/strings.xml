@@ -238,6 +238,10 @@
     <string name="cat_bags">Bags and items</string>
     <string name="cat_map">Map</string>
     <string name="cat_tools">Utilities</string>
+    <string name="cat_other">Other</string>
+    <string name="browse_mode_popular">Popular</string>
+    <string name="browse_mode_categories">Categories</string>
+    <string name="browse_all_categories">All categories</string>
     <string name="addon_dbm_dungeons">DBM: Dungeons</string>
     <string name="addon_dbm_vanilla">DBM: Classic raids</string>
     <string name="sum_questie">Quest helper: quests, objectives and NPCs right on the map, minimap and tooltips. A must-have for leveling.</string>

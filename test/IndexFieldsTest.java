@@ -13,6 +13,7 @@ public class IndexFieldsTest {
     IndexFields.fill(o, base, it);
     check(it.iconUrl.equals(base + "icons/o__r.png"), "relative icon resolves against the index");
     check(it.screenshots.size() == 2, "only https screenshots kept");
+    check(Categories.key("MAP").equals("map") && Categories.key("weird").isEmpty(), "category keys normalized");
     check(IndexFields.categoryRes("MAP") == R.string.cat_map && IndexFields.categoryRes("weird") == 0, "category keys map to the app categories");
     check(it.stars == 42, "stars");
     check(it.releases.size() == 2 && it.releases.get(0).prerelease && it.releases.get(0).released > 0, "releases parsed");
