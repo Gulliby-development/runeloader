@@ -32,6 +32,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
   `<name>` is a few lowercase words joined by hyphens. Do not use other prefixes (`docs/`, `fix/`, `claude/`, `copilot/`) or generic names such as `patch` or `update`. If your tool proposes a default branch, rename it before the first push. A random suffix your platform adds after the name is fine. CI fails a pull request whose branch breaks this rule; only Dependabot's `dependabot/` branches are exempt.
 - Commit working states on the task branch. Before each commit, run at least `./gradlew assembleDebug`, so every commit builds.
 - A pull request that finishes an issue says `Closes #N` in its description. Use `Refs #N` when the pull request does only part of it.
+- Before you finish a task, check `README.md` against your change and update it in the same pull request: features, install steps, FAQ answers, button names, screenshots and build commands must match the app as it is after the merge. Say in the pull request description that you checked it, or what you changed.
 - When the task is complete and [Verification](#verification) passes, open a pull request to `main`. `main` takes changes only through pull requests with green CI. Do not push to `main` directly.
 
 ## Working conventions
@@ -45,7 +46,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Landscape is the main layout: most players hold the device sideways, as in the game. Every screen must work in landscape at 4:3, 16:9 and 20:9, and also in portrait, by touch and by gamepad. Text must not be cut mid-word, and buttons must not leave the screen. Check all of them when you change a screen (see [Verification](#verification)).
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check that keeps the CurseForge key on CurseForge hosts.
-- A new addon source goes into `Sources.java` with its own section in `README.md`. A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
+- A new addon source goes into `Sources.java` with a row in the "Where addons come from" table of `README.md`. A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
 - A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the Forever client uses. Add a case for it to `test/InstallTest.java`.
 - Keep comments short and about intent that the code does not show.
 - Do not commit build output (`build/`, `*.apk`, `*.idsig`) or `local.properties`.
@@ -69,7 +70,7 @@ A new secret for the app build (for example a CurseForge key) goes into both `ci
 ## Language
 
 - Write code, identifiers, comments, commit messages, issues, pull requests and these instructions in English.
-- `README.md` is in English and stays short: what the app is, how to install it from a release, how to build it.
+- `README.md` is the project's landing page for players. It is in plain English (about B1 level): short sentences, no jargon in the main part. It keeps this order: the wordmark, a one-line pitch, features, install steps, FAQ. Technical details (sources, install internals, build) go inside `<details>` spoilers. Its images live in `docs/images/` and stay small (under about 300 KB each).
 - The app UI is in Russian today. English becomes the main UI language, with more languages to follow; until then, keep new UI strings in the style of the existing ones.
 
 ## Navigation

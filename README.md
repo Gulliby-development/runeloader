@@ -1,20 +1,106 @@
-# Runeloader
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/wordmark-dark.png">
+    <img src="docs/images/wordmark-light.png" alt="Runeloader" width="560">
+  </picture>
+</p>
 
-Addon manager for the [WoW Forever Android client](https://github.com/jaredgei/wow-forever-android). It installs, updates and removes addons in `<game folder>/_forever_/Interface/AddOns`.
+<p align="center"><b>Addons for WoW Forever on Android. Find them, install them, keep them updated.</b></p>
 
-Sources: the Forever catalog (GitHub releases built for Forever), CurseForge (with your own API key) and WoWInterface.
+<p align="center">
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/Gulliby-development/runeloader?label=download&color=d9a441&style=for-the-badge" alt="Download the latest release"></a>
+  <img src="https://img.shields.io/badge/Android-10%2B-17302d?style=for-the-badge" alt="Android 10 or newer">
+  <img src="https://img.shields.io/badge/no%20ads-no%20tracking-17302d?style=for-the-badge" alt="No ads, no tracking">
+</p>
 
-Android 10 or newer. Works only with WoW Forever builds.
+---
+
+Installing addons on a phone usually means zip files, file managers and long folder paths. Runeloader does it for you. Search for an addon, tap **Install**, and it goes into the right folder. When a new version comes out, you update it with one tap.
+
+## Features
+
+- **Search in one place.** Runeloader looks in the Forever catalog, CurseForge and WoWInterface.
+- **One-tap install.** The app finds the right folder and the right files for you.
+- **Updates.** See which addons are out of date and update them all at once.
+- **Your own zips.** Got an addon from somewhere else? Install it from a zip file.
+- **Safe.** An addon is replaced only after the new version is fully unpacked, so a broken download never breaks your game.
+- **Made for play.** Works in landscape and portrait, by touch or with a gamepad.
 
 ## Install
 
-1. Download `runeloader-<version>.apk` from the latest [release](../../releases/latest).
-2. Open it on your device and allow installs from this source when Android asks.
-3. Start Runeloader, allow "All files access", and pick the WoW Forever folder (the one with `.build.info` and `_forever_`).
+1. **Download** `runeloader-<version>.apk` from the [latest release](../../releases/latest) on your Android device.
+2. **Open** the file. If Android asks, allow installs from your browser or file manager.
+3. **Start Runeloader** and allow **All files access**. The app needs it to write into the game folder.
+4. **Pick your WoW Forever folder**: the one that has `.build.info` and `_forever_` inside.
 
-## Build
+That's it. Open **Browse**, find an addon and tap **Install**. Restart the game to load it.
 
-JDK 17 and the Android SDK (`platforms;android-35`, `build-tools;35.0.0`):
+> [!NOTE]
+> Runeloader works only with the [WoW Forever Android client](https://github.com/jaredgei/wow-forever-android). It needs Android 10 or newer.
+
+## FAQ
+
+<details>
+<summary><b>Android says the app is unsafe or blocks the install</b></summary>
+
+Android shows this for every app that does not come from Google Play. Tap **Settings**, turn on **Allow from this source**, and go back. If Play Protect asks, choose **Install anyway**.
+</details>
+
+<details>
+<summary><b>I can't find my game folder</b></summary>
+
+Open the folder where you installed WoW Forever. The right folder has a `.build.info` file and a `_forever_` folder in it. Addons go to `_forever_/Interface/AddOns` inside it.
+</details>
+
+<details>
+<summary><b>Why does CurseForge ask for a key?</b></summary>
+
+CurseForge gives files only to apps with an API key. You can get a free key at [console.curseforge.com](https://console.curseforge.com/) and paste it in **Settings**. The key stays on your device and is sent only to CurseForge.
+
+No key? Download the addon zip on the CurseForge site and install it with **From ZIP**.
+</details>
+
+<details>
+<summary><b>An addon doesn't show up in the game</b></summary>
+
+Restart the game after you install or update addons. On the character screen, open **AddOns** and check that the addon is turned on. If it still doesn't load, the addon may not support WoW Forever yet.
+</details>
+
+<details>
+<summary><b>How do I update Runeloader itself?</b></summary>
+
+Download the new APK from the [latest release](../../releases/latest) and install it over the old one. Your settings and addon list stay.
+</details>
+
+## For developers
+
+<details>
+<summary><b>Where addons come from</b></summary>
+
+| Source | How it works |
+| --- | --- |
+| Forever catalog | GitHub releases with a `forever` flavor in `release.json`. |
+| CurseForge | The official API, with the user's own key. |
+| WoWInterface | The public file API. |
+| Zip file | Any zip the user picks on the device. |
+
+The app picks the TOC file the same way the Forever client does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
+</details>
+
+<details>
+<summary><b>How an install works</b></summary>
+
+1. The zip is unpacked into a temporary folder. Paths that try to leave it (zip slip) are refused.
+2. Addon folders are found by their `.toc` files.
+3. Each folder is swapped into `AddOns` in one step, so the old version stays until the new one is ready.
+
+The CurseForge key is sent only to CurseForge hosts, even when a download redirects somewhere else.
+</details>
+
+<details>
+<summary><b>Build from source</b></summary>
+
+You need JDK 17 and the Android SDK (`platforms;android-35`, `build-tools;35.0.0`).
 
 ```bash
 ./gradlew assembleRelease               # build/outputs/apk/release/wow-addons.apk
@@ -22,5 +108,11 @@ ANDROID_HOME=~/Android/Sdk ./build.sh   # the same app without Gradle: ./wow-add
 ```
 
 Without the release key, both builds are signed with a debug key. [AGENTS.md](AGENTS.md) has the code map, the development workflow and the checks to run.
+</details>
 
-Runeloader is a fan project. It is not affiliated with Blizzard Entertainment.
+---
+
+<p align="center">
+  <img src="docs/images/icon.png" alt="" width="56"><br>
+  <sub>Runeloader is a fan project. It is not affiliated with Blizzard Entertainment.</sub>
+</p>

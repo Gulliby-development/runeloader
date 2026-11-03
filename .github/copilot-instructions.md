@@ -9,3 +9,4 @@ The most important rules:
 - Keep `build.gradle.kts` and `build.sh` in step: the same package, version, SDK levels and permissions.
 - Before a pull request, run `./gradlew assembleDebug assembleRelease lint` and `./build.sh`.
 - Before you file or fix a bug, follow [the file-issue skill](../.agents/skills/file-issue/SKILL.md).
+- Before you finish a task, check `README.md` and keep it up to date with your change.
