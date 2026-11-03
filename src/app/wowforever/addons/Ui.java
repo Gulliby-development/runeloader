@@ -119,9 +119,13 @@ final class Ui {
 
     enum Kind { PRIMARY, SECONDARY, GHOST, DANGER, SUCCESS }
 
-    /** A pill button with optional icon. */
+    /**
+     * A pill button with optional icon. When the parent gives it less width than its label needs,
+     * a button with an icon drops the label (keeping it as content description and tooltip)
+     * instead of cutting the text.
+     */
     static LinearLayout button(Context c, String label, int iconRes, Kind kind, View.OnClickListener l) {
-        LinearLayout b = new LinearLayout(c);
+        LinearLayout b = new CollapsingButton(c);
         b.setOrientation(LinearLayout.HORIZONTAL);
         b.setGravity(Gravity.CENTER);
         int bg, fg, stroke = 0;
@@ -148,9 +152,81 @@ final class Ui {
             if (iconRes != 0) lp.leftMargin = dp(8);
             b.addView(t, lp);
         }
+        if (label != null) {
+            b.setContentDescription(label);
+            if (iconRes != 0) b.setTooltipText(label);
+        }
         b.setOnClickListener(l);
         b.setTag(kind);
         return b;
+    }
+
+    /** See {@link #button}: hides its label when it does not fit, so text is never cut. */
+    static final class CollapsingButton extends LinearLayout {
+        CollapsingButton(Context c) { super(c); }
+
+        @Override protected void onMeasure(int w, int h) {
+            TextView label = null;
+            boolean hasIcon = false;
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getChildAt(i);
+                if (v instanceof TextView) label = (TextView) v;
+                else if (v instanceof ImageView) hasIcon = true;
+            }
+            if (label != null && hasIcon) label.setVisibility(VISIBLE);
+            super.onMeasure(w, h);
+            if (label == null || !hasIcon || MeasureSpec.getMode(w) == MeasureSpec.UNSPECIFIED) return;
+            label.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+            int need = getPaddingLeft() + getPaddingRight() + dp(18 + 8) + label.getMeasuredWidth();
+            if (need > MeasureSpec.getSize(w)) {
+                label.setVisibility(GONE);
+                super.onMeasure(w, h);
+            }
+        }
+    }
+
+    /** Lays children out left to right and wraps to a new line when the width runs out. */
+    static final class FlowRow extends ViewGroup {
+        private final int hGap, vGap;
+
+        FlowRow(Context c, int hGapDp, int vGapDp) {
+            super(c);
+            hGap = dp(hGapDp);
+            vGap = dp(vGapDp);
+        }
+
+        @Override protected void onMeasure(int wSpec, int hSpec) {
+            int max = MeasureSpec.getMode(wSpec) == MeasureSpec.UNSPECIFIED ? Integer.MAX_VALUE
+                    : MeasureSpec.getSize(wSpec) - getPaddingLeft() - getPaddingRight();
+            int x = 0, y = 0, lineH = 0, widest = 0;
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getChildAt(i);
+                if (v.getVisibility() == GONE) continue;
+                v.measure(MeasureSpec.makeMeasureSpec(max == Integer.MAX_VALUE ? 0 : max, max == Integer.MAX_VALUE ? MeasureSpec.UNSPECIFIED : MeasureSpec.AT_MOST),
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                int cw = v.getMeasuredWidth(), ch = v.getMeasuredHeight();
+                if (x > 0 && x + cw > max) { y += lineH + vGap; x = 0; lineH = 0; }
+                x += cw + hGap;
+                lineH = Math.max(lineH, ch);
+                widest = Math.max(widest, x - hGap);
+            }
+            int width = MeasureSpec.getMode(wSpec) == MeasureSpec.EXACTLY ? MeasureSpec.getSize(wSpec) : widest + getPaddingLeft() + getPaddingRight();
+            setMeasuredDimension(width, resolveSize(y + lineH + getPaddingTop() + getPaddingBottom(), hSpec));
+        }
+
+        @Override protected void onLayout(boolean changed, int l, int t, int r, int b) {
+            int max = r - l - getPaddingLeft() - getPaddingRight();
+            int x = 0, y = 0, lineH = 0;
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getChildAt(i);
+                if (v.getVisibility() == GONE) continue;
+                int cw = v.getMeasuredWidth(), ch = v.getMeasuredHeight();
+                if (x > 0 && x + cw > max) { y += lineH + vGap; x = 0; lineH = 0; }
+                v.layout(getPaddingLeft() + x, getPaddingTop() + y, getPaddingLeft() + x + cw, getPaddingTop() + y + ch);
+                x += cw + hGap;
+                lineH = Math.max(lineH, ch);
+            }
+        }
     }
 
     static void setButtonLabel(LinearLayout b, String label) {
