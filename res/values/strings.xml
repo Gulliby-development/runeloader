@@ -10,18 +10,18 @@
 
     <!-- Storage permission and game folder -->
     <string name="perm_title">File access needed</string>
-    <string name="perm_text">To install addons into the game folder, the app needs \"All files access\", just like the WoW Forever client itself.</string>
+    <string name="perm_text">To install addons into the game folder, the app needs \"All files access\".</string>
     <string name="perm_grant">Allow access</string>
     <string name="perm_settings_hint">Open Settings → Apps → %1$s → All files access</string>
     <string name="setup_step_access">File access</string>
     <string name="setup_step_folder">Game folder</string>
     <string name="game_not_set">No game folder selected</string>
-    <string name="game_where_title">Where is WoW Forever installed?</string>
-    <string name="game_where_text">Usually it is \"WoW Forever\" in internal storage or on the SD card. Pick the folder that holds .build.info and _forever_.</string>
+    <string name="game_where_title">Where is the game folder?</string>
+    <string name="game_where_text">Pick the game folder (the one with .build.info or Interface inside) or the AddOns folder itself.</string>
     <string name="game_auto_detect">Find automatically</string>
     <string name="game_pick_folder">Choose folder</string>
-    <string name="game_not_set_dialog">Tell the app where WoW Forever is installed, so it knows where to put addons.</string>
-    <string name="game_not_found_title">WoW Forever not found</string>
+    <string name="game_not_set_dialog">Tell the app where the game is, so it knows where to put addons.</string>
+    <string name="game_not_found_title">Game folder not found</string>
     <string name="game_not_found_text">Could not find the game folder in internal storage or on SD cards. Pick it by hand.</string>
     <string name="game_multiple_found">Several installations found</string>
     <string name="game_folder_set">Game folder: %1$s</string>
@@ -76,8 +76,8 @@
     <string name="settings_version">%1$s %2$s</string>
     <string name="settings_game_folder">Game folder</string>
     <string name="settings_not_selected">Not selected</string>
-    <string name="settings_pick_game">Pick the WoW Forever folder (the one with .build.info and _forever_).</string>
-    <string name="settings_game_missing">WoW Forever was not found in this folder.</string>
+    <string name="settings_pick_game">Pick the game folder or its AddOns folder.</string>
+    <string name="settings_game_missing">This folder is missing or is not a game folder.</string>
     <string name="settings_addons_to">Addons go to %1$s</string>
     <string name="settings_addons_to_new">Addons go to %1$s (the folder will be created)</string>
     <string name="action_auto_detect">Auto-detect</string>
@@ -89,14 +89,13 @@
     <string name="settings_github_text">Search and installs work without a token. You need one only if you often install from repositories without release.json and hit the limit of 60 requests per hour.</string>
     <string name="saved">Saved</string>
     <string name="settings_about">About</string>
-    <string name="settings_about_text">Addon manager for the WoW Forever client on Android. It installs only Forever builds (TOC _Forever / _Camelot, interface 16001), keeps them up to date and touches nothing in the game except Interface/AddOns.\n\nGamepad: L1/R1 switch tabs, X checks for updates, Y opens search, B goes back.</string>
-    <string name="action_forever_client">WoW Forever client</string>
+    <string name="settings_about_text">Addon manager for WoW Forever on Android. It installs only Forever builds (TOC _Forever / _Camelot, interface 16001), keeps them up to date and touches nothing except the AddOns folder.\n\nGamepad: L1/R1 switch tabs, X checks for updates, Y opens search, B goes back.</string>
     <string name="action_clear_cache">Clear cache</string>
     <string name="cache_cleared">Cache cleared</string>
 
     <!-- Detail panel -->
     <string name="action_back">Back</string>
-    <string name="detail_hint_installed">Addons go to _forever_/Interface/AddOns in the chosen game folder. Close the game before you install or update.</string>
+    <string name="detail_hint_installed">Addons go to the AddOns folder chosen in Settings. Close the game before you install or update.</string>
     <string name="detail_pick_addon">Select an addon</string>
     <string name="detail_hint_library">Version, folders and the update and remove buttons show up here.</string>
     <string name="detail_hint_browse">Tap an addon in the list to see details and install it.</string>
@@ -165,12 +164,13 @@
     <!-- Folder picker and dialogs -->
     <string name="picker_internal">Internal storage</string>
     <string name="picker_sd">SD %1$s</string>
-    <string name="picker_found">✓ WoW Forever found here: %1$s</string>
+    <string name="picker_found">✓ Game folder found: %1$s</string>
+    <string name="picker_pill_game">Game</string>
     <string name="picker_empty">Empty</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_choose_this">Choose this folder</string>
-    <string name="picker_not_game_title">This is not a WoW Forever folder</string>
-    <string name="picker_not_game_text">There is no .build.info or _forever_ here. If the game is not installed yet, install it in the WoW Forever app first.</string>
+    <string name="picker_not_game_title">This is not a game folder</string>
+    <string name="picker_not_game_text">There is no .build.info, Interface or AddOns here. Choose it anyway, and addons go straight into this folder.</string>
     <string name="action_choose_anyway">Choose anyway</string>
     <string name="action_ok">Got it</string>
     <string name="no_browser">No browser found</string>

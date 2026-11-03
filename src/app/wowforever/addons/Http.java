@@ -14,7 +14,7 @@ import java.util.Map;
 
 /** Small HTTP helper: manual redirects so secrets never leak to a foreign host. */
 final class Http {
-    static final String UA = "wow-addons-android/1.0 (WoW Forever addon manager)";
+    static final String UA = "wow-addons-android/1.0 (WoW addon manager)";
 
     interface Progress { void on(long done, long total); }
 

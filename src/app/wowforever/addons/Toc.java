@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/** Reads addon TOC files the way the WoW Forever client picks them. */
+/** Reads addon TOC files the way the WoW Forever game picks them. */
 final class Toc {
 
     /** Forever is the Mainline family: _Forever, then its codename _Camelot, then _Mainline, then the base TOC. */

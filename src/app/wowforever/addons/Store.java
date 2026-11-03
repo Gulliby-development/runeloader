@@ -15,7 +15,6 @@ import java.util.Map;
 
 /** Settings (SharedPreferences) and the list of addons this app manages. */
 final class Store {
-    static final String FLAVOR_DIR = "_forever_";
     static final String STATE_FILE = "wow-addons.json";
 
     private final SharedPreferences prefs;
@@ -67,32 +66,25 @@ final class Store {
 
     File root() { String r = gameRoot(); return r == null ? null : new File(r); }
 
-    File flavorDir() { File r = root(); return r == null ? null : new File(r, FLAVOR_DIR); }
+    /** True when the user chose a plain folder and addons go straight into it. */
+    boolean addonsDirect() { return prefs.getBoolean("addonsDirect", false); }
+    void setAddonsDirect(boolean b) { prefs.edit().putBoolean("addonsDirect", b).apply(); }
 
-    File addonsDir() { File f = flavorDir(); return f == null ? null : new File(f, "Interface/AddOns"); }
+    File addonsDir() {
+        File r = root();
+        if (r == null) return null;
+        return addonsDirect() ? r : AddonsFolder.addonsDir(r);
+    }
 
     boolean gameReady() {
         File r = root();
-        return r != null && r.isDirectory() && (new File(r, FLAVOR_DIR).isDirectory() || new File(r, ".build.info").exists());
+        return r != null && r.isDirectory() && (addonsDirect() || AddonsFolder.recognized(r));
     }
 
-    /** Accepts the game root, its _forever_ folder, Interface or AddOns and returns the game root. */
-    static File normalizeRoot(File picked) {
-        if (picked == null) return null;
-        File f = picked;
-        for (int i = 0; i < 4 && f != null; i++) {
-            if (new File(f, FLAVOR_DIR).isDirectory() || new File(f, ".build.info").exists()) return f;
-            String n = f.getName();
-            if (!(n.equalsIgnoreCase("AddOns") || n.equalsIgnoreCase("Interface") || n.equalsIgnoreCase(FLAVOR_DIR))) break;
-            f = f.getParentFile();
-        }
-        // An empty or unknown folder: use a "WoW Forever" child if one is there.
-        File child = new File(picked, "WoW Forever");
-        if (child.isDirectory() && (new File(child, FLAVOR_DIR).isDirectory() || new File(child, ".build.info").exists())) return child;
-        return null;
-    }
+    /** Accepts a game folder of any client, its flavor, Interface or AddOns folder. */
+    static File normalizeRoot(File picked) { return AddonsFolder.normalize(picked); }
 
-    /** Looks for "WoW Forever" on internal storage and SD cards. */
+    /** Looks for a game folder on internal storage and SD cards. */
     static List<File> detect() {
         List<File> out = new ArrayList<>();
         List<File> bases = new ArrayList<>();
@@ -104,7 +96,7 @@ final class Store {
             bases.add(v);
         }
         for (File b : bases) {
-            for (String name : new String[]{"WoW Forever", "World of Warcraft", "WoW", "Games/WoW Forever"}) {
+            for (String name : AddonsFolder.KNOWN_NAMES) {
                 File c = normalizeRoot(new File(b, name));
                 if (c != null && !out.contains(c)) out.add(c);
             }
@@ -117,8 +109,10 @@ final class Store {
     // ── managed addons ──
 
     private File gameState() {
-        File f = flavorDir();
-        return f == null ? null : new File(f, "Interface/" + STATE_FILE);
+        // Kept next to AddOns only inside an Interface folder; a plain folder keeps it in the app.
+        File a = addonsDir();
+        File parent = a == null ? null : a.getParentFile();
+        return parent != null && parent.getName().equalsIgnoreCase("Interface") ? new File(parent, STATE_FILE) : null;
     }
 
     synchronized boolean isLoaded() { return loaded; }

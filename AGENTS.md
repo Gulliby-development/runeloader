@@ -4,10 +4,10 @@ These instructions apply to every coding agent (Claude Code, GitHub Copilot, Cod
 
 ## Project
 
-Runeloader is an Android app that installs, updates and removes addons for the [WoW Forever Android client](https://github.com/jaredgei/wow-forever-android). It is plain Java on the Android SDK, with no libraries and no XML layouts: the whole UI is built in code. Read `README.md` for the build. The product name is Runeloader; the package and the build output keep their old names for now.
+Runeloader is an Android app that installs, updates and removes addons for WoW Forever. It works with any client: it only writes to the AddOns folder the user picks, so do not tie it to one client app, package or folder layout. It is plain Java on the Android SDK, with no libraries and no XML layouts: the whole UI is built in code. Read `README.md` for the build. The product name is Runeloader; the package and the build output keep their old names for now.
 
 - Package `app.wowforever.addons`, minSdk 29, targetSdk 34, compileSdk 35.
-- Addons go to `<game folder>/_forever_/Interface/AddOns`.
+- Addons go to the AddOns folder that `AddonsFolder.java` finds in the chosen folder: `<game>/_<flavor>_/Interface/AddOns` (`_forever_` first), `<game>/Interface/AddOns`, a picked `Interface` or `AddOns` folder, or any plain folder the user confirms. A new folder layout goes into `AddonsFolder.java` with a case in `test/AddonsFolderTest.java`.
 
 ## How the app works
 
@@ -17,7 +17,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - `UpdateJobService.java` is the background auto-update: a periodic `JobScheduler` job that `AutoUpdate.java` schedules from the settings and that posts the result as a notification. `UpdatePolicy.java` holds its plain-Java rules (which addons, which versions count as new).
 - `Index.java`, `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, searched through the nightly [runeloader-index](https://github.com/Gulliby-development/runeloader-index) `index.json` or added by link, and WoWInterface. The index is only for search: installs and update checks read the repository's release directly. CurseForge is not a source (owner's decision); do not add it back. `Search.java` merges every source into the one Browse list, without per-source tabs: hand-picked catalog entries the index lacks, then the index, then WoWInterface for addons GitHub does not have (same folder or name). Each row shows its source as a tag. That merge order lives only in `Search.java`; a new source joins it there. Without a query, Browse lists everything by `Popularity` (latest-release downloads plus ten per star); a new popularity signal goes into `Popularity.score` with a case in `test/PopularityTest.java`.
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
-- `Toc.java` picks the TOC file the same way the Forever client does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
+- `Toc.java` picks the TOC file the same way the game does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
 - `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. `Http.java` follows redirects by hand, so the GitHub token goes only to GitHub hosts.
 
 ## Task workflow
@@ -57,7 +57,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
 - The GitHub index (runeloader-index) is a hint for search, metadata and update checks. An install always resolves the asset from GitHub directly (`Sources.latest`), because the index can be a day old. If the index is unreachable, the update check falls back to the per-addon check.
 - The indexer owns icon conversion (TGA/BLP to PNG); the app only shows a ready PNG and keeps the letter icon until it loads. A new optional index key is mapped in `IndexFields.java`, with a case in `test/IndexFieldsTest.java`; the app must work when the key is missing.
-- A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the Forever client uses. Add a case for it to `test/InstallTest.java`.
+- A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the game uses. Add a case for it to `test/InstallTest.java`.
 - Keep comments short and about intent that the code does not show.
 - Do not commit build output (`build/`, `*.apk`, `*.idsig`) or `local.properties`.
 
@@ -119,6 +119,13 @@ When you change `Installer.java`, `Toc.java` or `Model.java`, also run the insta
 ```sh
 mkdir -p /tmp/t && javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Model}.java test/InstallTest.java
 java -cp /tmp/t app.wowforever.addons.InstallTest <folder-with-zips> /tmp/fakegame
+```
+
+When you change `AddonsFolder.java` (where addons go), run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/f && javac -d /tmp/f src/app/wowforever/addons/AddonsFolder.java test/AddonsFolderTest.java
+java -cp /tmp/f app.wowforever.addons.AddonsFolderTest
 ```
 
 When you change `UpdatePolicy.java`, run its test (CI runs it too):

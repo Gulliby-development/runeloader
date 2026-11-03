@@ -92,7 +92,7 @@ final class DetailPanel extends Screen {
         String t;
         String s;
         if (app.tab == MainActivity.TAB_SETTINGS) {
-            t = "WoW Forever";
+            t = s(R.string.settings_game_folder);
             s = s(R.string.detail_hint_installed);
         } else if (app.tab == MainActivity.TAB_INSTALLED) {
             t = s(R.string.detail_pick_addon);
