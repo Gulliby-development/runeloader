@@ -16,6 +16,11 @@ public class UpdatePolicyTest {
         check(!UpdatePolicy.isNewer("1.0 ", "1.0"), "spaces are ignored");
         check(!UpdatePolicy.isNewer("REL-A", "rel-a"), "case is ignored");
         check(UpdatePolicy.isNewer("1.1", "1.0"), "another version is an update");
+        check(!UpdatePolicy.isNewer("bundle/v12.4.0+v1.0.10", "v12.4.0+v1.0.10"), "a tag path prefix is ignored (#47)");
+        check(!UpdatePolicy.isNewer("v12.4.0+v1.0.10", "release/12.4.0+v1.0.10"), "either side may carry the tag path");
+        check(UpdatePolicy.isNewer("bundle/v12.5.0", "v12.4.0"), "a newer tag with a path is still an update");
+        check(!UpdatePolicy.isNewer("version", "Version"), "a word starting with v keeps its v");
+        check(UpdatePolicy.isNewer("version-2", "ersion-2"), "only a v before a digit is dropped");
         check(UpdatePolicy.isNewer("1.1", null), "an unknown installed version takes the update");
         check(!UpdatePolicy.isNewer(null, "1.0"), "no latest version, no update");
         check(!UpdatePolicy.isNewer("  ", "1.0"), "an empty latest version, no update");

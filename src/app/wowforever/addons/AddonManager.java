@@ -172,7 +172,7 @@ final class AddonManager {
         if (app.isDestroyed()) return;
         e.checkError = err;
         if (latest != null) {
-            if (!latest.equals(e.latest)) e.changelog = null;
+            if (!sameVersion(latest, e.latest)) e.changelog = null;
             e.latest = latest;
             e.updateAvailable = !sameVersion(latest, e.version);
             if (changelog != null && !changelog.isEmpty()) e.changelog = changelog;
