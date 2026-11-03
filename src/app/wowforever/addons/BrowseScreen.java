@@ -201,20 +201,20 @@ final class BrowseScreen extends Screen {
                 row.setBaselineAligned(false);
                 col.addView(row, Ui.margins(Ui.lp(-1, -2), 0, i == 0 ? 0 : 8, 0, 0));
             }
-            row.addView(categoryTile(Categories.KEYS[i]), Ui.margins(Ui.lpw(0, -1, 1), i % cols == 0 ? 0 : 8, 0, 0, 0));
+            row.addView(categoryTile(Categories.KEYS[i]), Ui.margins(Ui.lpw(0, -2, 1), i % cols == 0 ? 0 : 8, 0, 0, 0));
         }
         // Keep the last row's tiles the same width as the others.
         for (int i = Categories.KEYS.length % cols; i > 0 && i < cols; i++)
-            row.addView(new View(app), Ui.margins(Ui.lpw(0, -1, 1), 8, 0, 0, 0));
+            row.addView(new View(app), Ui.margins(Ui.lpw(0, 0, 1), 8, 0, 0, 0));
         app.bodyBox.addView(sv, new FrameLayout.LayoutParams(-1, -1));
     }
 
     private View categoryTile(final String key) {
         boolean other = Categories.OTHER.equals(key);
-        LinearLayout t = Ui.hbox(app);
+        // Icon above the text, so long names ("Quests and leveling") get the whole tile width.
+        LinearLayout t = Ui.vbox(app);
         t.setBackground(Ui.selectable(other ? 0x00000000 : Ui.SURFACE, 14, other ? Ui.STROKE : Ui.SURFACE3));
-        t.setPadding(Ui.dp(10), Ui.dp(10), Ui.dp(10), Ui.dp(10));
-        t.setMinimumHeight(Ui.dp(64));
+        t.setPadding(Ui.dp(12), Ui.dp(12), Ui.dp(12), Ui.dp(12));
         t.setFocusable(true);
         t.setClickable(true);
         FrameLayout iconBox = new FrameLayout(app);
@@ -227,12 +227,12 @@ final class BrowseScreen extends Screen {
         LinearLayout txt = Ui.vbox(app);
         String name = s(Categories.nameRes(key));
         TextView title = Ui.text(app, name, 13.5f, Ui.TEXT, Ui.MEDIUM);
-        title.setMaxLines(2);
+        title.setLines(2);   // the same height for every tile in a row
         txt.addView(title, Ui.lp(-1, -2));
         Integer n = counts == null ? null : counts.get(key);
-        String sub = n != null ? q(R.plurals.addons_count, n) : countsLoading ? "…" : "";
-        if (!sub.isEmpty()) txt.addView(Ui.oneLine(Ui.text(app, sub, 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lp(-1, -2), 0, 2, 0, 0));
-        t.addView(txt, Ui.margins(Ui.lpw(0, -2, 1), 10, 0, 0, 0));
+        String sub = n != null ? q(R.plurals.addons_count, n) : countsLoading ? "…" : " ";
+        txt.addView(Ui.oneLine(Ui.text(app, sub, 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lp(-1, -2), 0, 2, 0, 0));
+        t.addView(txt, Ui.margins(Ui.lp(-1, -2), 0, 10, 0, 0));
         t.setContentDescription(n == null ? name : name + ", " + sub);
         t.setOnClickListener(v -> setMode(true, key));
         return t;
