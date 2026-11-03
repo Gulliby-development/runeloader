@@ -47,6 +47,12 @@ jobs:
           mkdir -p /tmp/t
           javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Model}.java test/InstallTest.java
 
+      - name: Auto-update rules
+        run: |
+          mkdir -p /tmp/u
+          javac -d /tmp/u src/app/wowforever/addons/{Model,UpdatePolicy}.java test/UpdatePolicyTest.java
+          java -cp /tmp/u app.wowforever.addons.UpdatePolicyTest
+
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apk

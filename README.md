@@ -22,16 +22,18 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **Search in one place.** Runeloader looks in the Forever catalog, CurseForge and WoWInterface.
 - **One-tap install.** The app finds the right folder and the right files for you.
 - **Updates.** See which addons are out of date and update them all at once.
+- **Auto-update.** Turn it on in **Settings**, and Runeloader checks for updates in the background, even when the app is closed. It can tell you, or install the updates for you.
 - **Your own zips.** Got an addon from somewhere else? Install it from a zip file.
 - **Safe.** An addon is replaced only after the new version is fully unpacked, so a broken download never breaks your game.
 - **Made for play.** Works in landscape and portrait, by touch or with a gamepad.
+- **Your language.** English, German, Spanish, French, Polish, Portuguese, Russian and Chinese.
 
 ## Install
 
 1. **Download** `runeloader-<version>.apk` from the [latest release](../../releases/latest) on your Android device.
 2. **Open** the file. If Android asks, allow installs from your browser or file manager.
 3. **Start Runeloader** and allow **All files access**. The app needs it to write into the game folder.
-4. **Pick your WoW Forever folder**: the one that has `.build.info` and `_forever_` inside.
+4. **Find your WoW Forever folder.** Tap **Find automatically**, or pick the folder that has `.build.info` and `_forever_` inside.
 
 That's it. Open **Browse**, find an addon and tap **Install**. Restart the game to load it.
 

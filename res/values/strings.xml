@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English: the base language and the fallback. Every key here must exist in each values-<lang>/strings.xml. -->
+<resources>
+    <string name="app_name" translatable="false">Runeloader</string>
+    <string name="app_tagline">Addon manager for WoW Forever</string>
+
+    <!-- Navigation: *_short labels sit in the 68dp side rail, keep them to about 9 characters. -->
+    <string name="nav_installed_short">Mine</string>
+    <string name="nav_browse_short">Browse</string>
+    <string name="nav_settings_short">Settings</string>
+    <string name="nav_installed">My addons</string>
+    <string name="nav_browse">Browse</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Storage permission and game folder -->
+    <string name="perm_title">File access needed</string>
+    <string name="perm_text">To install addons into the game folder, the app needs \"All files access\", just like the WoW Forever client itself.</string>
+    <string name="perm_grant">Allow access</string>
+    <string name="perm_settings_hint">Open Settings → Apps → %1$s → All files access</string>
+    <string name="setup_step_access">File access</string>
+    <string name="setup_step_folder">Game folder</string>
+    <string name="setup_step_curse">Connect CurseForge (optional)</string>
+    <string name="game_not_set">No game folder selected</string>
+    <string name="game_where_title">Where is WoW Forever installed?</string>
+    <string name="game_where_text">Usually it is \"WoW Forever\" in internal storage or on the SD card. Pick the folder that holds .build.info and _forever_.</string>
+    <string name="game_auto_detect">Find automatically</string>
+    <string name="game_pick_folder">Choose folder</string>
+    <string name="game_not_set_dialog">Tell the app where WoW Forever is installed, so it knows where to put addons.</string>
+    <string name="game_not_found_title">WoW Forever not found</string>
+    <string name="game_not_found_text">Could not find the game folder in internal storage or on SD cards. Pick it by hand.</string>
+    <string name="game_multiple_found">Several installations found</string>
+    <string name="game_folder_set">Game folder: %1$s</string>
+
+    <!-- Installed tab -->
+    <string name="installed_managed">%1$d managed</string>
+    <string name="installed_checking">checking for updates…</string>
+    <string name="action_from_zip">From ZIP</string>
+    <string name="action_check">Check</string>
+    <string name="action_checking">Checking…</string>
+    <string name="library_title">Library</string>
+    <string name="action_update_all_plain">Update all</string>
+    <!-- Update bar: "3 updates available" and the addon names. -->
+    <string name="updates_bar_names">%1$s: %2$s</string>
+    <string name="installed_empty_title">No addons yet</string>
+    <string name="installed_empty_text">Open the catalog: it lists addons with a WoW Forever build, such as Questie, Bartender4, DBM, Plater and more.</string>
+    <string name="action_open_catalog">Open catalog</string>
+    <string name="action_install_zip">Install ZIP</string>
+    <string name="installed_manually">installed manually</string>
+
+    <!-- Status pills -->
+    <string name="pill_installing">Installing…</string>
+    <string name="pill_folders_missing">Folders deleted</string>
+    <string name="pill_unchecked">Not checked</string>
+    <string name="pill_up_to_date">Up to date</string>
+    <string name="pill_in_catalog">In catalog</string>
+    <string name="pill_manual">Manual</string>
+    <string name="pill_installed">Installed</string>
+    <string name="pill_forever">✓ Forever</string>
+    <string name="pill_forever_unverified">Forever not confirmed</string>
+    <string name="pill_not_forever">Not for Forever?</string>
+
+    <string name="action_update">Update</string>
+    <string name="action_install">Install</string>
+    <string name="action_reinstall">Reinstall</string>
+
+    <string name="source_zip">ZIP file</string>
+
+    <!-- Browse tab -->
+    <string name="browse_title">Browse addons</string>
+    <string name="browse_subtitle">WoW Forever builds only · interface %1$s</string>
+    <string name="browse_src_catalog">Forever catalog</string>
+    <string name="browse_hint_github">owner/repo or a GitHub link</string>
+    <string name="browse_hint_search">Search addons…</string>
+    <string name="action_find">Find</string>
+    <string name="browse_cat_all">All</string>
+    <string name="browse_set_folder">Set folder</string>
+    <string name="browse_source">Source</string>
+    <string name="browse_no_game">Game folder not set. Installing is off.</string>
+    <string name="curse_connect_title">Connect CurseForge</string>
+    <string name="curse_connect_text">CurseForge serves files only with a personal API key. Get one for free at console.curseforge.com and paste it in Settings; then you can search every addon that has a Forever version here.\n\nWithout a key, download the zip on the CurseForge site in your browser and install it with \"From ZIP\".</string>
+    <string name="action_enter_key">Enter key</string>
+    <string name="action_open_site">Open site</string>
+    <string name="load_failed">Could not load</string>
+    <string name="action_retry">Retry</string>
+    <string name="github_empty_title">Addon from GitHub</string>
+    <string name="github_empty_text">Paste a repository link, for example github.com/Questie/Questie. The Forever build is picked from release.json, and updates need no keys and have no limits.</string>
+    <string name="nothing_found">Nothing found</string>
+    <string name="nothing_found_text">Try another search.</string>
+    <string name="wowi_note">WoWInterface does not mark Forever versions. After install the app checks the TOC and warns you if the addon is not for Forever.</string>
+    <string name="github_repo_needed">Enter the repository as owner/repo or a github.com/owner/repo link</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_version">%1$s %2$s</string>
+    <string name="settings_game_folder">Game folder</string>
+    <string name="settings_not_selected">Not selected</string>
+    <string name="settings_pick_game">Pick the WoW Forever folder (the one with .build.info and _forever_).</string>
+    <string name="settings_game_missing">WoW Forever was not found in this folder.</string>
+    <string name="settings_addons_to">Addons go to %1$s</string>
+    <string name="settings_addons_to_new">Addons go to %1$s (the folder will be created)</string>
+    <string name="action_auto_detect">Auto-detect</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_text">The app follows the system language. Pick another one here.</string>
+    <string name="language_system">System</string>
+    <string name="settings_curse_key">CurseForge API key</string>
+    <string name="settings_curse_text">Enables search and updates for every CurseForge addon with a Forever version. The key is free: sign in at console.curseforge.com → API keys. It stays on this device and is sent only to api.curseforge.com and forgecdn.net.</string>
+    <string name="settings_paste_key">Paste the key</string>
+    <string name="action_save">Save</string>
+    <string name="curse_key_saved">CurseForge key saved</string>
+    <string name="curse_key_removed">Key removed</string>
+    <string name="action_get_key">Get a key</string>
+    <string name="curse_key_works">CurseForge key works ✓</string>
+    <string name="settings_github_token">GitHub token (optional)</string>
+    <string name="settings_github_text">The catalog works without a token. You need one only if you often add repositories without release.json and hit the limit of 60 requests per hour.</string>
+    <string name="saved">Saved</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_text">Addon manager for the WoW Forever client on Android. It installs only Forever builds (TOC _Forever / _Camelot, interface 16001), keeps them up to date and touches nothing in the game except Interface/AddOns.\n\nGamepad: L1/R1 switch tabs, X checks for updates, Y opens search, B goes back.</string>
+    <string name="action_forever_client">WoW Forever client</string>
+    <string name="action_clear_cache">Clear cache</string>
+    <string name="cache_cleared">Cache cleared</string>
+
+    <!-- Detail panel -->
+    <string name="action_back">Back</string>
+    <string name="detail_hint_installed">Addons go to _forever_/Interface/AddOns in the chosen game folder. Close the game before you install or update.</string>
+    <string name="detail_pick_addon">Select an addon</string>
+    <string name="detail_hint_library">Version, folders and the update and remove buttons show up here.</string>
+    <string name="detail_hint_browse">Tap an addon in the list to see details and install it.</string>
+    <string name="action_download_site">Download on site</string>
+    <string name="note_distribution_off">The author allows downloads only on the CurseForge site. Download the zip in your browser and install it with \"From ZIP\".</string>
+    <string name="note_wowi_version">WoWInterface does not state a Forever version. Make sure the addon supports Forever (interface 16001).</string>
+    <string name="info_installed">Installed</string>
+    <string name="info_version">Version</string>
+    <string name="info_category">Category</string>
+    <string name="info_downloads">Downloads</string>
+    <string name="info_updated">Updated</string>
+    <string name="info_folders">Folders</string>
+    <string name="info_dependencies">Dependencies</string>
+    <string name="info_dependencies_auto">%1$s (installed automatically)</string>
+    <string name="info_source">Source</string>
+    <string name="info_latest">Latest</string>
+    <string name="info_installed_at">Installed on</string>
+    <string name="info_interface">Interface</string>
+    <string name="action_update_to">Update to %1$s</string>
+    <string name="action_install_again">Install again</string>
+    <string name="action_check_update">Check for update</string>
+    <string name="action_track_catalog">Update via catalog</string>
+    <string name="action_track_curse">Update from CurseForge</string>
+    <string name="action_track_wowi">Update from WoWInterface</string>
+    <string name="action_page">Page</string>
+    <string name="action_remove">Remove</string>
+    <string name="note_not_forever">The addon has no Forever TOC (_Forever / _Camelot) and no 160xx interface. It may not load or may count as out of date. Look for a \"Forever\" version from the author.</string>
+    <string name="note_check_error">Update check: %1$s</string>
+    <string name="note_manual_in_catalog">This addon was installed by hand, but it is in the Forever catalog. Tap \"Update via catalog\" to put the fresh version on top and get updates.</string>
+    <string name="join_more">%1$s and %2$d more</string>
+
+    <!-- Updates and installs -->
+    <string name="no_managed_addons">No addons installed through the manager</string>
+    <string name="all_up_to_date">All addons are up to date</string>
+    <string name="checking_one">Checking %1$s…</string>
+    <string name="version_available">Version %1$s is available</string>
+    <string name="latest_installed">The latest version is installed</string>
+    <string name="updating_n">Updating: %1$d</string>
+    <string name="queued">Queued…</string>
+    <string name="install_failed">Could not install %1$s</string>
+    <string name="installed_names">Installed: %1$s. If the game is running, type /reload</string>
+    <string name="finding_build">Looking for the Forever build…</string>
+    <string name="downloading">Downloading %1$s</string>
+    <string name="downloading_of">Downloading %1$s of %2$s</string>
+    <string name="md5_mismatch">The file got damaged while downloading (MD5 mismatch). Try again.</string>
+    <string name="unpacking">Unpacking…</string>
+    <string name="more_queued">+%1$d queued</string>
+    <string name="searching_curse">Searching CurseForge…</string>
+    <string name="curse_addon_not_found">Addon not found on CurseForge</string>
+    <string name="remove_title">Remove %1$s?</string>
+    <string name="remove_text">These folders will be deleted: %1$s.\nThe addon settings in WTF stay.</string>
+    <string name="removing">Removing %1$s…</string>
+    <string name="removed">Removed: %1$s</string>
+    <string name="no_file_manager">No file manager found</string>
+    <string name="copying">Copying…</string>
+    <string name="cannot_open_file">Could not open the file</string>
+    <string name="zip_install_failed">Could not install the ZIP</string>
+    <string name="zip_installed">Installed from ZIP: %1$s</string>
+
+    <!-- Folder picker and dialogs -->
+    <string name="picker_internal">Internal storage</string>
+    <string name="picker_sd">SD %1$s</string>
+    <string name="picker_found">✓ WoW Forever found here: %1$s</string>
+    <string name="picker_empty">Empty</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_choose_this">Choose this folder</string>
+    <string name="picker_not_game_title">This is not a WoW Forever folder</string>
+    <string name="picker_not_game_text">There is no .build.info or _forever_ here. If the game is not installed yet, install it in the WoW Forever app first.</string>
+    <string name="action_choose_anyway">Choose anyway</string>
+    <string name="action_ok">Got it</string>
+    <string name="no_browser">No browser found</string>
+
+    <!-- Errors -->
+    <string name="err_no_internet">No internet connection</string>
+    <string name="err_timeout">The server did not answer in time. Try again.</string>
+    <string name="err_ssl">Secure connection error</string>
+    <string name="err_not_zip">The file is not a zip archive or is damaged</string>
+    <string name="err_http_404">File not found on the server (404)</string>
+    <string name="err_rate_limited">The server limited requests (%1$d). Try later.</string>
+    <string name="err_gh_repo_no_releases">Repository %1$s not found or has no releases</string>
+    <string name="err_gh_no_forever_build">%1$s has no WoW Forever build in its latest release</string>
+    <string name="err_gh_no_published">Repository %1$s has no published releases</string>
+    <string name="err_gh_rate_limit">GitHub request limit reached. Wait an hour or add a token in Settings.</string>
+    <string name="err_gh_unexpected">GitHub sent an unexpected reply</string>
+    <string name="err_gh_repo_not_found">Repository %1$s not found</string>
+    <string name="err_curse_key_needed">A CurseForge API key is needed (Settings)</string>
+    <string name="err_curse_unexpected">CurseForge sent an unexpected reply</string>
+    <string name="err_curse_key_rejected">CurseForge rejected the API key (code %1$d). Check the key in Settings.</string>
+    <string name="err_curse_no_files">CurseForge has no WoW Forever files for this addon</string>
+    <string name="err_curse_site_only">The author does not allow downloads outside the CurseForge site. Download the zip in your browser and install it with \"From ZIP\".</string>
+    <string name="err_wowi_list">Could not read the WoWInterface list</string>
+    <string name="err_wowi_unexpected">WoWInterface sent an unexpected reply</string>
+    <string name="err_wowi_not_found">Addon not found on WoWInterface</string>
+    <string name="err_wowi_pending">The new version is still waiting for approval on WoWInterface</string>
+    <string name="err_no_download">The addon has no file to download</string>
+
+    <!-- Installer -->
+    <string name="inst_no_addons">No addons found in the archive (no .toc files)</string>
+    <string name="inst_cannot_create">Could not create %1$s</string>
+    <string name="inst_no_write">No write access: %1$s</string>
+    <string name="inst_unpacking">Unpacking: %1$s</string>
+    <string name="inst_unpacking_files">Unpacking files: %1$d of %2$d</string>
+    <string name="inst_unsafe_path">Unsafe path in the archive: %1$s</string>
+    <string name="inst_installing">Installing into AddOns</string>
+    <string name="inst_cannot_write">Could not write %1$s</string>
+    <string name="inst_cannot_delete">Could not delete %1$s</string>
+
+    <!-- Formats -->
+    <string name="fmt_millions">%1$s M</string>
+    <string name="fmt_thousands">%1$s K</string>
+    <string name="fmt_bytes">%1$d B</string>
+    <string name="fmt_kb">%1$s KB</string>
+    <string name="fmt_mb">%1$s MB</string>
+    <string name="today">today</string>
+    <string name="yesterday">yesterday</string>
+
+    <plurals name="addons_count">
+        <item quantity="one">%d addon</item>
+        <item quantity="other">%d addons</item>
+    </plurals>
+    <plurals name="folders_count">
+        <item quantity="one">%d folder</item>
+        <item quantity="other">%d folders</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="updates_available">
+        <item quantity="one">%d update available</item>
+        <item quantity="other">%d updates available</item>
+    </plurals>
+
+    <!-- Catalog -->
+    <string name="cat_quests">Quests and leveling</string>
+    <string name="cat_ui">Interface</string>
+    <string name="cat_combat">Combat and bosses</string>
+    <string name="cat_bags">Bags and items</string>
+    <string name="cat_map">Map</string>
+    <string name="cat_tools">Utilities</string>
+    <string name="addon_dbm_dungeons">DBM: Dungeons</string>
+    <string name="addon_dbm_vanilla">DBM: Classic raids</string>
+    <string name="sum_questie">Quest helper: quests, objectives and NPCs right on the map, minimap and tooltips. A must-have for leveling.</string>
+    <string name="sum_rxp">Step-by-step leveling guides with a navigation arrow and hints on what to do next.</string>
+    <string name="sum_bartender">A full replacement for the action bars: size, position, visibility and paging.</string>
+    <string name="sum_dominos">Light and flexible action bars, cast and XP bars, Masque support.</string>
+    <string name="sum_moveany">Move and scale almost any element of the default interface.</string>
+    <string name="sum_plater">Advanced nameplates: threat, casts, auras, deep settings and scripts.</string>
+    <string name="sum_threatplates">Nameplates that show threat for tanks and DPS, easy to set up.</string>
+    <string name="sum_masque">Skins for action buttons, bags and buffs. Works with Dominos, Bartender and others.</string>
+    <string name="sum_sexymap">A good-looking, configurable minimap: shape, borders, addon buttons.</string>
+    <string name="sum_mapster">World map improvements: transparency, scale, coordinates, fog of war.</string>
+    <string name="sum_bigwigs">Raid boss timers and warnings. A light alternative to DBM.</string>
+    <string name="sum_dbm">Classic boss timers and warnings. The DBM core.</string>
+    <string name="sum_dbm_dungeons">DBM modules for dungeons, challenges and world events (Forever included).</string>
+    <string name="sum_dbm_vanilla">DBM modules for the classic raids and the world bosses of Azeroth.</string>
+    <string name="sum_capping">Battleground and arena timers: capture points, flags, queue.</string>
+    <string name="sum_tmw">Icons for cooldowns, buffs and debuffs, by your own rules.</string>
+    <string name="note_tmw">In combat Forever hides some data from addons, so sorting and cooldown conditions are limited there.</string>
+    <string name="sum_musca">A WeakAuras port for Forever: your own indicators for auras, cooldowns and resources.</string>
+    <string name="note_musca">Combat log triggers do not fire in Forever, so imported auras may need changes.</string>
+    <string name="sum_tullarange">Colors buttons red when the target is out of range and blue when you lack mana.</string>
+    <string name="sum_betterbags">One bag with automatic categories, search and sorting.</string>
+    <string name="sum_simpleilvl">Shows item level on icons in bags, on your character and at vendors.</string>
+    <string name="sum_canimogit">Marks items whose appearance you have not collected for transmog yet.</string>
+    <string name="sum_silverdragon">Alerts you to rare mobs nearby, shows them on the map and keeps a history.</string>
+    <string name="sum_aio">Access to hidden client settings (CVars) through a handy menu.</string>
+    <string name="sum_broker">A set of info panels: gold, FPS, latency, friends, guild, durability and much more.</string>
+    <string name="sum_bugsack">Collects Lua errors into a \"sack\" so they do not get in the way of play.</string>
+    <string name="note_bugsack">Errors are caught by !BugGrabber, which you can find on CurseForge or WoWInterface.</string>
+
+    <!-- Background auto-update (settings, detail panel, notifications) -->
+    <string name="auto_title">Auto-update</string>
+    <string name="auto_text">Checks for addon updates in the background, also when the app is closed. Android picks the exact time, so a check can run a few hours late.</string>
+    <string name="auto_mode_off">Off</string>
+    <string name="auto_mode_notify">Notify only</string>
+    <string name="auto_mode_install">Install automatically</string>
+    <string name="auto_frequency">How often</string>
+    <string name="auto_every_hours">Every %1$d h</string>
+    <string name="auto_conditions">When</string>
+    <string name="auto_wifi_only">Wi-Fi only</string>
+    <string name="auto_charging_only">Only while charging</string>
+    <string name="auto_no_notifications">Notifications are off, so updates happen silently. Allow notifications for Runeloader in the system settings to see them.</string>
+    <string name="auto_battery_text">Some phones stop background work to save battery. If checks never run, turn battery optimization off for Runeloader.</string>
+    <string name="auto_battery_action">Battery settings</string>
+    <string name="auto_status_never">No background check yet.</string>
+    <string name="auto_status_none">Last check: %1$s. Everything is up to date.</string>
+    <string name="auto_status_found">Last check: %1$s. Updates found: %2$d.</string>
+    <string name="auto_status_updated">Last check: %1$s. Addons updated: %2$d.</string>
+    <string name="auto_status_error">Last check: %1$s. %2$s</string>
+    <string name="auto_channel">Addon updates</string>
+    <string name="auto_channel_text">What the background auto-update found and installed.</string>
+    <string name="auto_err_title">Auto-update could not run</string>
+    <string name="auto_err_access">Runeloader has lost \"All files access\". Open the app to grant it again.</string>
+    <string name="auto_err_game">The game folder was not found. Open the app and choose it again.</string>
+    <string name="auto_err_update">Addon updates failed</string>
+    <string name="auto_reload_hint">If the game is running, type /reload.</string>
+    <string name="auto_pin">Don\'t update automatically</string>
+    <string name="auto_unpin">Update automatically</string>
+    <string name="auto_pinned_note">Auto-update skips this addon. You can still update it by hand.</string>
+    <plurals name="auto_found">
+        <item quantity="one">%d addon update available</item>
+        <item quantity="other">%d addon updates available</item>
+    </plurals>
+    <plurals name="auto_updated">
+        <item quantity="one">%d addon updated</item>
+        <item quantity="other">%d addons updated</item>
+    </plurals>
+</resources>

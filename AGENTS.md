@@ -11,11 +11,14 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 
 ## How the app works
 
-- `MainActivity.java` holds the UI: the tabs (installed, browse, settings), the list and detail panel, the folder picker, installs, updates and gamepad input.
+- `MainActivity.java` is the shell: lifecycle, the rail or bottom navigation, tab switching, gamepad keys, permissions, and the shared overlays (modal, confirm, snackbar, progress card). It holds the state that several screens share.
+- Each tab is a `Screen` subclass: `LibraryScreen` (installed addons), `BrowseScreen` (catalog and search), `SettingsScreen`. `SetupScreen` shows the storage permission and game folder prompts, `DetailPanel` the addon details, `GameFolder` finds and picks the game folder. `Screen.java` has the helpers they share (headers, rows, empty states).
+- `AddonManager.java` scans the AddOns folder and drives installs, updates and removes from the screens. `Updater.java` does the actual install and update without a screen, under one process-wide lock.
+- `UpdateJobService.java` is the background auto-update: a periodic `JobScheduler` job that `AutoUpdate.java` schedules from the settings and that posts the result as a notification. `UpdatePolicy.java` holds its plain-Java rules (which addons, which versions count as new).
 - `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, CurseForge (the user's own key) and WoWInterface.
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
 - `Toc.java` picks the TOC file the same way the Forever client does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
-- `Store.java` keeps settings and the list of installed addons. `Http.java` follows redirects by hand, so the CurseForge key goes only to CurseForge hosts.
+- `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. `Http.java` follows redirects by hand, so the CurseForge key goes only to CurseForge hosts.
 
 ## Task workflow
 
@@ -43,7 +46,10 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Bump `versionCode` and `versionName` in both build files for every release. Android refuses an install over a newer `versionCode`.
 - Never commit a signing key or its passwords. A release build gets the key from the `SIGNING_KEYSTORE`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS` and `SIGNING_KEY_PASSWORD` environment variables (CI secrets, see [Releases](#releases)); without them, both build paths sign with a debug key. Only the release key makes an APK that installs over a published one.
 - Build the UI in code through the helpers in `Ui.java` (palette, buttons, pills, icons). Do not add XML layouts.
+- Put a new screen in its own `Screen` subclass, and work that changes addons on disk in `AddonManager`. Keep `MainActivity` to the shell and the state that screens share.
+- Layout decisions come from `LayoutSpec` (window size in dp): rail or bottom bar, a docked detail panel or a sheet, compact headers on low screens. Screens read `app.layout` instead of comparing width and height themselves. When you change its thresholds, update `test/LayoutSpecTest.java`.
 - Landscape is the main layout: most players hold the device sideways, as in the game. Every screen must work in landscape at 4:3, 16:9 and 20:9, and also in portrait, by touch and by gamepad. Text must not be cut mid-word, and buttons must not leave the screen. Check all of them when you change a screen (see [Verification](#verification)).
+- Install and update addons only through `Updater`, never with a copy of its logic in a screen or the background job. Any other write to the AddOns folder (remove, ZIP install) runs inside `Updater.LOCK`, so the screens and the background job never write it at the same time. Get the store through `Store.get`, never a second `Store`.
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check that keeps the CurseForge key on CurseForge hosts.
 - A new addon source goes into `Sources.java` with a row in the "Where addons come from" table of `README.md`. A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
@@ -71,15 +77,22 @@ A new secret for the app build (for example a CurseForge key) goes into both `ci
 
 - Write code, identifiers, comments, commit messages, issues, pull requests and these instructions in English.
 - `README.md` is the project's landing page for players. It is in plain English (about B1 level): short sentences, no jargon in the main part. It keeps this order: the wordmark, a one-line pitch, features, install steps, FAQ. Technical details (sources, install internals, build) go inside `<details>` spoilers. Its images live in `docs/images/` and stay small (under about 300 KB each).
-- The app UI is in Russian today. English becomes the main UI language, with more languages to follow; until then, keep new UI strings in the style of the existing ones.
+- The UI is localized through string resources. English in `res/values/strings.xml` is the base and the fallback; translations live in `res/values-<lang>/strings.xml` (today `de`, `es`, `fr`, `pl`, `pt`, `ru`, `zh`). By default the app follows the system language; the user can pick another one in Settings.
+  - Put no UI text in Java. Add every new string to `res/values/strings.xml` and to every `values-<lang>` file in the same pull request; lint reports a key that is missing from a language.
+  - Count words through `<plurals>` and `getQuantityString`, never by hand: Polish and Russian need `few` and `many` forms.
+  - Code outside an activity gets its text through `Lang.s()` and `Lang.q()`. `Installer.java` must also compile on a plain JVM, so its messages go through `Installer.Texts`, with an English default there and the resource in `Lang.INSTALLER`.
+  - A new language needs a `res/values-<lang>` folder and an entry in `Lang.TAGS` and `Lang.NAMES`, with the language named in itself.
+  - Side-rail labels (`nav_*_short`) must fit 68dp at 11sp: keep them to about nine Latin characters.
 
 ## Navigation
 
-- `src/app/wowforever/addons/`: all app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes).- `res/`: the adaptive launcher icon and vector icons.
+- `src/app/wowforever/addons/`: all app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes), `Lang.java` (UI language and localized strings outside an activity).
+- `res/`: the adaptive launcher icon and vector icons.
 - `stubs/`: lambda bootstrap stubs for `javac` with a trimmed `android.jar` (used only by `build.sh`).
 - `test/`: JVM tests for the installer, TOC and network paths.
 - `AndroidManifest.xml`, `build.gradle.kts`, `build.sh`: the manifest and the two build paths.
 - `.github/workflows/`: CI (`ci.yml`) and releases (`release.yml`).
+- `scripts/`: helper scripts for CI (`apk-summary.sh`) and verification (`screenshots.sh`, every tab at each screen ratio).
 
 ## Verification
 
@@ -90,6 +103,13 @@ CI runs these on every pull request to `main`. Run them before you open one:
 ANDROID_HOME=<sdk> ./build.sh
 ```
 
+When you change `LayoutSpec.java`, run its test:
+
+```sh
+mkdir -p /tmp/l && javac -d /tmp/l src/app/wowforever/addons/LayoutSpec.java test/LayoutSpecTest.java
+java -cp /tmp/l app.wowforever.addons.LayoutSpecTest
+```
+
 When you change `Installer.java`, `Toc.java` or `Model.java`, also run the installer test on real addon zips:
 
 ```sh
@@ -97,14 +117,30 @@ mkdir -p /tmp/t && javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Mode
 java -cp /tmp/t app.wowforever.addons.InstallTest <folder-with-zips> /tmp/fakegame
 ```
 
+When you change `UpdatePolicy.java`, run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/u && javac -d /tmp/u src/app/wowforever/addons/{Model,UpdatePolicy}.java test/UpdatePolicyTest.java
+java -cp /tmp/u app.wowforever.addons.UpdatePolicyTest
+```
+
+To run the background job on a device now: `adb shell cmd jobscheduler run -f app.wowforever.addons 1901`.
+
 For a UI change, install the debug APK on an emulator or a device (`adb install -r build/outputs/apk/debug/wow-addons-debug.apk`) and click through the changed screens. Check landscape first, then portrait. On an emulator, these commands give each aspect ratio without a new virtual device:
 
 ```sh
 adb shell cmd window user-rotation lock 1   # landscape
 adb shell wm size 1080x1440                 # 4:3
 adb shell wm size 1080x1920                 # 16:9
+adb shell wm size 1080x2400                 # 20:9
 adb shell wm size reset                     # the device's own ratio
 adb shell cmd window user-rotation free     # rotation back to normal
+```
+
+`scripts/screenshots.sh` does all of this for you: it sets each ratio (4:3, 16:9 and 20:9 landscape, then portrait), captures every tab into `screenshots/<preset>-<tab>.png` and restores the size and rotation. When you add a tab, add it to the script's `TABS` list.
+
+```sh
+scripts/screenshots.sh --apk build/outputs/apk/debug/wow-addons-debug.apk
 ```
 
 Attach screenshots of the changed screens at 4:3 and 16:9 landscape to the pull request. Say what you checked and on which Android version. Report any check that failed or that you could not run.
