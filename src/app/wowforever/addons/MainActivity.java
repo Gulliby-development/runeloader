@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
     static final int TAB_INSTALLED = 0, TAB_BROWSE = 1, TAB_SETTINGS = 2;
     static final int SRC_CATALOG = 0, SRC_CURSE = 1, SRC_WOWI = 2, SRC_GITHUB = 3;
     private static final int REQ_ZIP = 41, REQ_PERM = 42;
+    static final int REQ_NOTIFY = 43;
 
     final Handler main = new Handler(Looper.getMainLooper());
     static final ExecutorService net = Executors.newFixedThreadPool(4);
@@ -113,12 +114,13 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 30) getWindow().setDecorFitsSystemWindows(false);
         ImageLoader.dir = new File(getCacheDir(), "img");
         ImageLoader.dir.mkdirs();
-        store = new Store(this);
+        store = Store.get(this);
         if (b != null) tab = b.getInt("tab", tab);
         if (store.gameRoot() == null && hasStorageAccess()) gameFolder.autoDetect(false);
         store.load();
         buildShell();
         manager.rescan();
+        AutoUpdate.apply(this);
     }
 
     @Override protected void onSaveInstanceState(Bundle out) {
@@ -139,6 +141,17 @@ public class MainActivity extends Activity {
             store.load();
             manager.rescan();
         }
+        // The background job changed addons while this screen is open: show the new state.
+        AutoUpdate.onChanged = () -> main.post(() -> {
+            if (isDestroyed()) return;
+            manager.rescan();
+            renderIfTab(TAB_SETTINGS);
+        });
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        AutoUpdate.onChanged = null;
     }
 
     @Override public void onConfigurationChanged(Configuration c) {

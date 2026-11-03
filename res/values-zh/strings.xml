@@ -274,4 +274,40 @@
     <string name="sum_broker">一套信息显示：金币、FPS、延迟、好友、公会、耐久度等等。</string>
     <string name="sum_bugsack">把 Lua 错误收进“袋子”里，不打扰游戏。</string>
     <string name="note_bugsack">错误由 !BugGrabber 捕获，可在 CurseForge 或 WoWInterface 上找到它。</string>
+
+    <!-- Background auto-update (settings, detail panel, notifications) -->
+    <string name="auto_title">自动更新</string>
+    <string name="auto_text">在后台检查插件更新，应用关闭时也会进行。具体时间由 Android 决定，因此检查可能会推迟几个小时。</string>
+    <string name="auto_mode_off">关闭</string>
+    <string name="auto_mode_notify">仅通知</string>
+    <string name="auto_mode_install">自动安装</string>
+    <string name="auto_frequency">频率</string>
+    <string name="auto_every_hours">每 %1$d 小时</string>
+    <string name="auto_conditions">条件</string>
+    <string name="auto_wifi_only">仅限 Wi-Fi</string>
+    <string name="auto_charging_only">仅在充电时</string>
+    <string name="auto_no_notifications">通知已关闭，更新会静默进行。请在系统设置中允许 Runeloader 的通知以便查看。</string>
+    <string name="auto_battery_text">部分手机为省电会停止后台任务。如果一直没有检查，请为 Runeloader 关闭电池优化。</string>
+    <string name="auto_battery_action">电池设置</string>
+    <string name="auto_status_never">尚未进行后台检查。</string>
+    <string name="auto_status_none">上次检查：%1$s。全部为最新。</string>
+    <string name="auto_status_found">上次检查：%1$s。发现更新：%2$d。</string>
+    <string name="auto_status_updated">上次检查：%1$s。已更新插件：%2$d。</string>
+    <string name="auto_status_error">上次检查：%1$s。%2$s</string>
+    <string name="auto_channel">插件更新</string>
+    <string name="auto_channel_text">后台自动更新发现并安装的内容。</string>
+    <string name="auto_err_title">自动更新未能运行</string>
+    <string name="auto_err_access">Runeloader 已失去“所有文件访问权限”。请打开应用重新授予。</string>
+    <string name="auto_err_game">找不到游戏文件夹。请打开应用重新选择。</string>
+    <string name="auto_err_update">插件更新失败</string>
+    <string name="auto_reload_hint">如果游戏正在运行，请输入 /reload。</string>
+    <string name="auto_pin">不自动更新</string>
+    <string name="auto_unpin">自动更新</string>
+    <string name="auto_pinned_note">自动更新会跳过此插件。你仍可以手动更新它。</string>
+    <plurals name="auto_found">
+        <item quantity="other">有 %d 个插件更新可用</item>
+    </plurals>
+    <plurals name="auto_updated">
+        <item quantity="other">已更新 %d 个插件</item>
+    </plurals>
 </resources>

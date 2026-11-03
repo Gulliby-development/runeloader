@@ -13,11 +13,12 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 
 - `MainActivity.java` is the shell: lifecycle, the rail or bottom navigation, tab switching, gamepad keys, permissions, and the shared overlays (modal, confirm, snackbar, progress card). It holds the state that several screens share.
 - Each tab is a `Screen` subclass: `LibraryScreen` (installed addons), `BrowseScreen` (catalog and search), `SettingsScreen`. `SetupScreen` shows the storage permission and game folder prompts, `DetailPanel` the addon details, `GameFolder` finds and picks the game folder. `Screen.java` has the helpers they share (headers, rows, empty states).
-- `AddonManager.java` scans the AddOns folder and installs, updates and removes addons.
+- `AddonManager.java` scans the AddOns folder and drives installs, updates and removes from the screens. `Updater.java` does the actual install and update without a screen, under one process-wide lock.
+- `UpdateJobService.java` is the background auto-update: a periodic `JobScheduler` job that `AutoUpdate.java` schedules from the settings and that posts the result as a notification. `UpdatePolicy.java` holds its plain-Java rules (which addons, which versions count as new).
 - `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, CurseForge (the user's own key) and WoWInterface.
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
 - `Toc.java` picks the TOC file the same way the Forever client does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
-- `Store.java` keeps settings and the list of installed addons. `Http.java` follows redirects by hand, so the CurseForge key goes only to CurseForge hosts.
+- `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. `Http.java` follows redirects by hand, so the CurseForge key goes only to CurseForge hosts.
 
 ## Task workflow
 
@@ -47,6 +48,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Put a new screen in its own `Screen` subclass, and work that changes addons on disk in `AddonManager`. Keep `MainActivity` to the shell and the state that screens share.
 - Layout decisions come from `LayoutSpec` (window size in dp): rail or bottom bar, a docked detail panel or a sheet, compact headers on low screens. Screens read `app.layout` instead of comparing width and height themselves. When you change its thresholds, update `test/LayoutSpecTest.java`.
 - Landscape is the main layout: most players hold the device sideways, as in the game. Every screen must work in landscape at 4:3, 16:9 and 20:9, and also in portrait, by touch and by gamepad. Text must not be cut mid-word, and buttons must not leave the screen. Check all of them when you change a screen (see [Verification](#verification)).
+- Install and update addons only through `Updater`, never with a copy of its logic in a screen or the background job. Any other write to the AddOns folder (remove, ZIP install) runs inside `Updater.LOCK`, so the screens and the background job never write it at the same time. Get the store through `Store.get`, never a second `Store`.
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check that keeps the CurseForge key on CurseForge hosts.
 - A new addon source goes into `Sources.java` with its own section in `README.md`. A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
@@ -113,6 +115,15 @@ When you change `Installer.java`, `Toc.java` or `Model.java`, also run the insta
 mkdir -p /tmp/t && javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Model}.java test/InstallTest.java
 java -cp /tmp/t app.wowforever.addons.InstallTest <folder-with-zips> /tmp/fakegame
 ```
+
+When you change `UpdatePolicy.java`, run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/u && javac -d /tmp/u src/app/wowforever/addons/{Model,UpdatePolicy}.java test/UpdatePolicyTest.java
+java -cp /tmp/u app.wowforever.addons.UpdatePolicyTest
+```
+
+To run the background job on a device now: `adb shell cmd jobscheduler run -f app.wowforever.addons 1901`.
 
 For a UI change, install the debug APK on an emulator or a device (`adb install -r build/outputs/apk/debug/wow-addons-debug.apk`) and click through the changed screens. Check landscape first, then portrait. On an emulator, these commands give each aspect ratio without a new virtual device:
 
