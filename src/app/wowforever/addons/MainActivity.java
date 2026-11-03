@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
     final LibraryScreen library = new LibraryScreen(this);
     final BrowseScreen browse = new BrowseScreen(this);
     final SettingsScreen settingsScreen = new SettingsScreen(this);
+    final SelfUpdate selfUpdate = new SelfUpdate(this);
     final DetailPanel detail = new DetailPanel(this);
     final AddonManager manager = new AddonManager(this);
     final GameFolder gameFolder = new GameFolder(this);
@@ -120,6 +121,7 @@ public class MainActivity extends Activity {
         buildShell();
         manager.rescan();
         AutoUpdate.apply(this);
+        selfUpdate.checkOnStart();
         // Refresh the GitHub index in the background; manual installs it recognizes get an update source.
         net.execute(() -> {
             try {
@@ -141,6 +143,7 @@ public class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         applyImmersive();
+        selfUpdate.onResume();
         boolean access = hasStorageAccess();
         if (lastAccess != null && lastAccess != access && root != null) render();
         lastAccess = access;
@@ -175,6 +178,7 @@ public class MainActivity extends Activity {
 
     @Override protected void onDestroy() {
         super.onDestroy();
+        selfUpdate.onDestroy();
         main.removeCallbacksAndMessages(null);
     }
 

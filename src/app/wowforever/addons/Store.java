@@ -47,6 +47,13 @@ final class Store {
     long lastCheck() { return prefs.getLong("lastCheck", 0); }
     void setLastCheck(long t) { prefs.edit().putLong("lastCheck", t).apply(); }
 
+    // ── Runeloader's own update ──
+    long selfCheckAt() { return prefs.getLong("selfCheckAt", 0); }
+    void setSelfCheckAt(long t) { prefs.edit().putLong("selfCheckAt", t).apply(); }
+    /** The last version offered on start, so "Later" is not asked again for it. */
+    String selfOffered() { return prefs.getString("selfOffered", ""); }
+    void setSelfOffered(String v) { prefs.edit().putString("selfOffered", v).apply(); }
+
     // ── background auto-update ──
     int autoMode() { return UpdatePolicy.mode(prefs.getInt("autoMode", UpdatePolicy.MODE_OFF)); }
     void setAutoMode(int m) { prefs.edit().putInt("autoMode", UpdatePolicy.mode(m)).apply(); }

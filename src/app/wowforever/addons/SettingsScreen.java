@@ -119,7 +119,15 @@ final class SettingsScreen extends Screen {
         int wmh = Math.min(40, Math.round((col - 80) / Ui.WORDMARK_RATIO));
         ab.addView(Ui.wordmark(app, wmh), Ui.margins(Ui.lp(Math.round(Ui.dp(wmh) * Ui.WORDMARK_RATIO), Ui.dp(wmh)), 0, 2, 0, 12));
         ab.addView(Ui.text(app, s(R.string.settings_about_text), 12.5f, Ui.TEXT2, Ui.REGULAR));
+        final SelfUpdate su = app.selfUpdate;
+        String state = su.available != null ? s(R.string.self_available, su.available.version)
+                : su.checking ? s(R.string.self_checking) : s(R.string.settings_version, s(R.string.app_name), versionName());
+        ab.addView(Ui.text(app, state, 12.5f, su.available != null ? Ui.GREEN : Ui.TEXT3, Ui.MEDIUM), Ui.margins(Ui.lp(-1, -2), 0, 10, 0, 0));
+        View appUpdate = su.available != null
+                ? Ui.button(app, s(R.string.self_update_to, su.available.version), R.drawable.ic_upgrade, Ui.Kind.PRIMARY, v -> su.offer(su.available))
+                : Ui.button(app, s(R.string.self_check), R.drawable.ic_refresh, Ui.Kind.SECONDARY, v -> su.check(true));
         ab.addView(actions(
+                appUpdate,
                 Ui.button(app, s(R.string.action_clear_cache), R.drawable.ic_delete, Ui.Kind.GHOST, v -> {
                     Installer.deleteRecursive(new File(app.getCacheDir(), "dl"));
                     Installer.deleteRecursive(new File(app.getCacheDir(), "wowi-filelist.json"));

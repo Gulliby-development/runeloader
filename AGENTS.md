@@ -18,6 +18,7 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 - `Index.java`, `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, searched through the nightly [runeloader-index](https://github.com/Gulliby-development/runeloader-index) `index.json` or added by link, and WoWInterface. The index is only for search: installs and update checks read the repository's release directly. CurseForge is not a source (owner's decision); do not add it back. `Search.java` merges every source into the one Browse list, without per-source tabs: hand-picked catalog entries the index lacks, then the index, then WoWInterface for addons GitHub does not have (same folder or name). Each row shows its source as a tag. That merge order lives only in `Search.java`; a new source joins it there. Without a query, Browse lists everything by `Popularity` (latest-release downloads plus ten per star); a new popularity signal goes into `Popularity.score` with a case in `test/PopularityTest.java`. The Categories mode of Browse shows a grid of `Categories.KEYS` and then one category's list; a new category needs a key there (matching the index's `category` value), a `cat_<key>` string in every language and a `cat_<key>` icon (a PNG in `res/drawable-nodpi/` or, until one is drawn, a vector in `res/drawable/`). `Categories.TAGS` are tiles that select by the index's `tags` list instead of `category` (today `gamepad`, which also shows as a tag on the row); a new tag gets a key there, its strings and icon, a case in `test/IndexFieldsTest.java`, and its rule in runeloader-index.
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
 - `Toc.java` picks the TOC file the same way the game does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
+- `SelfUpdate.java` updates Runeloader itself: on start (at most every 12 hours) and from Settings it reads this repository's latest GitHub release, offers the newer version, downloads `runeloader-<version>.apk`, checks it against the `.apk.sha256` file, its package name and a higher `versionCode`, and installs it through `PackageInstaller`. The asset names come from `release.yml` and `AppVersion.apkName`; a change to one changes the other. Version comparison lives in `AppVersion.java` with a case in `test/AppVersionTest.java`.
 - `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. `Http.java` follows redirects by hand, so the GitHub token goes only to GitHub hosts.
 
 ## Task workflow
@@ -147,6 +148,13 @@ When you change `AssetName.java` (which GitHub zips are programs, not addons), r
 ```sh
 mkdir -p /tmp/a && javac -d /tmp/a src/app/wowforever/addons/AssetName.java test/AssetNameTest.java
 java -cp /tmp/a app.wowforever.addons.AssetNameTest
+```
+
+When you change `AppVersion.java` (which release counts as a Runeloader update), run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/v && javac -d /tmp/v src/app/wowforever/addons/AppVersion.java test/AppVersionTest.java
+java -cp /tmp/v app.wowforever.addons.AppVersionTest
 ```
 
 When you change `Markdown.java` (release notes in the detail panel), run its test (CI runs it too):

@@ -314,4 +314,29 @@
     <string name="err_index_missing">Индекс GitHub ещё не опубликован. Вставьте ссылку на репозиторий (owner/repo), чтобы установить аддон напрямую.</string>
     <string name="err_index_broken">Индекс GitHub повреждён. Попробуйте позже.</string>
     <string name="err_index_newer">Индекс GitHub новее приложения. Обновите Runeloader.</string>
+
+    <!-- Runeloader's own update -->
+    <string name="self_check">Проверить обновления</string>
+    <string name="self_checking">Проверяем новую версию…</string>
+    <string name="self_available">Доступна Runeloader %1$s</string>
+    <string name="self_update_to">Обновить до %1$s</string>
+    <string name="self_up_to_date">У вас последняя версия (%1$s).</string>
+    <string name="self_check_failed">Не удалось проверить обновления: %1$s</string>
+    <string name="self_offer_title">Runeloader %1$s</string>
+    <string name="self_offer_text">У вас %1$s. Версия %2$s готова к установке.</string>
+    <string name="self_later">Позже</string>
+    <string name="self_update_now">Обновить</string>
+    <string name="self_allow_title">Разрешите обновления</string>
+    <string name="self_allow_text">Чтобы Runeloader мог установить своё обновление, Android просит разрешение. Включите «Разрешить установку из этого источника» и вернитесь.</string>
+    <string name="self_allow_action">Открыть настройки</string>
+    <string name="self_not_allowed">Runeloader пока не может устанавливать обновления. Разрешите это в настройках и попробуйте снова.</string>
+    <string name="self_downloading">Загрузка…</string>
+    <string name="self_downloading_bytes">Загружено %1$s из %2$s</string>
+    <string name="self_installing">Установка…</string>
+    <string name="self_failed_title">Не удалось обновить</string>
+    <string name="self_bad_checksum">Файл повреждён (не совпала контрольная сумма). Попробуйте позже.</string>
+    <string name="self_bad_apk">Это не обновление Runeloader.</string>
+    <string name="self_not_newer">Загруженный файл не новее %1$s.</string>
+    <string name="self_cancelled">Обновление отменено.</string>
+    <string name="self_conflict">Обновление подписано другим ключом. Удалите Runeloader и установите новый APK вручную.</string>
 </resources>

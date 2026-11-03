@@ -317,4 +317,29 @@
     <string name="err_index_missing">The GitHub index is not published yet. Paste a repository link (owner/repo) to install an addon directly.</string>
     <string name="err_index_broken">The GitHub index is damaged. Try again later.</string>
     <string name="err_index_newer">The GitHub index is newer than this app. Update Runeloader.</string>
+
+    <!-- Runeloader's own update -->
+    <string name="self_check">Check for updates</string>
+    <string name="self_checking">Checking for a new version…</string>
+    <string name="self_available">Runeloader %1$s is available</string>
+    <string name="self_update_to">Update to %1$s</string>
+    <string name="self_up_to_date">You have the latest version (%1$s).</string>
+    <string name="self_check_failed">Could not check for updates: %1$s</string>
+    <string name="self_offer_title">Runeloader %1$s</string>
+    <string name="self_offer_text">You have %1$s. Version %2$s is ready to install.</string>
+    <string name="self_later">Later</string>
+    <string name="self_update_now">Update</string>
+    <string name="self_allow_title">Allow app updates</string>
+    <string name="self_allow_text">Android needs your permission before Runeloader can install its own update. Turn on \"Allow from this source\" and come back.</string>
+    <string name="self_allow_action">Open settings</string>
+    <string name="self_not_allowed">Runeloader may not install updates yet. Allow it in the settings and try again.</string>
+    <string name="self_downloading">Downloading…</string>
+    <string name="self_downloading_bytes">Downloading %1$s of %2$s</string>
+    <string name="self_installing">Installing…</string>
+    <string name="self_failed_title">Update failed</string>
+    <string name="self_bad_checksum">The download is damaged (checksum mismatch). Try again later.</string>
+    <string name="self_bad_apk">This file is not a Runeloader update.</string>
+    <string name="self_not_newer">The downloaded file is not newer than %1$s.</string>
+    <string name="self_cancelled">Update cancelled.</string>
+    <string name="self_conflict">This update is signed with a different key. Remove Runeloader and install the new APK by hand.</string>
 </resources>
