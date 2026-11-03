@@ -60,7 +60,9 @@
     <string name="browse_hint_search">Buscar addons…</string>
     <string name="action_find">Buscar</string>
     <string name="browse_cat_all">Todos</string>
-    <string name="browse_no_game">No hay carpeta del juego, así que no se puede instalar. Indícala en Ajustes.</string>
+    <string name="browse_set_folder">Elegir carpeta</string>
+    <string name="browse_source">Fuente</string>
+    <string name="browse_no_game">Carpeta del juego sin definir. No se puede instalar.</string>
     <string name="curse_connect_title">Conecta CurseForge</string>
     <string name="curse_connect_text">CurseForge solo entrega archivos con una clave API personal. Consíguela gratis en console.curseforge.com y pégala en Ajustes; después podrás buscar aquí todos los addons con versión para Forever.\n\nSin clave, descarga el zip en la web de CurseForge con el navegador e instálalo con \"Desde ZIP\".</string>
     <string name="action_enter_key">Introducir clave</string>

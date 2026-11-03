@@ -67,7 +67,9 @@
     <string name="browse_hint_search">Search addons…</string>
     <string name="action_find">Find</string>
     <string name="browse_cat_all">All</string>
-    <string name="browse_no_game">No game folder selected, so installing is off. Set it in Settings.</string>
+    <string name="browse_set_folder">Set folder</string>
+    <string name="browse_source">Source</string>
+    <string name="browse_no_game">Game folder not set. Installing is off.</string>
     <string name="curse_connect_title">Connect CurseForge</string>
     <string name="curse_connect_text">CurseForge serves files only with a personal API key. Get one for free at console.curseforge.com and paste it in Settings; then you can search every addon that has a Forever version here.\n\nWithout a key, download the zip on the CurseForge site in your browser and install it with \"From ZIP\".</string>
     <string name="action_enter_key">Enter key</string>
