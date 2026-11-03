@@ -13,6 +13,9 @@
     <string name="perm_text">Чтобы устанавливать аддоны в папку игры, приложению нужен «Доступ ко всем файлам» — так же, как самому клиенту WoW Forever.</string>
     <string name="perm_grant">Разрешить доступ</string>
     <string name="perm_settings_hint">Откройте Настройки → Приложения → %1$s → Доступ ко всем файлам</string>
+    <string name="setup_step_access">Доступ к файлам</string>
+    <string name="setup_step_folder">Папка игры</string>
+    <string name="setup_step_curse">Подключить CurseForge (необязательно)</string>
     <string name="game_not_set">Папка игры не выбрана</string>
     <string name="game_where_title">Где установлен WoW Forever?</string>
     <string name="game_where_text">Обычно это «WoW Forever» во внутренней памяти или на SD-карте. Выберите папку, в которой лежат .build.info и _forever_.</string>
