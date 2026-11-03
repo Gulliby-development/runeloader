@@ -1,0 +1,6 @@
+# LF everywhere, so build.sh and gradlew run on Linux and macOS after a Windows checkout.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.keystore binary
+*.apk binary
