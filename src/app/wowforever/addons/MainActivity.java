@@ -89,6 +89,8 @@ public class MainActivity extends Activity {
     TextView snack;
     private FrameLayout modalLayer;
     private final List<View> navItems = new ArrayList<>();
+    /** Gold count of available updates on the Library nav item. */
+    private TextView navBadge;
     EditText searchField;
     ListView currentList;
     BaseAdapter currentAdapter;
@@ -204,6 +206,7 @@ public class MainActivity extends Activity {
         root = new FrameLayout(this);
         root.setBackgroundColor(Ui.BG);
         navItems.clear();
+        navBadge = null;
 
         shell = new LinearLayout(this);
         shell.setOrientation(landscape ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
@@ -260,21 +263,26 @@ public class MainActivity extends Activity {
 
         // progress card
         progressCard = Ui.vbox(this);
-        progressCard.setBackground(Ui.round(Ui.SURFACE2, 16, Ui.STROKE, 1));
-        progressCard.setPadding(Ui.dp(16), Ui.dp(12), Ui.dp(16), Ui.dp(14));
+        progressCard.setBackground(Ui.round(Ui.SURFACE2, 14, Ui.STROKE, 1));
+        progressCard.setPadding(Ui.dp(14), Ui.dp(10), Ui.dp(14), Ui.dp(12));
         progressCard.setElevation(Ui.dp(12));
         LinearLayout pr = Ui.hbox(this);
-        progressTitle = Ui.oneLine(Ui.text(this, "", 14, Ui.TEXT, Ui.MEDIUM));
+        progressTitle = Ui.oneLine(Ui.text(this, "", 13.5f, Ui.TEXT, Ui.BOLD));
         pr.addView(progressTitle, Ui.lpw(0, -2, 1));
         progressCard.addView(pr);
-        progressText = Ui.oneLine(Ui.text(this, "", 12.5f, Ui.TEXT2, Ui.REGULAR));
+        progressText = Ui.oneLine(Ui.text(this, "", 12, Ui.TEXT3, Ui.REGULAR));
         progressCard.addView(progressText, Ui.margins(Ui.lp(-1, -2), 0, 4, 0, 8));
         progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         progressBar.setProgressTintList(ColorStateList.valueOf(Ui.ACCENT));
         progressBar.setProgressBackgroundTintList(ColorStateList.valueOf(Ui.SURFACE3));
         progressBar.setIndeterminateTintList(ColorStateList.valueOf(Ui.ACCENT));
         progressBar.setMax(1000);
-        progressCard.addView(progressBar, Ui.lp(-1, Ui.dp(6)));
+        // A thin gold bar with rounded ends.
+        progressBar.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            @Override public void getOutline(View v, android.graphics.Outline o) { o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), v.getHeight() / 2f); }
+        });
+        progressBar.setClipToOutline(true);
+        progressCard.addView(progressBar, Ui.lp(-1, Ui.dp(5)));
         progressCard.setVisibility(busy.isEmpty() ? View.GONE : View.VISIBLE);
         FrameLayout.LayoutParams pcl = Ui.flp(landscape ? Ui.dp(330) : -1, -2, Gravity.BOTTOM | (landscape ? Gravity.START : Gravity.CENTER_HORIZONTAL));
         pcl.setMargins(landscape ? Ui.dp(100) : Ui.dp(12), 0, Ui.dp(12), landscape ? Ui.dp(16) : Ui.dp(76));
@@ -375,7 +383,18 @@ public class MainActivity extends Activity {
         boolean active = t == tab;
         item.setBackground(Ui.selectable(active ? Ui.ACCENT_SOFT : 0x00000000, 14, 0));
         ImageView iv = Ui.icon(this, iconRes, active ? Ui.ACCENT : Ui.TEXT3, 24);
-        item.addView(iv);
+        FrameLayout iconBox = new FrameLayout(this);
+        iconBox.addView(iv, Ui.flp(Ui.dp(24), Ui.dp(24), Gravity.CENTER));
+        if (t == TAB_INSTALLED) {
+            navBadge = Ui.text(this, "", 10, Ui.ACCENT_DARK, Ui.BOLD);
+            navBadge.setGravity(Gravity.CENTER);
+            navBadge.setBackground(Ui.round(Ui.ACCENT, 8, Ui.RAIL, 1.5f));
+            navBadge.setPadding(Ui.dp(4), 0, Ui.dp(4), 0);
+            navBadge.setMinWidth(Ui.dp(16));
+            navBadge.setVisibility(View.GONE);
+            iconBox.addView(navBadge, Ui.flp(-2, Ui.dp(16), Gravity.TOP | Gravity.END));
+        }
+        item.addView(iconBox, Ui.lp(Ui.dp(46), Ui.dp(24)));
         TextView tv = Ui.text(this, label, 11, active ? Ui.ACCENT : Ui.TEXT3, Ui.MEDIUM);
         tv.setGravity(Gravity.CENTER);
         item.addView(tv, Ui.margins(Ui.lp(-2, -2), 0, 4, 0, 0));
@@ -415,10 +434,21 @@ public class MainActivity extends Activity {
             library.renderInstalled();
         }
         detail.renderDetail();
+        updateNavBadge();
     }
 
     void refreshList() {
         if (currentAdapter != null) currentAdapter.notifyDataSetChanged();
+        updateNavBadge();
+    }
+
+    void updateNavBadge() {
+        if (navBadge == null) return;
+        int n = 0;
+        for (Model.Installed r : installed) if (r.entry != null && r.entry.updateAvailable) n++;
+        navBadge.setText(n > 99 ? "99+" : String.valueOf(n));
+        navBadge.setContentDescription(n > 0 ? getResources().getQuantityString(R.plurals.updates_available, n, n) : null);
+        navBadge.setVisibility(n > 0 ? View.VISIBLE : View.GONE);
     }
 
     void renderIfTab(int t) { if (tab == t && root != null) render(); }
