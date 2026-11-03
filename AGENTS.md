@@ -83,6 +83,7 @@ A new secret for the app build (for example a CurseForge key) goes into both `ci
 - `test/`: JVM tests for the installer, TOC and network paths.
 - `AndroidManifest.xml`, `build.gradle.kts`, `build.sh`: the manifest and the two build paths.
 - `.github/workflows/`: CI (`ci.yml`) and releases (`release.yml`).
+- `scripts/`: helper scripts for CI (`apk-summary.sh`) and verification (`screenshots.sh`, every tab at each screen ratio).
 
 ## Verification
 
