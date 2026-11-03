@@ -63,6 +63,7 @@
     <string name="load_failed">Не удалось загрузить</string>
     <string name="action_retry">Повторить</string>
     <string name="github_empty_text">Попробуйте другое название или вставьте ссылку на репозиторий, например github.com/Questie/Questie: сборка для Forever будет выбрана из его release.json.</string>
+    <string name="category_empty_text">В этой категории пока нет подходящих аддонов. Попробуйте другое слово или загляните в «Популярные».</string>
     <string name="nothing_found">Ничего не найдено</string>
 
     <string name="settings_title">Настройки</string>

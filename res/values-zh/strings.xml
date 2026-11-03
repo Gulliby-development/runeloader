@@ -64,6 +64,7 @@
     <string name="load_failed">加载失败</string>
     <string name="action_retry">重试</string>
     <string name="github_empty_text">换个名称试试，或粘贴仓库链接，例如 github.com/Questie/Questie：将从其 release.json 中选择 Forever 版本。</string>
+    <string name="category_empty_text">此分类中暂无匹配的插件。换个词试试，或去“热门”看看。</string>
     <string name="nothing_found">未找到结果</string>
 
     <string name="settings_title">设置</string>

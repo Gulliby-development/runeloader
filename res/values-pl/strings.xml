@@ -63,6 +63,7 @@
     <string name="load_failed">Nie udało się wczytać</string>
     <string name="action_retry">Ponów</string>
     <string name="github_empty_text">Spróbuj innej nazwy albo wklej link do repozytorium, na przykład github.com/Questie/Questie: wersja dla Forever zostanie wybrana z jego release.json.</string>
+    <string name="category_empty_text">W tej kategorii nie ma jeszcze pasujących dodatków. Spróbuj innego słowa albo zajrzyj do Popularne.</string>
     <string name="nothing_found">Nic nie znaleziono</string>
 
     <string name="settings_title">Ustawienia</string>

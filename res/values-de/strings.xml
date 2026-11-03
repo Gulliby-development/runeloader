@@ -63,6 +63,7 @@
     <string name="load_failed">Laden fehlgeschlagen</string>
     <string name="action_retry">Erneut</string>
     <string name="github_empty_text">Versuch einen anderen Namen oder füge einen Repository-Link ein, zum Beispiel github.com/Questie/Questie: Der Forever-Build wird aus seiner release.json gewählt.</string>
+    <string name="category_empty_text">In dieser Kategorie passt noch kein Addon. Versuche ein anderes Wort oder schau unter Beliebt.</string>
     <string name="nothing_found">Nichts gefunden</string>
 
     <string name="settings_title">Einstellungen</string>

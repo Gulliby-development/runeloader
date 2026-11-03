@@ -63,6 +63,7 @@
     <string name="load_failed">No se pudo cargar</string>
     <string name="action_retry">Reintentar</string>
     <string name="github_empty_text">Prueba otro nombre o pega el enlace de un repositorio, por ejemplo github.com/Questie/Questie: la versión para Forever se elige de su release.json.</string>
+    <string name="category_empty_text">Aún no hay addons en esta categoría que coincidan. Prueba otra palabra o mira en Populares.</string>
     <string name="nothing_found">Sin resultados</string>
 
     <string name="settings_title">Ajustes</string>

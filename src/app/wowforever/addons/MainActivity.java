@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
         ImageLoader.dir = new File(getCacheDir(), "img");
         ImageLoader.dir.mkdirs();
         store = Store.get(this);
-        if (b != null) tab = b.getInt("tab", tab);
+        if (b != null) { tab = b.getInt("tab", tab); browse.restore(b); }
         if (store.gameRoot() == null && hasStorageAccess()) gameFolder.autoDetect(false);
         store.load();
         buildShell();
@@ -133,6 +133,7 @@ public class MainActivity extends Activity {
     @Override protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         out.putInt("tab", tab);   // a language change recreates the activity on the settings tab
+        browse.save(out);
     }
 
     private Boolean lastAccess;
