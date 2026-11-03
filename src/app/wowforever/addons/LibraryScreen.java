@@ -25,13 +25,13 @@ final class LibraryScreen extends Screen {
             if (r.entry != null) managed++;
             if (r.entry != null && r.entry.updateAvailable) updates++;
         }
-        String sub = app.installed.size() + " " + Ui.plural(app.installed.size(), "аддон", "аддона", "аддонов")
-                + " · " + managed + " под управлением" + (app.checking ? " · проверка обновлений…" : "");
-        LinearLayout h = header("Мои аддоны", sub);
-        addHeaderButton(h, "Из ZIP", R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
-        addHeaderButton(h, app.checking ? "Проверка…" : "Проверить", R.drawable.ic_refresh, Ui.Kind.SECONDARY, v -> app.manager.checkUpdates(true));
+        String sub = q(R.plurals.addons_count, app.installed.size())
+                + " · " + s(R.string.installed_managed, managed) + (app.checking ? " · " + s(R.string.installed_checking) : "");
+        LinearLayout h = header(s(R.string.nav_installed), sub);
+        addHeaderButton(h, s(R.string.action_from_zip), R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
+        addHeaderButton(h, s(app.checking ? R.string.action_checking : R.string.action_check), R.drawable.ic_refresh, Ui.Kind.SECONDARY, v -> app.manager.checkUpdates(true));
         if (updates > 0) {
-            addHeaderButton(h, "Обновить все · " + updates, R.drawable.ic_upgrade, Ui.Kind.PRIMARY, v -> app.manager.updateAll());
+            addHeaderButton(h, s(R.string.action_update_all, updates), R.drawable.ic_upgrade, Ui.Kind.PRIMARY, v -> app.manager.updateAll());
         }
 
         if (!app.scanned) {
@@ -39,10 +39,10 @@ final class LibraryScreen extends Screen {
             return;
         }
         if (app.installed.isEmpty()) {
-            app.bodyBox.addView(emptyState(R.drawable.ic_extension, "Аддонов пока нет",
-                    "Откройте каталог: там собраны аддоны со сборкой для WoW Forever — Questie, Bartender4, DBM, Plater и другие.",
-                    Ui.button(app, "Открыть каталог", R.drawable.ic_apps, Ui.Kind.PRIMARY, v -> app.switchTab(MainActivity.TAB_BROWSE)),
-                    Ui.button(app, "Установить ZIP", R.drawable.ic_zip, Ui.Kind.SECONDARY, v -> app.pickZip())));
+            app.bodyBox.addView(emptyState(R.drawable.ic_extension, s(R.string.installed_empty_title),
+                    s(R.string.installed_empty_text),
+                    Ui.button(app, s(R.string.action_open_catalog), R.drawable.ic_apps, Ui.Kind.PRIMARY, v -> app.switchTab(MainActivity.TAB_BROWSE)),
+                    Ui.button(app, s(R.string.action_install_zip), R.drawable.ic_zip, Ui.Kind.SECONDARY, v -> app.pickZip())));
             return;
         }
         final List<Model.Installed> rows = new ArrayList<>(app.installed);
@@ -76,34 +76,34 @@ final class LibraryScreen extends Screen {
         mid.addView(tl);
         StringBuilder sub = new StringBuilder();
         if (r.version != null && !r.version.isEmpty()) sub.append(r.version);
-        String src = r.entry != null ? sourceName(r.entry.source) : "установлен вручную";
+        String src = r.entry != null ? sourceName(r.entry.source) : s(R.string.installed_manually);
         if (sub.length() > 0) sub.append("  ·  ");
         sub.append(src);
-        if (r.folders.size() > 1) sub.append("  ·  ").append(r.folders.size()).append(" ").append(Ui.plural(r.folders.size(), "папка", "папки", "папок"));
+        if (r.folders.size() > 1) sub.append("  ·  ").append(q(R.plurals.folders_count, r.folders.size()));
         TextView st = Ui.oneLine(Ui.text(app, sub.toString(), 12.5f, Ui.TEXT3, Ui.REGULAR));
         mid.addView(st, Ui.margins(Ui.lp(-1, -2), 0, 5, 0, 0));
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
 
         String key = r.entry != null ? r.entry.key : (r.catalogMatch != null ? r.catalogMatch.key() : null);
         if (key != null && app.busy.containsKey(key)) {
-            row.addView(Ui.pill(app, "Установка…", Ui.ACCENT, Ui.ACCENT_SOFT));
+            row.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
         } else if (r.missing) {
-            row.addView(Ui.pill(app, "Папки удалены", Ui.RED, Ui.RED_SOFT));
+            row.addView(Ui.pill(app, s(R.string.pill_folders_missing), Ui.RED, Ui.RED_SOFT));
         } else if (r.entry != null && r.entry.updateAvailable) {
             final Model.Installed fr = r;
-            LinearLayout up = Ui.button(app, "Обновить", R.drawable.ic_upgrade, Ui.Kind.PRIMARY, v -> app.manager.update(fr.entry));
+            LinearLayout up = Ui.button(app, s(R.string.action_update), R.drawable.ic_upgrade, Ui.Kind.PRIMARY, v -> app.manager.update(fr.entry));
             up.setFocusable(false);
             up.setMinimumHeight(Ui.dp(34));
             up.setPadding(Ui.dp(10), Ui.dp(6), Ui.dp(12), Ui.dp(6));
             row.addView(up);
         } else if (r.entry != null && r.entry.checkError != null) {
-            row.addView(Ui.pill(app, "Не проверено", Ui.TEXT2, Ui.SURFACE3));
+            row.addView(Ui.pill(app, s(R.string.pill_unchecked), Ui.TEXT2, Ui.SURFACE3));
         } else if (r.entry != null && r.entry.latest != null) {
-            row.addView(Ui.pill(app, "Актуально", Ui.GREEN, Ui.GREEN_SOFT));
+            row.addView(Ui.pill(app, s(R.string.pill_up_to_date), Ui.GREEN, Ui.GREEN_SOFT));
         } else if (r.entry == null && r.catalogMatch != null) {
-            row.addView(Ui.pill(app, "Есть в каталоге", Ui.BLUE, Ui.BLUE_SOFT));
+            row.addView(Ui.pill(app, s(R.string.pill_in_catalog), Ui.BLUE, Ui.BLUE_SOFT));
         } else if (r.entry == null) {
-            row.addView(Ui.pill(app, "Вручную", Ui.TEXT2, Ui.SURFACE3));
+            row.addView(Ui.pill(app, s(R.string.pill_manual), Ui.TEXT2, Ui.SURFACE3));
         }
         if (!r.compatible && !r.missing) {
             ImageView w = Ui.icon(app, R.drawable.ic_warning, Ui.ORANGE, 18);

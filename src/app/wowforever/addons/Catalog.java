@@ -10,116 +10,121 @@ import java.util.List;
  */
 final class Catalog {
 
-    static final String CAT_QUESTS = "Квесты и прокачка";
-    static final String CAT_UI = "Интерфейс";
-    static final String CAT_COMBAT = "Бой и боссы";
-    static final String CAT_BAGS = "Сумки и предметы";
-    static final String CAT_MAP = "Карта";
-    static final String CAT_TOOLS = "Утилиты";
-
-    static final List<String> CATEGORIES = Arrays.asList(CAT_QUESTS, CAT_UI, CAT_COMBAT, CAT_BAGS, CAT_MAP, CAT_TOOLS);
+    private static final int CAT_QUESTS = R.string.cat_quests, CAT_UI = R.string.cat_ui, CAT_COMBAT = R.string.cat_combat,
+            CAT_BAGS = R.string.cat_bags, CAT_MAP = R.string.cat_map, CAT_TOOLS = R.string.cat_tools;
+    private static final int[] CATEGORIES = {CAT_QUESTS, CAT_UI, CAT_COMBAT, CAT_BAGS, CAT_MAP, CAT_TOOLS};
 
     private static List<Model.Item> items;
+    private static java.util.Locale itemsLocale;
 
+    /** Category names in the UI language, in display order. */
+    static List<String> categories() {
+        List<String> l = new ArrayList<>();
+        for (int c : CATEGORIES) l.add(Lang.s(c));
+        return l;
+    }
+
+    /** Built again when the UI language changes, so names and summaries follow it. */
     static synchronized List<Model.Item> all() {
-        if (items != null) return items;
+        if (items != null && Lang.locale().equals(itemsLocale)) return items;
+        itemsLocale = Lang.locale();
         List<Model.Item> l = new ArrayList<>();
         add(l, "Questie/Questie", "Questie", "Questie Team", CAT_QUESTS,
-                "Квест-помощник: задания, цели и NPC прямо на карте, миникарте и в подсказках. Must-have для прокачки.",
+                Lang.s(R.string.sum_questie),
                 "Questie", "QuestieDB");
         add(l, "RestedXP/RXPGuides", "RestedXP Guides", "RestedXP", CAT_QUESTS,
-                "Пошаговые гайды прокачки со стрелкой-навигатором и подсказками, что делать дальше.",
+                Lang.s(R.string.sum_rxp),
                 "RXPGuides");
         add(l, "Nevcairiel/Bartender4", "Bartender4", "Nevcairiel", CAT_UI,
-                "Полная замена панелей действий: размеры, положение, видимость и пейджинг.",
+                Lang.s(R.string.sum_bartender),
                 "Bartender4");
         add(l, "tullamods/Dominos", "Dominos", "Tuller", CAT_UI,
-                "Лёгкие и гибкие панели действий, полоса заклинаний и опыта, поддержка Masque.",
+                Lang.s(R.string.sum_dominos),
                 "Dominos", "Dominos_Cast", "Dominos_Config", "Dominos_Progress", "Dominos_Roll", "Masque_Dominos");
         add(l, "d4kir92/MoveAny", "MoveAny", "d4kir92", CAT_UI,
-                "Перемещайте и масштабируйте почти любой элемент стандартного интерфейса.",
+                Lang.s(R.string.sum_moveany),
                 "MoveAny");
         add(l, "Tercioo/Plater-Nameplates", "Plater Nameplates", "Terciob", CAT_UI,
-                "Продвинутые неймплейты: угроза, касты, ауры, гибкая настройка и скрипты.",
+                Lang.s(R.string.sum_plater),
                 "Plater");
         add(l, "Backupiseasy/ThreatPlates", "Threat Plates", "Suicidal Katt, Blacksalsify", CAT_UI,
-                "Неймплейты с отображением угрозы для танков и ДД, простая настройка.",
+                Lang.s(R.string.sum_threatplates),
                 "TidyPlates_ThreatPlates");
         add(l, "SFX-WoW/Masque", "Masque", "StormFX", CAT_UI,
-                "Скины для кнопок действий, сумок и баффов. Работает с Dominos, Bartender и др.",
+                Lang.s(R.string.sum_masque),
                 "Masque");
         add(l, "Funkydude/SexyMap", "SexyMap", "Funkeh", CAT_MAP,
-                "Красивая и настраиваемая миникарта: форма, рамки, кнопки аддонов.",
+                Lang.s(R.string.sum_sexymap),
                 "SexyMap");
         add(l, "Nevcairiel/Mapster", "Mapster", "Nevcairiel", CAT_MAP,
-                "Улучшения карты мира: прозрачность, масштаб, координаты, туман войны.",
+                Lang.s(R.string.sum_mapster),
                 "Mapster");
         add(l, "BigWigsMods/BigWigs", "BigWigs Bossmods", "BigWigs Team", CAT_COMBAT,
-                "Таймеры и предупреждения на боссах рейдов. Лёгкая альтернатива DBM.",
+                Lang.s(R.string.sum_bigwigs),
                 "BigWigs", "BigWigs_Core", "BigWigs_Options", "BigWigs_Plugins");
         add(l, "DeadlyBossMods/DeadlyBossMods", "Deadly Boss Mods", "DBM Team", CAT_COMBAT,
-                "Классические таймеры и предупреждения на боссах. Ядро DBM.",
+                Lang.s(R.string.sum_dbm),
                 "DBM-Core", "DBM-GUI", "DBM-StatusBarTimers", "DBM-VPVEM", "DBM-Brawlers",
                 "DBM-Midnight", "DBM-Raids-Midnight", "DBM-Lairs-Midnight");
-        Model.Item dungeons = add(l, "DeadlyBossMods/DBM-Dungeons", "DBM — Подземелья", "DBM Team", CAT_COMBAT,
-                "Модули DBM для подземелий, испытаний и мировых событий (включая Forever).",
+        Model.Item dungeons = add(l, "DeadlyBossMods/DBM-Dungeons", Lang.s(R.string.addon_dbm_dungeons), "DBM Team", CAT_COMBAT,
+                Lang.s(R.string.sum_dbm_dungeons),
                 "DBM-Party-Forever", "DBM-Party-Vanilla", "DBM-Party-BC", "DBM-Party-WotLK", "DBM-Party-Cataclysm",
                 "DBM-Party-MoP", "DBM-Party-WoD", "DBM-Party-Legion", "DBM-Party-BfA", "DBM-Party-Shadowlands",
                 "DBM-Party-Dragonflight", "DBM-Party-WarWithin", "DBM-Party-Midnight", "DBM-Challenges",
                 "DBM-Delves-Midnight", "DBM-Delves-WarWithin", "DBM-WorldEvents");
         dungeons.deps.add("github:DeadlyBossMods/DeadlyBossMods");
-        Model.Item vanilla = add(l, "DeadlyBossMods/DBM-Vanilla", "DBM — Классические рейды", "DBM Team", CAT_COMBAT,
-                "Модули DBM для классических рейдов и мировых боссов Азерота.",
+        Model.Item vanilla = add(l, "DeadlyBossMods/DBM-Vanilla", Lang.s(R.string.addon_dbm_vanilla), "DBM Team", CAT_COMBAT,
+                Lang.s(R.string.sum_dbm_vanilla),
                 "DBM-Raids-Vanilla", "DBM-Azeroth");
         vanilla.deps.add("github:DeadlyBossMods/DeadlyBossMods");
         add(l, "BigWigsMods/Capping", "Capping", "BigWigs Team", CAT_COMBAT,
-                "Таймеры полей боя и арен: захват точек, флаги, очередь.",
+                Lang.s(R.string.sum_capping),
                 "Capping", "Capping_Options");
         Model.Item tmw = add(l, "ascott18/TellMeWhen", "TellMeWhen", "Cybeloras", CAT_COMBAT,
-                "Иконки кулдаунов, баффов и дебаффов по вашим правилам.",
+                Lang.s(R.string.sum_tmw),
                 "TellMeWhen", "TellMeWhen_Options");
-        tmw.note = "В бою Forever скрывает часть данных от аддонов: сортировка и условия по кулдаунам там ограничены.";
+        tmw.note = Lang.s(R.string.note_tmw);
         Model.Item musca = add(l, "dldvlpr-addons-wow/Musca-Auras", "Musca Auras (WeakAuras)", "dldvlpr", CAT_COMBAT,
-                "Порт WeakAuras для Forever: свои индикаторы аур, кулдаунов и ресурсов.",
+                Lang.s(R.string.sum_musca),
                 "WeakAuras", "WeakAurasOptions", "WeakAurasArchive", "WeakAurasModelPaths", "WeakAurasTemplates");
-        musca.note = "Триггеры журнала боя в Forever не срабатывают — импортированные ауры может понадобиться адаптировать.";
+        musca.note = Lang.s(R.string.note_musca);
         add(l, "tullamods/tullaRange", "tullaRange", "Tuller", CAT_COMBAT,
-                "Подсвечивает кнопки красным, когда цель вне досягаемости, и синим — когда не хватает маны.",
+                Lang.s(R.string.sum_tullarange),
                 "tullaRange", "tullaRange_Config");
         add(l, "Cidan/BetterBags", "BetterBags", "Cidan", CAT_BAGS,
-                "Единая сумка с автоматическими категориями, поиском и сортировкой.",
+                Lang.s(R.string.sum_betterbags),
                 "BetterBags");
         add(l, "kemayo/wow-simpleitemlevel", "Simple Item Level", "kemayo", CAT_BAGS,
-                "Показывает уровень предметов на иконках в сумках, экипировке и у торговцев.",
+                Lang.s(R.string.sum_simpleilvl),
                 "SimpleItemLevel");
         add(l, "TorelTwiddler/CanIMogIt", "Can I Mog It?", "TorelTwiddler", CAT_BAGS,
-                "Отмечает предметы, внешний вид которых вы ещё не собрали для трансмогрификации.",
+                Lang.s(R.string.sum_canimogit),
                 "CanIMogIt");
         add(l, "kemayo/wow-silverdragon", "SilverDragon", "kemayo", CAT_MAP,
-                "Оповещает о редких мобах рядом, показывает их на карте и ведёт историю.",
+                Lang.s(R.string.sum_silverdragon),
                 "SilverDragon", "SilverDragon_History", "SilverDragon_Overlay", "SilverDragon_RangeExtender");
         add(l, "Stanzilla/AdvancedInterfaceOptions", "Advanced Interface Options", "Stanzilla", CAT_TOOLS,
-                "Доступ к скрытым настройкам клиента (CVar) через удобное меню.",
+                Lang.s(R.string.sum_aio),
                 "AdvancedInterfaceOptions");
         add(l, "Hizuro/Broker_Everything", "Broker: Everything", "Hizuro", CAT_TOOLS,
-                "Набор информеров: золото, FPS, задержка, друзья, гильдия, прочность и многое другое.",
+                Lang.s(R.string.sum_broker),
                 "Broker_Everything");
         Model.Item bugsack = add(l, "Funkydude/BugSack", "BugSack", "Funkeh", CAT_TOOLS,
-                "Собирает ошибки Lua в «мешок», чтобы они не мешали играть.",
+                Lang.s(R.string.sum_bugsack),
                 "BugSack");
-        bugsack.note = "Ошибки перехватывает !BugGrabber — его можно найти на CurseForge или WoWInterface.";
+        bugsack.note = Lang.s(R.string.note_bugsack);
         items = l;
         return l;
     }
 
-    private static Model.Item add(List<Model.Item> l, String repo, String name, String author, String cat,
+    private static Model.Item add(List<Model.Item> l, String repo, String name, String author, int cat,
                                   String summary, String... folders) {
         Model.Item it = new Model.Item();
         it.source = Model.SRC_GITHUB;
         it.id = repo;
         it.name = name;
         it.author = author;
-        it.category = cat;
+        it.category = Lang.s(cat);
         it.summary = summary;
         it.pageUrl = "https://github.com/" + repo;
         it.iconUrl = "https://github.com/" + repo.substring(0, repo.indexOf('/')) + ".png?size=96";
