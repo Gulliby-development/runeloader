@@ -22,8 +22,18 @@ final class UpdatePolicy {
 
     static boolean sameVersion(String a, String b) {
         if (a == null || b == null) return false;
-        String x = a.trim().replaceFirst("^[vV]", ""), y = b.trim().replaceFirst("^[vV]", "");
-        return x.equalsIgnoreCase(y);
+        return normVersion(a).equalsIgnoreCase(normVersion(b));
+    }
+
+    /**
+     * The comparable part of a version: release tags may carry a path ("bundle/v1.2"), while
+     * release.json and the TOC give the bare version ("v1.2"); a leading v is not significant either.
+     */
+    static String normVersion(String v) {
+        String s = v.trim();
+        int slash = s.lastIndexOf('/');
+        if (slash >= 0 && slash < s.length() - 1) s = s.substring(slash + 1);
+        return s.replaceFirst("^[vV](?=\\d)", "").trim();
     }
 
     /** The source offers a version other than the installed one (sources do not order versions). */

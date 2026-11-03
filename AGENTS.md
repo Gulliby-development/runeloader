@@ -128,6 +128,13 @@ mkdir -p /tmp/u && javac -d /tmp/u src/app/wowforever/addons/{Model,UpdatePolicy
 java -cp /tmp/u app.wowforever.addons.UpdatePolicyTest
 ```
 
+When you change `Markdown.java` (release notes in the detail panel), run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/m && javac -d /tmp/m src/app/wowforever/addons/Markdown.java test/MarkdownTest.java
+java -cp /tmp/m app.wowforever.addons.MarkdownTest
+```
+
 To run the background job on a device now: `adb shell cmd jobscheduler run -f app.wowforever.addons 1901`.
 
 For a UI change, install the debug APK on an emulator or a device (`adb install -r build/outputs/apk/debug/wow-addons-debug.apk`) and click through the changed screens. Check landscape first, then portrait. On an emulator, these commands give each aspect ratio without a new virtual device:
