@@ -167,7 +167,10 @@ final class BrowseScreen extends Screen {
 
     /** Back to the grid, named after the open category; the search then looks inside it. */
     private View categoryBack() {
-        LinearLayout b = Ui.button(app, s(Categories.nameRes(category)), R.drawable.ic_back, Ui.Kind.GHOST, v -> setMode(true, null));
+        LinearLayout b = Ui.button(app, s(Categories.nameRes(category)), R.drawable.ic_back, Ui.Kind.GHOST, v -> {
+            query = "";   // back means the grid, not a search over everything
+            setMode(true, null);
+        });
         b.setContentDescription(s(R.string.browse_all_categories));
         b.setTooltipText(s(R.string.browse_all_categories));
         b.setPadding(Ui.dp(10), 0, Ui.dp(14), 0);
@@ -202,7 +205,7 @@ final class BrowseScreen extends Screen {
         }
         // Keep the last row's tiles the same width as the others.
         for (int i = Categories.KEYS.length % cols; i > 0 && i < cols; i++)
-            row.addView(new View(app), Ui.margins(Ui.lpw(0, 0, 1), 8, 0, 0, 0));
+            row.addView(new View(app), Ui.margins(Ui.lpw(0, -1, 1), 8, 0, 0, 0));
         app.bodyBox.addView(sv, new FrameLayout.LayoutParams(-1, -1));
     }
 
