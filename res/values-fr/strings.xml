@@ -6,18 +6,18 @@
     <string name="app_tagline">Gestionnaire d\'addons pour WoW Forever</string>
 
     <string name="perm_title">Accès aux fichiers requis</string>
-    <string name="perm_text">Pour installer des addons dans le dossier du jeu, l\'application a besoin de « Accès à tous les fichiers », comme le client WoW Forever lui-même.</string>
+    <string name="perm_text">Pour installer des addons dans le dossier du jeu, l\'app a besoin de l\'\"Accès à tous les fichiers\".</string>
     <string name="perm_grant">Autoriser l\'accès</string>
     <string name="perm_settings_hint">Ouvrez Paramètres → Applications → %1$s → Accès à tous les fichiers</string>
     <string name="setup_step_access">Accès aux fichiers</string>
     <string name="setup_step_folder">Dossier du jeu</string>
     <string name="game_not_set">Aucun dossier de jeu choisi</string>
-    <string name="game_where_title">Où est installé WoW Forever ?</string>
-    <string name="game_where_text">En général, c\'est « WoW Forever » dans la mémoire interne ou sur la carte SD. Choisissez le dossier qui contient .build.info et _forever_.</string>
+    <string name="game_where_title">Où est le dossier du jeu ?</string>
+    <string name="game_where_text">Choisissez le dossier du jeu (celui qui contient .build.info ou Interface) ou directement le dossier AddOns.</string>
     <string name="game_auto_detect">Détecter automatiquement</string>
     <string name="game_pick_folder">Choisir le dossier</string>
-    <string name="game_not_set_dialog">Indiquez où WoW Forever est installé, pour que l\'application sache où mettre les addons.</string>
-    <string name="game_not_found_title">WoW Forever introuvable</string>
+    <string name="game_not_set_dialog">Indiquez à l\'app où se trouve le jeu, pour qu\'elle sache où mettre les addons.</string>
+    <string name="game_not_found_title">Dossier du jeu introuvable</string>
     <string name="game_not_found_text">Le dossier du jeu est introuvable dans la mémoire interne et sur les cartes SD. Choisissez-le vous-même.</string>
     <string name="game_multiple_found">Plusieurs installations trouvées</string>
     <string name="game_folder_set">Dossier du jeu : %1$s</string>
@@ -68,8 +68,8 @@
     <string name="settings_version">%1$s %2$s</string>
     <string name="settings_game_folder">Dossier du jeu</string>
     <string name="settings_not_selected">Non choisi</string>
-    <string name="settings_pick_game">Choisissez le dossier de WoW Forever (celui qui contient .build.info et _forever_).</string>
-    <string name="settings_game_missing">WoW Forever est introuvable dans ce dossier.</string>
+    <string name="settings_pick_game">Choisissez le dossier du jeu ou son dossier AddOns.</string>
+    <string name="settings_game_missing">Ce dossier n\'existe pas ou n\'est pas un dossier de jeu.</string>
     <string name="settings_addons_to">Les addons vont dans %1$s</string>
     <string name="settings_addons_to_new">Les addons vont dans %1$s (le dossier sera créé)</string>
     <string name="action_auto_detect">Détection auto</string>
@@ -81,13 +81,12 @@
     <string name="settings_github_text">La recherche et l\'installation fonctionnent sans jeton. Il n\'est utile que si vous installez souvent depuis des dépôts sans release.json et atteignez la limite de 60 requêtes par heure.</string>
     <string name="saved">Enregistré</string>
     <string name="settings_about">À propos</string>
-    <string name="settings_about_text">Gestionnaire d\'addons pour le client WoW Forever sur Android. Il n\'installe que des versions Forever (TOC _Forever / _Camelot, interface 16001), les tient à jour et ne touche à rien dans le jeu sauf Interface/AddOns.\n\nManette : L1/R1 changent d\'onglet, X vérifie les mises à jour, Y ouvre la recherche, B revient en arrière.</string>
-    <string name="action_forever_client">Client WoW Forever</string>
+    <string name="settings_about_text">Gestionnaire d\'addons pour WoW Forever sur Android. Il n\'installe que des versions Forever (TOC _Forever / _Camelot, interface 16001), les garde à jour et ne touche à rien d\'autre que le dossier AddOns.\n\nManette : L1/R1 changent d\'onglet, X vérifie les mises à jour, Y ouvre la recherche, B revient en arrière.</string>
     <string name="action_clear_cache">Vider le cache</string>
     <string name="cache_cleared">Cache vidé</string>
 
     <string name="action_back">Retour</string>
-    <string name="detail_hint_installed">Les addons vont dans _forever_/Interface/AddOns du dossier de jeu choisi. Fermez le jeu avant d\'installer ou de mettre à jour.</string>
+    <string name="detail_hint_installed">Les addons vont dans le dossier AddOns choisi dans les Réglages. Fermez le jeu avant d\'installer ou de mettre à jour.</string>
     <string name="detail_pick_addon">Choisissez un addon</string>
     <string name="detail_hint_library">La version, les dossiers et les boutons de mise à jour et de suppression s\'afficheront ici.</string>
     <string name="detail_hint_browse">Touchez un addon de la liste pour voir les détails et l\'installer.</string>
@@ -154,12 +153,13 @@
 
     <string name="picker_internal">Mémoire interne</string>
     <string name="picker_sd">SD %1$s</string>
-    <string name="picker_found">✓ WoW Forever trouvé ici : %1$s</string>
+    <string name="picker_found">✓ Dossier du jeu trouvé : %1$s</string>
+    <string name="picker_pill_game">Jeu</string>
     <string name="picker_empty">Vide</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_choose_this">Choisir ce dossier</string>
-    <string name="picker_not_game_title">Ce n\'est pas un dossier WoW Forever</string>
-    <string name="picker_not_game_text">Il n\'y a ni .build.info ni _forever_ ici. Si le jeu n\'est pas encore installé, installez-le d\'abord dans l\'application WoW Forever.</string>
+    <string name="picker_not_game_title">Ce n\'est pas un dossier de jeu</string>
+    <string name="picker_not_game_text">Il n\'y a ni .build.info, ni Interface, ni AddOns ici. Choisissez-le quand même : les addons iront directement dans ce dossier.</string>
     <string name="action_choose_anyway">Choisir quand même</string>
     <string name="action_ok">Compris</string>
     <string name="no_browser">Aucun navigateur trouvé</string>

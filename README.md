@@ -50,12 +50,12 @@ Installing addons on a phone usually means zip files, file managers and long fol
 1. **Download** `runeloader-<version>.apk` from the [latest release](../../releases/latest) on your Android device.
 2. **Open** the file. If Android asks, allow installs from your browser or file manager.
 3. **Start Runeloader** and allow **All files access**. The app needs it to write into the game folder.
-4. **Find your WoW Forever folder.** Tap **Find automatically**, or pick the folder that has `.build.info` and `_forever_` inside.
+4. **Find your game folder.** Tap **Find automatically**, or pick the game folder or its `AddOns` folder.
 
 That's it. Open **Browse**, find an addon and tap **Install**. Restart the game to load it.
 
 > [!NOTE]
-> Runeloader works only with the [WoW Forever Android client](https://github.com/jaredgei/wow-forever-android). It needs Android 10 or newer.
+> Runeloader needs Android 10 or newer.
 
 ## FAQ
 
@@ -68,7 +68,7 @@ Android shows this for every app that does not come from Google Play. Tap **Sett
 <details>
 <summary><b>I can't find my game folder</b></summary>
 
-Open the folder where you installed WoW Forever. The right folder has a `.build.info` file and a `_forever_` folder in it. Addons go to `_forever_/Interface/AddOns` inside it.
+Pick the game folder: it has a `.build.info` file or an `Interface` folder inside. You can also pick the `AddOns` folder itself, or any folder you like: addons then go straight into it.
 </details>
 
 <details>
@@ -100,7 +100,7 @@ Download the new APK from the [latest release](../../releases/latest) and instal
 | WoWInterface | The public file API. |
 | Zip file | Any zip the user picks on the device. |
 
-The app picks the TOC file the same way the Forever client does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
+The app picks the TOC file the same way the game does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
 </details>
 
 <details>

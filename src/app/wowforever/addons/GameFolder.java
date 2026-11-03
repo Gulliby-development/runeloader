@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Finds and picks the WoW Forever game folder. */
+/** Finds and picks the game folder (any client) or a plain AddOns folder. */
 final class GameFolder extends Screen {
 
     GameFolder(MainActivity app) { super(app); }
@@ -41,8 +41,11 @@ final class GameFolder extends Screen {
         app.modal(s(R.string.game_multiple_found), null, col, null);
     }
 
-    private void setGame(File root, boolean announce) {
+    private void setGame(File root, boolean announce) { setGame(root, false, announce); }
+
+    private void setGame(File root, boolean direct, boolean announce) {
         app.store.setGameRoot(root.getPath());
+        app.store.setAddonsDirect(direct);
         app.store.load();
         app.scanned = false;
         app.installed = new ArrayList<>();
@@ -134,7 +137,7 @@ final class GameFolder extends Screen {
                 row.addView(Ui.icon(app, R.drawable.ic_folder, wow ? Ui.ACCENT : Ui.TEXT3, 20));
                 TextView t = Ui.oneLine(Ui.text(app, d.getName(), 14, Ui.TEXT, Ui.MEDIUM));
                 row.addView(t, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 0, 0));
-                if (wow) row.addView(Ui.pill(app, "WoW Forever", Ui.GREEN, Ui.GREEN_SOFT), Ui.margins(Ui.lp(-2, -2), 8, 0, 4, 0));
+                if (wow) row.addView(Ui.pill(app, s(R.string.picker_pill_game), Ui.GREEN, Ui.GREEN_SOFT), Ui.margins(Ui.lp(-2, -2), 8, 0, 4, 0));
                 row.addView(Ui.icon(app, R.drawable.ic_chevron, Ui.TEXT3, 18));
                 return row;
             }
@@ -156,8 +159,7 @@ final class GameFolder extends Screen {
             app.closeModal();
             if (r == null) {
                 app.confirm(s(R.string.picker_not_game_title), s(R.string.picker_not_game_text), s(R.string.action_choose_anyway), () -> {
-                    new File(pickerDir, Store.FLAVOR_DIR + "/Interface/AddOns").mkdirs();
-                    setGame(pickerDir, true);
+                    setGame(pickerDir, true, true);
                 });
             } else {
                 setGame(r, true);

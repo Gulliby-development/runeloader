@@ -61,13 +61,19 @@ final class SettingsScreen extends Screen {
         else if (!ok) status = s(R.string.settings_game_missing);
         else {
             File ad = app.store.addonsDir();
-            status = s(ad != null && ad.isDirectory() ? R.string.settings_addons_to : R.string.settings_addons_to_new, Store.FLAVOR_DIR + "/Interface/AddOns");
+            status = s(ad != null && ad.isDirectory() ? R.string.settings_addons_to : R.string.settings_addons_to_new, ad == null ? "" : relative(new File(root), ad));
         }
         game.addView(Ui.text(app, status, 12.5f, ok ? Ui.GREEN : Ui.TEXT3, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 6, 0, 0));
         game.addView(actions(
                 Ui.button(app, s(R.string.game_pick_folder), R.drawable.ic_folder, ok ? Ui.Kind.SECONDARY : Ui.Kind.PRIMARY, v -> app.gameFolder.openFolderPicker()),
                 Ui.button(app, s(R.string.action_auto_detect), R.drawable.ic_search, Ui.Kind.GHOST, v -> app.gameFolder.autoDetect(true))),
                 Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 0));
+    }
+
+    /** The AddOns path as shown under the game folder: relative to it when inside it. */
+    private static String relative(File root, File addons) {
+        String r = root.getPath(), a = addons.getPath();
+        return a.startsWith(r + "/") ? a.substring(r.length() + 1) : a;
     }
 
     private void languageCard(LinearLayout parent) {
@@ -114,7 +120,6 @@ final class SettingsScreen extends Screen {
         ab.addView(Ui.wordmark(app, wmh), Ui.margins(Ui.lp(Math.round(Ui.dp(wmh) * Ui.WORDMARK_RATIO), Ui.dp(wmh)), 0, 2, 0, 12));
         ab.addView(Ui.text(app, s(R.string.settings_about_text), 12.5f, Ui.TEXT2, Ui.REGULAR));
         ab.addView(actions(
-                Ui.button(app, s(R.string.action_forever_client), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl("https://github.com/jaredgei/wow-forever-android")),
                 Ui.button(app, s(R.string.action_clear_cache), R.drawable.ic_delete, Ui.Kind.GHOST, v -> {
                     Installer.deleteRecursive(new File(app.getCacheDir(), "dl"));
                     Installer.deleteRecursive(new File(app.getCacheDir(), "wowi-filelist.json"));

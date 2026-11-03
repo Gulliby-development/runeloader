@@ -6,18 +6,18 @@
     <string name="app_tagline">Менеджер аддонов для WoW Forever</string>
 
     <string name="perm_title">Нужен доступ к файлам</string>
-    <string name="perm_text">Чтобы устанавливать аддоны в папку игры, приложению нужен «Доступ ко всем файлам» — так же, как самому клиенту WoW Forever.</string>
+    <string name="perm_text">Чтобы ставить аддоны в папку игры, приложению нужен \"Доступ ко всем файлам\".</string>
     <string name="perm_grant">Разрешить доступ</string>
     <string name="perm_settings_hint">Откройте Настройки → Приложения → %1$s → Доступ ко всем файлам</string>
     <string name="setup_step_access">Доступ к файлам</string>
     <string name="setup_step_folder">Папка игры</string>
     <string name="game_not_set">Папка игры не выбрана</string>
-    <string name="game_where_title">Где установлен WoW Forever?</string>
-    <string name="game_where_text">Обычно это «WoW Forever» во внутренней памяти или на SD-карте. Выберите папку, в которой лежат .build.info и _forever_.</string>
+    <string name="game_where_title">Где папка игры?</string>
+    <string name="game_where_text">Выберите папку игры (в ней есть .build.info или Interface) или саму папку AddOns.</string>
     <string name="game_auto_detect">Найти автоматически</string>
     <string name="game_pick_folder">Выбрать папку</string>
-    <string name="game_not_set_dialog">Укажите, где установлен WoW Forever, чтобы приложение знало, куда ставить аддоны.</string>
-    <string name="game_not_found_title">WoW Forever не найден</string>
+    <string name="game_not_set_dialog">Укажите, где лежит игра, чтобы приложение знало, куда ставить аддоны.</string>
+    <string name="game_not_found_title">Папка игры не найдена</string>
     <string name="game_not_found_text">Не нашёл папку с игрой во внутренней памяти и на SD-картах. Выберите её вручную.</string>
     <string name="game_multiple_found">Найдено несколько установок</string>
     <string name="game_folder_set">Папка игры: %1$s</string>
@@ -68,8 +68,8 @@
     <string name="settings_version">%1$s %2$s</string>
     <string name="settings_game_folder">Папка игры</string>
     <string name="settings_not_selected">Не выбрана</string>
-    <string name="settings_pick_game">Выберите папку с WoW Forever (где лежат .build.info и _forever_).</string>
-    <string name="settings_game_missing">В этой папке не найден WoW Forever.</string>
+    <string name="settings_pick_game">Выберите папку игры или её папку AddOns.</string>
+    <string name="settings_game_missing">Этой папки нет, или это не папка игры.</string>
     <string name="settings_addons_to">Аддоны ставятся в %1$s</string>
     <string name="settings_addons_to_new">Аддоны ставятся в %1$s (папка будет создана)</string>
     <string name="action_auto_detect">Автопоиск</string>
@@ -81,13 +81,12 @@
     <string name="settings_github_text">Поиск и установка работают без токена. Токен нужен, только если вы часто ставите аддоны из репозиториев без release.json и упираетесь в лимит 60 запросов в час.</string>
     <string name="saved">Сохранено</string>
     <string name="settings_about">О приложении</string>
-    <string name="settings_about_text">Менеджер аддонов для клиента WoW Forever на Android. Ставит только сборки для Forever (TOC _Forever / _Camelot, интерфейс 16001), обновляет их и ничего не трогает в игре, кроме Interface/AddOns.\n\nУправление с геймпада: L1/R1 — вкладки, X — проверить обновления, Y — поиск, B — назад.</string>
-    <string name="action_forever_client">Клиент WoW Forever</string>
+    <string name="settings_about_text">Менеджер аддонов для WoW Forever на Android. Ставит только Forever-сборки (TOC _Forever / _Camelot, интерфейс 16001), обновляет их и не трогает ничего, кроме папки AddOns.\n\nУправление с геймпада: L1/R1 — вкладки, X — проверить обновления, Y — поиск, B — назад.</string>
     <string name="action_clear_cache">Очистить кэш</string>
     <string name="cache_cleared">Кэш очищен</string>
 
     <string name="action_back">Назад</string>
-    <string name="detail_hint_installed">Аддоны ставятся в _forever_/Interface/AddOns выбранной папки игры. Закройте игру перед установкой или обновлением.</string>
+    <string name="detail_hint_installed">Аддоны ставятся в папку AddOns, выбранную в настройках. Закройте игру перед установкой или обновлением.</string>
     <string name="detail_pick_addon">Выберите аддон</string>
     <string name="detail_hint_library">Здесь будут версия, папки и кнопки обновления и удаления.</string>
     <string name="detail_hint_browse">Нажмите на аддон в списке, чтобы увидеть подробности и установить его.</string>
@@ -154,12 +153,13 @@
 
     <string name="picker_internal">Внутренняя память</string>
     <string name="picker_sd">SD %1$s</string>
-    <string name="picker_found">✓ Здесь найден WoW Forever: %1$s</string>
+    <string name="picker_found">✓ Найдена папка игры: %1$s</string>
+    <string name="picker_pill_game">Игра</string>
     <string name="picker_empty">Пусто</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_choose_this">Выбрать эту папку</string>
-    <string name="picker_not_game_title">Это не папка WoW Forever</string>
-    <string name="picker_not_game_text">Здесь нет .build.info или _forever_. Если игра ещё не установлена, сначала установите её в приложении WoW Forever.</string>
+    <string name="picker_not_game_title">Это не папка игры</string>
+    <string name="picker_not_game_text">Здесь нет .build.info, Interface или AddOns. Выберите её всё равно, и аддоны будут ставиться прямо в эту папку.</string>
     <string name="action_choose_anyway">Всё равно выбрать</string>
     <string name="action_ok">Понятно</string>
     <string name="no_browser">Не найден браузер</string>

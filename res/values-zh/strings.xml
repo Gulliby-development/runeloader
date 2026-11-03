@@ -7,18 +7,18 @@
     <string name="app_tagline">WoW Forever 插件管理器</string>
 
     <string name="perm_title">需要文件访问权限</string>
-    <string name="perm_text">要把插件安装到游戏文件夹，应用需要“所有文件访问权限”，与 WoW Forever 客户端本身相同。</string>
+    <string name="perm_text">要把插件安装到游戏文件夹，应用需要“所有文件访问权限”。</string>
     <string name="perm_grant">允许访问</string>
     <string name="perm_settings_hint">打开 设置 → 应用 → %1$s → 所有文件访问权限</string>
     <string name="setup_step_access">文件访问权限</string>
     <string name="setup_step_folder">游戏文件夹</string>
     <string name="game_not_set">未选择游戏文件夹</string>
-    <string name="game_where_title">WoW Forever 装在哪里？</string>
-    <string name="game_where_text">通常是内部存储或 SD 卡上的“WoW Forever”。请选择包含 .build.info 和 _forever_ 的文件夹。</string>
+    <string name="game_where_title">游戏文件夹在哪里？</string>
+    <string name="game_where_text">请选择游戏文件夹（里面有 .build.info 或 Interface），或直接选择 AddOns 文件夹。</string>
     <string name="game_auto_detect">自动查找</string>
     <string name="game_pick_folder">选择文件夹</string>
-    <string name="game_not_set_dialog">请指定 WoW Forever 的安装位置，应用才知道把插件装到哪里。</string>
-    <string name="game_not_found_title">未找到 WoW Forever</string>
+    <string name="game_not_set_dialog">告诉应用游戏在哪里，它才知道把插件放到哪里。</string>
+    <string name="game_not_found_title">未找到游戏文件夹</string>
     <string name="game_not_found_text">在内部存储和 SD 卡上都没有找到游戏文件夹。请手动选择。</string>
     <string name="game_multiple_found">找到多个安装</string>
     <string name="game_folder_set">游戏文件夹：%1$s</string>
@@ -69,8 +69,8 @@
     <string name="settings_version">%1$s %2$s</string>
     <string name="settings_game_folder">游戏文件夹</string>
     <string name="settings_not_selected">未选择</string>
-    <string name="settings_pick_game">请选择 WoW Forever 文件夹（包含 .build.info 和 _forever_）。</string>
-    <string name="settings_game_missing">此文件夹中未找到 WoW Forever。</string>
+    <string name="settings_pick_game">选择游戏文件夹或其中的 AddOns 文件夹。</string>
+    <string name="settings_game_missing">此文件夹不存在，或不是游戏文件夹。</string>
     <string name="settings_addons_to">插件将安装到 %1$s</string>
     <string name="settings_addons_to_new">插件将安装到 %1$s（将创建该文件夹）</string>
     <string name="action_auto_detect">自动查找</string>
@@ -82,13 +82,12 @@
     <string name="settings_github_text">搜索和安装无需令牌。只有当你经常从没有 release.json 的仓库安装并达到每小时 60 次请求的限制时才需要。</string>
     <string name="saved">已保存</string>
     <string name="settings_about">关于</string>
-    <string name="settings_about_text">Android 版 WoW Forever 客户端的插件管理器。只安装 Forever 版本（TOC _Forever / _Camelot，界面 16001），保持更新，除 Interface/AddOns 外不改动游戏中的任何内容。\n\n手柄：L1/R1 切换标签页，X 检查更新，Y 搜索，B 返回。</string>
-    <string name="action_forever_client">WoW Forever 客户端</string>
+    <string name="settings_about_text">Android 上的 WoW Forever 插件管理器。只安装 Forever 版本（TOC _Forever / _Camelot，界面 16001），保持更新，除 AddOns 文件夹外不改动任何内容。\n\n手柄：L1/R1 切换标签页，X 检查更新，Y 搜索，B 返回。</string>
     <string name="action_clear_cache">清除缓存</string>
     <string name="cache_cleared">缓存已清除</string>
 
     <string name="action_back">返回</string>
-    <string name="detail_hint_installed">插件安装到所选游戏文件夹的 _forever_/Interface/AddOns。安装或更新前请关闭游戏。</string>
+    <string name="detail_hint_installed">插件会装到设置中选择的 AddOns 文件夹。安装或更新前请关闭游戏。</string>
     <string name="detail_pick_addon">选择一个插件</string>
     <string name="detail_hint_library">这里会显示版本、文件夹以及更新和删除按钮。</string>
     <string name="detail_hint_browse">点按列表中的插件即可查看详情并安装。</string>
@@ -155,12 +154,13 @@
 
     <string name="picker_internal">内部存储</string>
     <string name="picker_sd">SD %1$s</string>
-    <string name="picker_found">✓ 在此找到 WoW Forever：%1$s</string>
+    <string name="picker_found">✓ 已找到游戏文件夹：%1$s</string>
+    <string name="picker_pill_game">游戏</string>
     <string name="picker_empty">空</string>
     <string name="action_cancel">取消</string>
     <string name="action_choose_this">选择此文件夹</string>
-    <string name="picker_not_game_title">这不是 WoW Forever 文件夹</string>
-    <string name="picker_not_game_text">这里没有 .build.info 或 _forever_。如果还没安装游戏，请先在 WoW Forever 应用中安装。</string>
+    <string name="picker_not_game_title">这不是游戏文件夹</string>
+    <string name="picker_not_game_text">这里没有 .build.info、Interface 或 AddOns。仍然选择的话，插件会直接装到这个文件夹。</string>
     <string name="action_choose_anyway">仍然选择</string>
     <string name="action_ok">知道了</string>
     <string name="no_browser">未找到浏览器</string>

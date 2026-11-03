@@ -6,18 +6,18 @@
     <string name="app_tagline">Menedżer dodatków do WoW Forever</string>
 
     <string name="perm_title">Potrzebny dostęp do plików</string>
-    <string name="perm_text">Aby instalować dodatki w folderze gry, aplikacja potrzebuje uprawnienia „Dostęp do wszystkich plików”, tak samo jak sam klient WoW Forever.</string>
+    <string name="perm_text">Aby instalować dodatki w folderze gry, aplikacja potrzebuje \"Dostępu do wszystkich plików\".</string>
     <string name="perm_grant">Zezwól na dostęp</string>
     <string name="perm_settings_hint">Otwórz Ustawienia → Aplikacje → %1$s → Dostęp do wszystkich plików</string>
     <string name="setup_step_access">Dostęp do plików</string>
     <string name="setup_step_folder">Folder gry</string>
     <string name="game_not_set">Nie wybrano folderu gry</string>
-    <string name="game_where_title">Gdzie jest zainstalowany WoW Forever?</string>
-    <string name="game_where_text">Zwykle jest to „WoW Forever” w pamięci wewnętrznej lub na karcie SD. Wybierz folder, w którym są .build.info i _forever_.</string>
+    <string name="game_where_title">Gdzie jest folder gry?</string>
+    <string name="game_where_text">Wybierz folder gry (ten z .build.info lub Interface w środku) albo sam folder AddOns.</string>
     <string name="game_auto_detect">Znajdź automatycznie</string>
     <string name="game_pick_folder">Wybierz folder</string>
-    <string name="game_not_set_dialog">Wskaż, gdzie jest zainstalowany WoW Forever, aby aplikacja wiedziała, gdzie instalować dodatki.</string>
-    <string name="game_not_found_title">Nie znaleziono WoW Forever</string>
+    <string name="game_not_set_dialog">Wskaż aplikacji, gdzie jest gra, aby wiedziała, gdzie zapisać dodatki.</string>
+    <string name="game_not_found_title">Nie znaleziono folderu gry</string>
     <string name="game_not_found_text">Nie znaleziono folderu gry w pamięci wewnętrznej ani na kartach SD. Wybierz go ręcznie.</string>
     <string name="game_multiple_found">Znaleziono kilka instalacji</string>
     <string name="game_folder_set">Folder gry: %1$s</string>
@@ -68,8 +68,8 @@
     <string name="settings_version">%1$s %2$s</string>
     <string name="settings_game_folder">Folder gry</string>
     <string name="settings_not_selected">Nie wybrano</string>
-    <string name="settings_pick_game">Wybierz folder WoW Forever (ten z .build.info i _forever_).</string>
-    <string name="settings_game_missing">W tym folderze nie znaleziono WoW Forever.</string>
+    <string name="settings_pick_game">Wybierz folder gry albo jego folder AddOns.</string>
+    <string name="settings_game_missing">Ten folder nie istnieje lub nie jest folderem gry.</string>
     <string name="settings_addons_to">Dodatki trafiają do %1$s</string>
     <string name="settings_addons_to_new">Dodatki trafiają do %1$s (folder zostanie utworzony)</string>
     <string name="action_auto_detect">Wykryj</string>
@@ -81,13 +81,12 @@
     <string name="settings_github_text">Wyszukiwanie i instalacja działają bez tokena. Jest potrzebny tylko wtedy, gdy często instalujesz z repozytoriów bez release.json i trafiasz na limit 60 zapytań na godzinę.</string>
     <string name="saved">Zapisano</string>
     <string name="settings_about">O aplikacji</string>
-    <string name="settings_about_text">Menedżer dodatków do klienta WoW Forever na Androida. Instaluje tylko wersje dla Forever (TOC _Forever / _Camelot, interfejs 16001), aktualizuje je i nie zmienia w grze niczego poza Interface/AddOns.\n\nPad: L1/R1 przełączają karty, X sprawdza aktualizacje, Y otwiera wyszukiwanie, B wraca.</string>
-    <string name="action_forever_client">Klient WoW Forever</string>
+    <string name="settings_about_text">Menedżer dodatków do WoW Forever na Androidzie. Instaluje tylko wersje Forever (TOC _Forever / _Camelot, interfejs 16001), aktualizuje je i nie zmienia niczego poza folderem AddOns.\n\nPad: L1/R1 przełączają karty, X sprawdza aktualizacje, Y otwiera wyszukiwanie, B wraca.</string>
     <string name="action_clear_cache">Wyczyść pamięć podręczną</string>
     <string name="cache_cleared">Pamięć podręczna wyczyszczona</string>
 
     <string name="action_back">Wstecz</string>
-    <string name="detail_hint_installed">Dodatki trafiają do _forever_/Interface/AddOns wybranego folderu gry. Zamknij grę przed instalacją lub aktualizacją.</string>
+    <string name="detail_hint_installed">Dodatki trafiają do folderu AddOns wybranego w Ustawieniach. Zamknij grę przed instalacją lub aktualizacją.</string>
     <string name="detail_pick_addon">Wybierz dodatek</string>
     <string name="detail_hint_library">Tu pojawią się wersja, foldery oraz przyciski aktualizacji i usuwania.</string>
     <string name="detail_hint_browse">Dotknij dodatku na liście, aby zobaczyć szczegóły i go zainstalować.</string>
@@ -154,12 +153,13 @@
 
     <string name="picker_internal">Pamięć wewnętrzna</string>
     <string name="picker_sd">SD %1$s</string>
-    <string name="picker_found">✓ Znaleziono tu WoW Forever: %1$s</string>
+    <string name="picker_found">✓ Znaleziono folder gry: %1$s</string>
+    <string name="picker_pill_game">Gra</string>
     <string name="picker_empty">Pusto</string>
     <string name="action_cancel">Anuluj</string>
     <string name="action_choose_this">Wybierz ten folder</string>
-    <string name="picker_not_game_title">To nie jest folder WoW Forever</string>
-    <string name="picker_not_game_text">Nie ma tu .build.info ani _forever_. Jeśli gra nie jest jeszcze zainstalowana, najpierw zainstaluj ją w aplikacji WoW Forever.</string>
+    <string name="picker_not_game_title">To nie jest folder gry</string>
+    <string name="picker_not_game_text">Nie ma tu .build.info, Interface ani AddOns. Wybierz go mimo to, a dodatki trafią prosto do tego folderu.</string>
     <string name="action_choose_anyway">Wybierz mimo to</string>
     <string name="action_ok">Rozumiem</string>
     <string name="no_browser">Nie znaleziono przeglądarki</string>

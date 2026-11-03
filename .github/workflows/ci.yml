@@ -47,6 +47,12 @@ jobs:
           mkdir -p /tmp/t
           javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Model}.java test/InstallTest.java
 
+      - name: AddOns folder rules
+        run: |
+          mkdir -p /tmp/f
+          javac -d /tmp/f src/app/wowforever/addons/AddonsFolder.java test/AddonsFolderTest.java
+          java -cp /tmp/f app.wowforever.addons.AddonsFolderTest
+
       - name: Auto-update rules
         run: |
           mkdir -p /tmp/u

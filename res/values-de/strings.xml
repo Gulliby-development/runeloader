@@ -6,18 +6,18 @@
     <string name="app_tagline">Addon-Manager für WoW Forever</string>
 
     <string name="perm_title">Dateizugriff nötig</string>
-    <string name="perm_text">Um Addons in den Spielordner zu installieren, braucht die App den \"Zugriff auf alle Dateien\", genau wie der WoW-Forever-Client selbst.</string>
+    <string name="perm_text">Um Addons in den Spielordner zu installieren, braucht die App den \"Zugriff auf alle Dateien\".</string>
     <string name="perm_grant">Zugriff erlauben</string>
     <string name="perm_settings_hint">Öffne Einstellungen → Apps → %1$s → Zugriff auf alle Dateien</string>
     <string name="setup_step_access">Dateizugriff</string>
     <string name="setup_step_folder">Spielordner</string>
     <string name="game_not_set">Kein Spielordner gewählt</string>
-    <string name="game_where_title">Wo ist WoW Forever installiert?</string>
-    <string name="game_where_text">Meist ist es \"WoW Forever\" im internen Speicher oder auf der SD-Karte. Wähle den Ordner mit .build.info und _forever_.</string>
+    <string name="game_where_title">Wo ist der Spielordner?</string>
+    <string name="game_where_text">Wähle den Spielordner (mit .build.info oder Interface darin) oder direkt den AddOns-Ordner.</string>
     <string name="game_auto_detect">Automatisch suchen</string>
     <string name="game_pick_folder">Ordner wählen</string>
-    <string name="game_not_set_dialog">Gib an, wo WoW Forever installiert ist, damit die App weiß, wohin die Addons gehören.</string>
-    <string name="game_not_found_title">WoW Forever nicht gefunden</string>
+    <string name="game_not_set_dialog">Sag der App, wo das Spiel liegt, damit sie weiß, wohin die Addons kommen.</string>
+    <string name="game_not_found_title">Spielordner nicht gefunden</string>
     <string name="game_not_found_text">Der Spielordner wurde weder im internen Speicher noch auf SD-Karten gefunden. Wähle ihn von Hand.</string>
     <string name="game_multiple_found">Mehrere Installationen gefunden</string>
     <string name="game_folder_set">Spielordner: %1$s</string>
@@ -68,8 +68,8 @@
     <string name="settings_version">%1$s %2$s</string>
     <string name="settings_game_folder">Spielordner</string>
     <string name="settings_not_selected">Nicht gewählt</string>
-    <string name="settings_pick_game">Wähle den Ordner von WoW Forever (mit .build.info und _forever_).</string>
-    <string name="settings_game_missing">In diesem Ordner wurde WoW Forever nicht gefunden.</string>
+    <string name="settings_pick_game">Wähle den Spielordner oder seinen AddOns-Ordner.</string>
+    <string name="settings_game_missing">Dieser Ordner fehlt oder ist kein Spielordner.</string>
     <string name="settings_addons_to">Addons landen in %1$s</string>
     <string name="settings_addons_to_new">Addons landen in %1$s (der Ordner wird angelegt)</string>
     <string name="action_auto_detect">Auto-Suche</string>
@@ -81,13 +81,12 @@
     <string name="settings_github_text">Suche und Installation funktionieren ohne Token. Du brauchst einen nur, wenn du oft aus Repositories ohne release.json installierst und an das Limit von 60 Anfragen pro Stunde stößt.</string>
     <string name="saved">Gespeichert</string>
     <string name="settings_about">Über die App</string>
-    <string name="settings_about_text">Addon-Manager für den WoW-Forever-Client auf Android. Er installiert nur Forever-Builds (TOC _Forever / _Camelot, Interface 16001), hält sie aktuell und ändert im Spiel nichts außer Interface/AddOns.\n\nGamepad: L1/R1 wechseln Tabs, X prüft Updates, Y öffnet die Suche, B geht zurück.</string>
-    <string name="action_forever_client">WoW-Forever-Client</string>
+    <string name="settings_about_text">Addon-Manager für WoW Forever auf Android. Er installiert nur Forever-Builds (TOC _Forever / _Camelot, Interface 16001), hält sie aktuell und ändert nichts außer dem AddOns-Ordner.\n\nGamepad: L1/R1 wechseln Tabs, X prüft Updates, Y öffnet die Suche, B geht zurück.</string>
     <string name="action_clear_cache">Cache leeren</string>
     <string name="cache_cleared">Cache geleert</string>
 
     <string name="action_back">Zurück</string>
-    <string name="detail_hint_installed">Addons landen in _forever_/Interface/AddOns des gewählten Spielordners. Schließe das Spiel vor dem Installieren oder Aktualisieren.</string>
+    <string name="detail_hint_installed">Addons kommen in den AddOns-Ordner aus den Einstellungen. Schließe das Spiel, bevor du installierst oder aktualisierst.</string>
     <string name="detail_pick_addon">Wähle ein Addon</string>
     <string name="detail_hint_library">Hier erscheinen Version, Ordner sowie die Knöpfe zum Aktualisieren und Entfernen.</string>
     <string name="detail_hint_browse">Tippe auf ein Addon in der Liste, um Details zu sehen und es zu installieren.</string>
@@ -154,12 +153,13 @@
 
     <string name="picker_internal">Interner Speicher</string>
     <string name="picker_sd">SD %1$s</string>
-    <string name="picker_found">✓ WoW Forever hier gefunden: %1$s</string>
+    <string name="picker_found">✓ Spielordner gefunden: %1$s</string>
+    <string name="picker_pill_game">Spiel</string>
     <string name="picker_empty">Leer</string>
     <string name="action_cancel">Abbrechen</string>
     <string name="action_choose_this">Diesen Ordner wählen</string>
-    <string name="picker_not_game_title">Das ist kein WoW-Forever-Ordner</string>
-    <string name="picker_not_game_text">Hier gibt es kein .build.info und kein _forever_. Ist das Spiel noch nicht installiert, installiere es zuerst in der WoW-Forever-App.</string>
+    <string name="picker_not_game_title">Das ist kein Spielordner</string>
+    <string name="picker_not_game_text">Hier gibt es kein .build.info, Interface oder AddOns. Wähle ihn trotzdem, dann kommen die Addons direkt in diesen Ordner.</string>
     <string name="action_choose_anyway">Trotzdem wählen</string>
     <string name="action_ok">Verstanden</string>
     <string name="no_browser">Kein Browser gefunden</string>
