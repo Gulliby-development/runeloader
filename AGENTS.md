@@ -35,6 +35,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
   `<name>` is a few lowercase words joined by hyphens. Do not use other prefixes (`docs/`, `fix/`, `claude/`, `copilot/`) or generic names such as `patch` or `update`. If your tool proposes a default branch, rename it before the first push. A random suffix your platform adds after the name is fine. CI fails a pull request whose branch breaks this rule; only Dependabot's `dependabot/` branches are exempt.
 - Commit working states on the task branch. Before each commit, run at least `./gradlew assembleDebug`, so every commit builds.
 - A pull request that finishes an issue says `Closes #N` in its description. Use `Refs #N` when the pull request does only part of it.
+- Before you finish a task, check `README.md` against your change and update it in the same pull request: features, install steps, FAQ answers, button names, screenshots and build commands must match the app as it is after the merge. Say in the pull request description that you checked it, or what you changed.
 - When the task is complete and [Verification](#verification) passes, open a pull request to `main`. `main` takes changes only through pull requests with green CI. Do not push to `main` directly.
 
 ## Working conventions
@@ -51,7 +52,7 @@ Runeloader is an Android app that installs, updates and removes addons for the [
 - Install and update addons only through `Updater`, never with a copy of its logic in a screen or the background job. Any other write to the AddOns folder (remove, ZIP install) runs inside `Updater.LOCK`, so the screens and the background job never write it at the same time. Get the store through `Store.get`, never a second `Store`.
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check in `Http.java` that keeps the GitHub token on GitHub hosts.
-- A new addon source goes into `Sources.java` with its own section in `README.md`. It declares which TOC field (`X-WoWI-ID`, `X-Wago-ID`, ...) holds its id.
+- A new addon source goes into `Sources.java` with a row in the "Where addons come from" table of `README.md`. It declares which TOC field (`X-WoWI-ID`, `X-Wago-ID`, ...) holds its id.
 - The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
 - A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
 - The GitHub index (runeloader-index) is a hint for search, metadata and update checks. An install always resolves the asset from GitHub directly (`Sources.latest`), because the index can be a day old. If the index is unreachable, the update check falls back to the per-addon check.
@@ -79,7 +80,7 @@ A new secret for the app build (for example an API key) goes into both `ci.yml` 
 ## Language
 
 - Write code, identifiers, comments, commit messages, issues, pull requests and these instructions in English.
-- `README.md` is in English and stays short: what the app is, how to install it from a release, how to build it.
+- `README.md` is the project's landing page for players. It is in plain English (about B1 level): short sentences, no jargon in the main part. It keeps this order: the wordmark, a one-line pitch, features, install steps, FAQ. Technical details (sources, install internals, build) go inside `<details>` spoilers. Its images live in `docs/images/` and stay small (under about 300 KB each).
 - The UI is localized through string resources. English in `res/values/strings.xml` is the base and the fallback; translations live in `res/values-<lang>/strings.xml` (today `de`, `es`, `fr`, `pl`, `pt`, `ru`, `zh`). By default the app follows the system language; the user can pick another one in Settings.
   - Put no UI text in Java. Add every new string to `res/values/strings.xml` and to every `values-<lang>` file in the same pull request; lint reports a key that is missing from a language.
   - Count words through `<plurals>` and `getQuantityString`, never by hand: Polish and Russian need `few` and `many` forms.
