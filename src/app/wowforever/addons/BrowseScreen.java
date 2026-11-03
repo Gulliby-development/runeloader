@@ -39,6 +39,19 @@ final class BrowseScreen extends Screen {
 
     BrowseScreen(MainActivity app) { super(app); }
 
+    /** Keeps the mode, category and query over a recreate (a language change). */
+    void save(android.os.Bundle out) {
+        out.putBoolean("browseCategories", categoriesMode);
+        out.putString("browseCategory", category);
+        out.putString("browseQuery", query);
+    }
+
+    void restore(android.os.Bundle in) {
+        categoriesMode = in.getBoolean("browseCategories", false);
+        category = in.getString("browseCategory");
+        query = in.getString("browseQuery", "");
+    }
+
     /** Below this list width the row actions drop their labels. */
     private static final int ROW_LABELS_DP = 480;
 
@@ -292,7 +305,8 @@ final class BrowseScreen extends Screen {
                 app.bodyBox.addView(emptyState(R.drawable.ic_warning, s(R.string.load_failed), resultError,
                         Ui.button(app, s(R.string.action_retry), R.drawable.ic_refresh, Ui.Kind.PRIMARY, v -> runSearch(false))));
             } else {
-                app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found), s(R.string.github_empty_text), new View[0]));
+                app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found),
+                        s(categoriesMode && category != null ? R.string.category_empty_text : R.string.github_empty_text), new View[0]));
             }
             return;
         }

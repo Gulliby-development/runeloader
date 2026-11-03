@@ -37,9 +37,9 @@ Installing addons on a phone usually means zip files, file managers and long fol
 <details>
 <summary><b>More screenshots</b></summary>
 
-| Browse | Addon details | Your addons |
-| --- | --- | --- |
-| <img src="docs/images/promo/shot-browse.png" alt="Browse" width="280"> | <img src="docs/images/promo/shot-detail.png" alt="Addon details" width="280"> | <img src="docs/images/promo/shot-library.png" alt="Installed addons with an update" width="280"> |
+| Browse | Categories | Addon details | Your addons |
+| --- | --- | --- | --- |
+| <img src="docs/images/promo/shot-browse.png" alt="Browse, popular addons" width="220"> | <img src="docs/images/promo/shot-categories.png" alt="Browse by category" width="220"> | <img src="docs/images/promo/shot-detail.png" alt="Addon details" width="220"> | <img src="docs/images/promo/shot-library.png" alt="Installed addons with an update" width="220"> |
 
 | Browse, portrait | Auto-update |
 | --- | --- |

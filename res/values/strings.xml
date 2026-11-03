@@ -70,6 +70,7 @@
     <string name="load_failed">Could not load</string>
     <string name="action_retry">Retry</string>
     <string name="github_empty_text">Try another name, or paste a repository link such as github.com/Questie/Questie: the Forever build is picked from its release.json.</string>
+    <string name="category_empty_text">No addons in this category match yet. Try another word, or look in Popular.</string>
     <string name="nothing_found">Nothing found</string>
 
     <!-- Settings -->
