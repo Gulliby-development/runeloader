@@ -246,7 +246,7 @@ public class MainActivity extends Activity {
             detailSheet.setClickable(true);
             if (layout.sheet) {
                 View scrim = new View(this);
-                scrim.setBackgroundColor(0x9E030807);
+                scrim.setBackgroundColor(Ui.SCRIM);
                 scrim.setOnClickListener(v -> detail.closeDetailSheet());
                 detailOverlay.addView(scrim, new FrameLayout.LayoutParams(-1, -1));
                 detailSheet.setElevation(Ui.dp(16));
@@ -281,7 +281,7 @@ public class MainActivity extends Activity {
         root.addView(progressCard, pcl);
 
         snack = Ui.text(this, "", 14, Ui.TEXT, Ui.MEDIUM);
-        snack.setBackground(Ui.round(0xFF2A3241, 14, Ui.STROKE, 1));
+        snack.setBackground(Ui.round(Ui.SNACK, 14, Ui.STROKE, 1));
         snack.setPadding(Ui.dp(16), Ui.dp(12), Ui.dp(16), Ui.dp(12));
         snack.setElevation(Ui.dp(14));
         snack.setVisibility(View.GONE);

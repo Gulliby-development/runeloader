@@ -25,28 +25,34 @@ import android.widget.TextView;
 
 /** Theme and view factories; everything is built in code. */
 final class Ui {
-    // Palette
-    static final int BG = 0xFF0B0E13;
-    static final int RAIL = 0xFF0E1218;
-    static final int SURFACE = 0xFF141922;
-    static final int SURFACE2 = 0xFF1A202B;
-    static final int SURFACE3 = 0xFF222A37;
-    static final int STROKE = 0xFF262F3D;
-    static final int TEXT = 0xFFE8ECF2;
-    static final int TEXT2 = 0xFF9AA4B2;
-    static final int TEXT3 = 0xFF6B7585;
-    static final int ACCENT = 0xFFF2B640;
-    static final int ACCENT_DARK = 0xFF1A1405;
-    static final int ACCENT_SOFT = 0x26F2B640;
-    static final int BLUE = 0xFF5AA9FF;
-    static final int BLUE_SOFT = 0x225AA9FF;
-    static final int GREEN = 0xFF3DDC97;
-    static final int GREEN_SOFT = 0x223DDC97;
-    static final int ORANGE = 0xFFFF9F43;
-    static final int ORANGE_SOFT = 0x26FF9F43;
-    static final int RED = 0xFFFF5C6C;
-    static final int RED_SOFT = 0x22FF5C6C;
-    static final int FOCUS = 0xFFF2B640;
+    // Palette: the Runeloader icon. Deep teal surfaces, cream text like the rune strokes, gold
+    // like its arrowhead for actions and updates, and a mint "rune light" for the installed
+    // state and gamepad focus (so focus stays visible on gold buttons).
+    static final int BG = 0xFF0A1513;
+    static final int RAIL = 0xFF0D1B18;
+    static final int SURFACE = 0xFF11221E;
+    static final int SURFACE2 = 0xFF162B26;
+    static final int SURFACE3 = 0xFF1D3730;
+    static final int STROKE = 0xFF24423A;
+    static final int TEXT = 0xFFF3EAD6;
+    static final int TEXT2 = 0xFFAEBBB2;
+    static final int TEXT3 = 0xFF6E847C;
+    static final int ACCENT = 0xFFD9A441;
+    static final int ACCENT_DARK = 0xFF1B1405;
+    static final int ACCENT_SOFT = 0x29D9A441;
+    static final int BLUE = 0xFF7DB8E8;
+    static final int BLUE_SOFT = 0x247DB8E8;
+    static final int GREEN = 0xFF6FE3C6;
+    static final int GREEN_SOFT = 0x226FE3C6;
+    static final int ORANGE = 0xFFE8944A;
+    static final int ORANGE_SOFT = 0x24E8944A;
+    static final int RED = 0xFFE86A5F;
+    static final int RED_SOFT = 0x26E86A5F;
+    static final int FOCUS = 0xFF6FE3C6;
+    /** Snackbar and toast background. */
+    static final int SNACK = 0xFF223F38;
+    /** Dim layer behind sheets and dialogs. */
+    static final int SCRIM = 0x9E030807;
 
     static final Typeface MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
     static final Typeface BOLD = Typeface.create("sans-serif", Typeface.BOLD);
@@ -204,7 +210,7 @@ final class Ui {
         return l;
     }
 
-    static final int[] AVATAR_COLORS = {0xFF3B4D7A, 0xFF5B3B7A, 0xFF7A3B55, 0xFF7A5A3B, 0xFF3B7A6A, 0xFF3B6A7A, 0xFF6A7A3B, 0xFF4A3B7A};
+    static final int[] AVATAR_COLORS = {0xFF2F5A6E, 0xFF5B3B6E, 0xFF7A3B4D, 0xFF7A5A2F, 0xFF2F6E5E, 0xFF3B5A7A, 0xFF5E6E2F, 0xFF4A3B7A};
 
     /** Rounded square with the first letters of a name; used until a logo loads. */
     static final class LetterDrawable extends Drawable {
@@ -222,7 +228,7 @@ final class Ui {
             letters = l.toUpperCase();
             int color = AVATAR_COLORS[Math.abs((name == null ? 0 : name.hashCode()) % AVATAR_COLORS.length)];
             bg.setColor(color);
-            fg.setColor(0xFFF4F6FA);
+            fg.setColor(TEXT);
             fg.setTypeface(BOLD);
             fg.setTextAlign(Paint.Align.CENTER);
         }
