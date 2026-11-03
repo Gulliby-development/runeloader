@@ -8,7 +8,7 @@ Android 10 or newer. Works only with WoW Forever builds.
 
 ## Install
 
-1. Download the latest `.apk` from [Releases](../../releases).
+1. Download `runeloader-<version>.apk` from the latest [release](../../releases/latest).
 2. Open it on your device and allow installs from this source when Android asks.
 3. Start Runeloader, allow "All files access", and pick the WoW Forever folder (the one with `.build.info` and `_forever_`).
 
