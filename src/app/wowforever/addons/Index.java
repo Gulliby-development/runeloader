@@ -151,7 +151,7 @@ final class Index {
             it.deps = c.deps;
             if (c.iconUrl != null) it.iconUrl = c.iconUrl;
         }
-        // Index fields for logos, descriptions and releases are filled here (IndexFields, #26-#28).
+        IndexFields.fill(a, BASE, it);
         return it;
     }
 

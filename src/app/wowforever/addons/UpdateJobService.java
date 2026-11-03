@@ -52,10 +52,13 @@ public class UpdateJobService extends JobService {
             return;
         }
         List<Model.Entry> found = new ArrayList<>();
+        java.util.Map<String, Model.Item> index = Updater.indexByKey(false);
         for (Model.Entry e : UpdatePolicy.candidates(store.list())) {
             if (stopped) break;
             try {
-                String latest = Updater.latestVersion(e);
+                Model.Item ix = Updater.indexHit(index, e);
+                String latest = ix != null ? ix.version : Updater.latestVersion(e);
+                if (ix != null && !ix.changelog.isEmpty()) e.changelog = ix.changelog;
                 e.latest = latest;
                 e.checkError = null;
                 e.updateAvailable = UpdatePolicy.isNewer(latest, e.version);
