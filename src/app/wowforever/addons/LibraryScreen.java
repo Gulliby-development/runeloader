@@ -141,7 +141,15 @@ final class LibraryScreen extends Screen {
             if (r.folders.size() > 1) sub.append("  ·  ").append(q(R.plurals.folders_count, r.folders.size()));
             st = Ui.oneLine(Ui.text(app, sub.toString(), 11.5f, Ui.TEXT3, Ui.REGULAR));
         }
-        mid.addView(st, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
+        Model.Item ix = e != null && Model.SRC_GITHUB.equals(e.source) ? Index.item(e.id) : null;
+        if (ix != null && ix.isDiscontinued()) {
+            LinearLayout line = Ui.hbox(app);
+            line.addView(discontinuedTag(), Ui.lp(-2, -2));
+            line.addView(st, Ui.margins(Ui.lpw(0, -2, 1), 6, 0, 0, 0));
+            mid.addView(line, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
+        } else {
+            mid.addView(st, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
+        }
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
 
         if (busy) {

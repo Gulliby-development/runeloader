@@ -243,6 +243,11 @@
     <string name="cat_other">Other</string>
     <string name="cat_gamepad">Gamepad &amp; handheld</string>
     <string name="tag_gamepad">Gamepad</string>
+    <string name="tag_discontinued">Discontinued</string>
+    <string name="note_discontinued">The author stopped this addon. It gets no more updates and may break after a game patch.</string>
+    <string name="note_discontinued_archived">The author archived this addon on GitHub. It gets no more updates and may break after a game patch.</string>
+    <string name="note_discontinued_author">The author: “%1$s”</string>
+    <string name="action_use_successor">Use %1$s instead</string>
     <string name="browse_mode_popular">Popular</string>
     <string name="browse_mode_categories">Categories</string>
     <string name="browse_mode_favorites">Favorites</string>

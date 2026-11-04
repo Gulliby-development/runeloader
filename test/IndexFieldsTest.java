@@ -26,6 +26,14 @@ public class IndexFieldsTest {
     check(mod.deps.size() == 2 && mod.deps.get(0).equals("github:o/IF") && mod.deps.get(1).equals("github:x/Lib#Core2"),
         "requires become dependency keys, without itself or malformed keys");
     check(IndexFields.requirement("o/r#../x") == null, "unsafe module names dropped");
+    Model.Item ding = new Model.Item(); ding.source = "github"; ding.id = "m/Ding";
+    IndexFields.fill(new JSONObject("{\"repo\":\"m/Ding\",\"discontinued\":\"Listed\",\"discontinued_note\":\"Ported to Polestar.\",\"successor\":\"f/polestar\"}"), base, ding);
+    check(ding.isDiscontinued() && ding.discontinued.equals("listed") && ding.discontinuedNote.equals("Ported to Polestar.")
+        && "f/polestar".equals(ding.successor), "discontinued mark, note and successor");
+    IndexFields.fill(new JSONObject("{\"repo\":\"m/Ding\",\"successor\":\"m/Ding\"}"), base, ding);
+    check(!ding.isDiscontinued() && ding.successor == null && ding.discontinuedNote.isEmpty(), "no mark: no successor, refilled clean");
+    IndexFields.fill(new JSONObject("{\"repo\":\"m/Ding\",\"discontinued\":\"archived\",\"successor\":\"m/Ding\"}"), base, ding);
+    check(ding.isDiscontinued() && ding.successor == null, "an addon is never its own successor");
     check(it.stars == 42, "stars");
     check(it.releases.size() == 2 && it.releases.get(0).prerelease && it.releases.get(0).released > 0, "releases parsed");
     check(it.releases.get(1).version.equals("v1.0"), "version falls back to the tag");

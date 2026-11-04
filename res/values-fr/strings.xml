@@ -232,6 +232,11 @@
     <string name="cat_other">Autres</string>
     <string name="cat_gamepad">Manette et portables</string>
     <string name="tag_gamepad">Manette</string>
+    <string name="tag_discontinued">Abandonné</string>
+    <string name="note_discontinued">L\'auteur a arrêté cet addon. Il ne reçoit plus de mises à jour et peut cesser de fonctionner après un patch du jeu.</string>
+    <string name="note_discontinued_archived">L\'auteur a archivé cet addon sur GitHub. Il ne reçoit plus de mises à jour et peut cesser de fonctionner après un patch du jeu.</string>
+    <string name="note_discontinued_author">L\'auteur : « %1$s »</string>
+    <string name="action_use_successor">Utiliser %1$s à la place</string>
     <string name="browse_mode_popular">Populaires</string>
     <string name="browse_mode_categories">Catégories</string>
     <string name="browse_mode_favorites">Favoris</string>

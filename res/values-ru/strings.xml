@@ -236,6 +236,11 @@
     <string name="cat_other">Другое</string>
     <string name="cat_gamepad">Геймпад и портативные</string>
     <string name="tag_gamepad">Геймпад</string>
+    <string name="tag_discontinued">Заброшен</string>
+    <string name="note_discontinued">Автор прекратил работу над аддоном. Обновлений больше не будет, после патча игры он может сломаться.</string>
+    <string name="note_discontinued_archived">Автор отправил аддон в архив на GitHub. Обновлений больше не будет, после патча игры он может сломаться.</string>
+    <string name="note_discontinued_author">Автор: «%1$s»</string>
+    <string name="action_use_successor">Взять вместо него %1$s</string>
     <string name="browse_mode_popular">Популярные</string>
     <string name="browse_mode_categories">Категории</string>
     <string name="browse_mode_favorites">Избранное</string>

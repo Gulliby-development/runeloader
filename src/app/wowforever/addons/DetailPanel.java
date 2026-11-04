@@ -169,6 +169,18 @@ final class DetailPanel extends Screen {
         col.addView(n, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 12));
     }
 
+    /** The index says the author stopped this addon: say so, quote the author, offer the replacement. */
+    private void endedCard(LinearLayout col, Model.Item ix) {
+        if (ix == null || !ix.isDiscontinued()) return;
+        StringBuilder t = new StringBuilder(s("archived".equals(ix.discontinued) ? R.string.note_discontinued_archived : R.string.note_discontinued));
+        if (!ix.discontinuedNote.isEmpty()) t.append("\n").append(s(R.string.note_discontinued_author, ix.discontinuedNote));
+        noteCard(col, t.toString(), Ui.ORANGE, Ui.ORANGE_SOFT);
+        final Model.Item next = ix.successor != null ? Index.item(ix.successor) : null;
+        if (next == null) return;
+        LinearLayout b = Ui.button(app, s(R.string.action_use_successor, next.name), R.drawable.ic_link, Ui.Kind.SECONDARY, v -> select(next));
+        col.addView(b, Ui.margins(Ui.lp(-1, Ui.dp(40)), 0, 0, 0, 12));
+    }
+
     /** The main action, full width. */
     private void primaryAction(LinearLayout col, View b) {
         col.addView(b, Ui.margins(Ui.lp(-1, Ui.dp(44)), 0, 0, 0, 8));
@@ -213,6 +225,7 @@ final class DetailPanel extends Screen {
         }
 
         if (it.note != null) noteCard(col, it.note, Ui.ORANGE, Ui.ORANGE_SOFT);
+        endedCard(col, indexMeta(it.source, it.id, it));
         if (Model.SRC_WOWI.equals(it.source)) noteCard(col, s(R.string.note_wowi_version), Ui.BLUE, Ui.BLUE_SOFT);
 
         if (!it.summary.isEmpty()) {
@@ -318,6 +331,8 @@ final class DetailPanel extends Screen {
         addSecondary(more, del);
         final View focusTarget = primary != null ? primary : del;
         if (app.landscape) focusTarget.post(focusTarget::requestFocus);
+
+        if (e != null && Model.SRC_GITHUB.equals(e.source)) endedCard(col, Index.item(e.id));
 
         if (e != null && !Model.SRC_ZIP.equals(e.source) && app.store.autoMode() != UpdatePolicy.MODE_OFF) {
             LinearLayout pin = Ui.button(app, s(e.pinned ? R.string.auto_unpin : R.string.auto_pin), R.drawable.ic_upgrade, Ui.Kind.GHOST, v -> {

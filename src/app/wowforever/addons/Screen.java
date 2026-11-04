@@ -138,4 +138,12 @@ abstract class Screen {
         if (Model.SRC_ZIP.equals(src)) return s(R.string.source_zip);
         return "GitHub";
     }
+
+    /** The orange "Discontinued" tag of a row: the author stopped the addon. */
+    TextView discontinuedTag() {
+        TextView t = Ui.oneLine(Ui.text(app, s(R.string.tag_discontinued), 10, Ui.ORANGE, Ui.MEDIUM));
+        t.setBackground(Ui.round(Ui.ORANGE_SOFT, 6));
+        t.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
+        return t;
+    }
 }

@@ -26,6 +26,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **Gamepad and handheld addons.** The **Gamepad & handheld** category collects addons made for playing with a controller or on a handheld: extra buttons for back paddles, wheels, chat without a keyboard, Steam Deck presets. With a controller connected, it comes first.
 - **Favorites.** Found an addon you may want later? Tap the star on its page. It waits in **Browse**, **Favorites**, and nothing is installed until you say so.
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
+- **Know when an addon is over.** If its author stopped it, the addon gets a **Discontinued** tag in **Browse** and **Installed**, and its page shows the addon to use instead.
 - **One-tap install.** The app finds the right folder and the right files for you. If an addon needs another addon, or comes in parts (a core and modules), Runeloader installs what it needs too.
 - **Updates.** See which addons are out of date and update them all at once. Something wrong with an addon? Open it in **Installed** and tap **Reinstall** for a clean copy.
 - **Updates itself.** When a new Runeloader comes out, the app tells you. Tap **Update**, and Android installs it.
