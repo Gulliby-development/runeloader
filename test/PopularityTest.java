@@ -20,6 +20,11 @@ public class PopularityTest {
         Collections.sort(l, Popularity.ORDER);
         check(l.get(0) == questie && l.get(1) == fresh && l.get(2) == bigwigs, "most popular first");
         check(l.get(3) == unknown && l.get(4) == unknown2, "equal scores keep their order");
+        Model.Item ended = item("ended", 9999, 9999);
+        ended.discontinued = "listed";
+        l.add(0, ended);
+        Collections.sort(l, Popularity.ORDER);
+        check(l.get(l.size() - 1) == ended && l.get(0) == questie, "a discontinued addon goes last");
         System.out.println("PopularityTest: ok");
     }
 

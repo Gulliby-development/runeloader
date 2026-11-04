@@ -236,6 +236,11 @@
     <string name="cat_other">Inne</string>
     <string name="cat_gamepad">Pad i handheldy</string>
     <string name="tag_gamepad">Pad</string>
+    <string name="tag_discontinued">Porzucony</string>
+    <string name="note_discontinued">Autor porzucił ten dodatek. Nie dostaje już aktualizacji i może przestać działać po łatce gry.</string>
+    <string name="note_discontinued_archived">Autor zarchiwizował ten dodatek na GitHubie. Nie dostaje już aktualizacji i może przestać działać po łatce gry.</string>
+    <string name="note_discontinued_author">Autor: „%1$s”</string>
+    <string name="action_use_successor">Użyj zamiast tego: %1$s</string>
     <string name="browse_mode_popular">Popularne</string>
     <string name="browse_mode_categories">Kategorie</string>
     <string name="browse_mode_favorites">Ulubione</string>

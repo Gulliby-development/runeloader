@@ -225,6 +225,11 @@
     <string name="cat_other">其他</string>
     <string name="cat_gamepad">手柄与掌机</string>
     <string name="tag_gamepad">手柄</string>
+    <string name="tag_discontinued">已停更</string>
+    <string name="note_discontinued">作者已停止维护此插件。它不会再更新，游戏更新后可能失效。</string>
+    <string name="note_discontinued_archived">作者已在 GitHub 上归档此插件。它不会再更新，游戏更新后可能失效。</string>
+    <string name="note_discontinued_author">作者：“%1$s”</string>
+    <string name="action_use_successor">改用 %1$s</string>
     <string name="browse_mode_popular">热门</string>
     <string name="browse_mode_categories">分类</string>
     <string name="browse_mode_favorites">收藏</string>

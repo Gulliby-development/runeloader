@@ -5,6 +5,7 @@ import java.util.Comparator;
 /**
  * The default Browse order. Downloads count only the latest Forever release, so a fresh release
  * starts near zero; stars keep a well-known addon up while its new release catches up.
+ * A discontinued addon goes below all the others, whatever its score.
  */
 final class Popularity {
 
@@ -16,7 +17,8 @@ final class Popularity {
     }
 
     /** Most popular first; equal scores keep their order (the sort is stable). */
-    static final Comparator<Model.Item> ORDER = (a, b) -> Long.compare(score(b), score(a));
+    static final Comparator<Model.Item> ORDER = (a, b) -> a.isDiscontinued() != b.isDiscontinued()
+            ? (a.isDiscontinued() ? 1 : -1) : Long.compare(score(b), score(a));
 
     private Popularity() {}
 }

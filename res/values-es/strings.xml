@@ -232,6 +232,11 @@
     <string name="cat_other">Otros</string>
     <string name="cat_gamepad">Mando y portátiles</string>
     <string name="tag_gamepad">Mando</string>
+    <string name="tag_discontinued">Abandonado</string>
+    <string name="note_discontinued">El autor dejó este addon. Ya no recibe actualizaciones y puede fallar tras un parche del juego.</string>
+    <string name="note_discontinued_archived">El autor archivó este addon en GitHub. Ya no recibe actualizaciones y puede fallar tras un parche del juego.</string>
+    <string name="note_discontinued_author">El autor: «%1$s»</string>
+    <string name="action_use_successor">Usar %1$s en su lugar</string>
     <string name="browse_mode_popular">Populares</string>
     <string name="browse_mode_categories">Categorías</string>
     <string name="browse_mode_favorites">Favoritos</string>

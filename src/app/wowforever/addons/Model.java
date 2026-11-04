@@ -37,6 +37,11 @@ final class Model {
         long stars = -1;
         String changelog = "";                        // notes of the latest release
         List<Release> releases = new ArrayList<>();   // newest first
+        String discontinued = "";      // the author stopped it: archived | notice | listed; "" when not
+        String discontinuedNote = "";  // the author's own sentence, English
+        String successor;              // item id of the addon to use instead, or null
+
+        boolean isDiscontinued() { return !discontinued.isEmpty(); }
 
         String key() { return source + ":" + id; }
     }

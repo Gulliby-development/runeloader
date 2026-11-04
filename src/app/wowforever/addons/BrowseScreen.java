@@ -424,6 +424,7 @@ final class BrowseScreen extends Screen {
             pad.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
             metaRow.addView(pad, Ui.margins(Ui.lp(-2, -2), 4, 0, 0, 0));
         }
+        if (it.isDiscontinued()) metaRow.addView(discontinuedTag(), Ui.margins(Ui.lp(-2, -2), 4, 0, 0, 0));
         if (meta.length() > 0) metaRow.addView(Ui.oneLine(Ui.text(app, meta.toString(), 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lpw(0, -2, 1), 6, 0, 0, 0));
         mid.addView(metaRow, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));

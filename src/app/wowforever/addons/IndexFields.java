@@ -7,7 +7,8 @@ import java.util.Locale;
 
 /**
  * Maps the optional metadata keys of a runeloader-index entry onto an Item: icon, description,
- * screenshots, category, tags, required addons, stars, changelog and recent releases. Every key may be missing.
+ * screenshots, category, tags, required addons, stars, changelog, recent releases and the
+ * discontinued mark with its successor. Every key may be missing.
  */
 final class IndexFields {
 
@@ -44,6 +45,11 @@ final class IndexFields {
             String d = requirement(req.optString(i, ""));
             if (d != null && !d.equalsIgnoreCase(it.key()) && !it.deps.contains(d)) it.deps.add(d);
         }
+        it.discontinued = str(a, "discontinued").toLowerCase(Locale.ROOT);
+        if (it.discontinued.length() > 20) it.discontinued = "listed";
+        it.discontinuedNote = it.isDiscontinued() ? capTo(str(a, "discontinued_note"), 300) : "";
+        String next = it.isDiscontinued() ? requirement(str(a, "successor")) : null;
+        it.successor = next == null || next.equalsIgnoreCase(it.key()) ? null : next.substring(Model.SRC_GITHUB.length() + 1);
         if (a.has("stars")) it.stars = a.optLong("stars", -1);
         it.changelog = cap(str(a, "changelog"));
         it.releases.clear();
@@ -113,9 +119,13 @@ final class IndexFields {
     }
 
     private static String cap(String s) {
-        if (s.length() <= MAX_TEXT) return s;
-        int cut = s.lastIndexOf(' ', MAX_TEXT);
-        return s.substring(0, cut > MAX_TEXT / 2 ? cut : MAX_TEXT) + "…";
+        return capTo(s, MAX_TEXT);
+    }
+
+    private static String capTo(String s, int max) {
+        if (s.length() <= max) return s;
+        int cut = s.lastIndexOf(' ', max);
+        return s.substring(0, cut > max / 2 ? cut : max) + "…";
     }
 
     private IndexFields() {}
