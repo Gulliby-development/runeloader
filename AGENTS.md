@@ -69,7 +69,7 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 1. In a pull request, bump `versionCode` and `versionName` in `build.gradle.kts` and `build.sh`, and merge it.
 2. Tag the merge commit on `main` with `v<versionName>` and push the tag (`git tag v0.0.1 && git push origin v0.0.1`), or start the Release workflow on `main` from the Actions tab ("Run workflow"), which tags the commit it built.
 3. The workflow checks that the tag matches both build files, builds with Gradle and `build.sh` using the release key, compares the two APKs, refuses a debug signature, and creates a **draft** release with `runeloader-<version>.apk` and its SHA-256.
-4. The owner reviews the draft and publishes it. Only the owner publishes a release.
+4. The owner reviews the draft and publishes it. An agent publishes only when the owner asked for it: it starts the manual run with `publish` set, and the workflow publishes the release after the build.
 
 The workflow needs these repository secrets (Settings, Secrets and variables, Actions). It fails when one is missing:
 
