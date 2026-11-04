@@ -22,6 +22,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 ## Features
 
 - **Search in one place.** Runeloader searches addons built for Forever on GitHub and WoWInterface. No accounts, no API keys. The most popular addons come first, or open **Categories** to browse quests, interface, combat and more.
+- **✓ Forever on every confirmed addon.** A green **✓ Forever** tag marks addons whose author publishes a Forever build. Tap **✓ Forever** next to the search box to hide all the others, in the search and in the categories.
 - **Gamepad and handheld addons.** The **Gamepad & handheld** category collects addons made for playing with a controller or on a handheld: extra buttons for back paddles, wheels, chat without a keyboard, Steam Deck presets. With a controller connected, it comes first.
 - **Favorites.** Found an addon you may want later? Tap the star on its page. It waits in **Browse**, **Favorites**, and nothing is installed until you say so.
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.

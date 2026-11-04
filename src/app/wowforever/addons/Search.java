@@ -26,11 +26,14 @@ final class Search {
     }
 
     static Page page(String query, int from, int count) throws IOException {
-        return page(query, null, from, count);
+        return page(query, null, false, from, count);
     }
 
-    /** A page of one category (a Categories key), or of everything when category is null. */
-    static Page page(String query, String category, int from, int count) throws IOException {
+    /**
+     * A page of one category (a Categories key), or of everything when category is null; verifiedOnly
+     * keeps the addons whose source confirms a Forever build (release.json for GitHub).
+     */
+    static Page page(String query, String category, boolean verifiedOnly, int from, int count) throws IOException {
         String q = query == null ? "" : query.trim();
         Page p = new Page();
         List<Model.Item> all = new ArrayList<>();
@@ -65,6 +68,7 @@ final class Search {
             for (Model.Item it : all) if (Categories.matches(it, category)) in.add(it);
             all = in;
         }
+        if (verifiedOnly) all = verified(all);
         if (indexError != null) {
             if (all.isEmpty()) throw indexError;
             if (p.warning == null) p.warning = MainActivity.friendly(indexError);
@@ -75,17 +79,24 @@ final class Search {
     }
 
     /** How many addons each category holds, without a query: the index and catalog entries it lacks. */
-    static Map<String, Integer> counts() throws IOException {
+    static Map<String, Integer> counts(boolean verifiedOnly) throws IOException {
         Map<String, Integer> n = new HashMap<>();
         for (String k : Categories.KEYS) n.put(k, 0);
         List<Model.Item> all = new ArrayList<>(Index.items(false));
         for (Model.Item c : Catalog.all()) if (Index.item(c.id) == null) all.add(c);
+        if (verifiedOnly) all = verified(all);
         for (Model.Item it : all) {
             String k = Categories.of(it);
             n.put(k, n.get(k) + 1);
             for (String t : Categories.TAGS) if (it.tags.contains(t)) n.put(t, n.get(t) + 1);
         }
         return n;
+    }
+
+    static List<Model.Item> verified(List<Model.Item> items) {
+        List<Model.Item> out = new ArrayList<>();
+        for (Model.Item it : items) if (it.foreverVerified) out.add(it);
+        return out;
     }
 
     private static void add(List<Model.Item> all, Model.Item it, Set<String> keys, Set<String> folders, Set<String> names) {
