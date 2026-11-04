@@ -305,6 +305,10 @@ final class DetailPanel extends Screen {
         }
         if (primary != null) primaryAction(col, primary);
         Ui.FlowRow more = secondaryActions(col);
+        // a clean copy of the installed addon, e.g. one installed by an older version with a bug
+        if (!busy && e != null && !Model.SRC_ZIP.equals(e.source) && !e.updateAvailable && !r.missing) {
+            addSecondary(more, Ui.button(app, s(R.string.action_reinstall), R.drawable.ic_download, Ui.Kind.SECONDARY, v -> app.manager.update(e)));
+        }
         String page = e != null ? e.pageUrl : (r.catalogMatch != null ? r.catalogMatch.pageUrl : (r.main() != null ? r.main().website : null));
         if (page != null) {
             final String p = page;
