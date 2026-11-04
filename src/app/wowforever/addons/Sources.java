@@ -38,6 +38,9 @@ final class Sources {
     static Model.Item itemFor(Model.Entry e) {
         Model.Item c = Catalog.byKey(e.key);
         if (c != null) return c;
+        // the index item carries the required addons, so an update or reinstall adds any that are missing
+        Model.Item ix = Model.SRC_GITHUB.equals(e.source) ? Index.item(e.id) : null;
+        if (ix != null && ix.key().equals(e.key)) return ix;
         Model.Item it = new Model.Item();
         it.source = e.source;
         it.id = e.id;

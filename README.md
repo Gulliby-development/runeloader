@@ -26,7 +26,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **Favorites.** Found an addon you may want later? Tap the star on its page. It waits in **Browse**, **Favorites**, and nothing is installed until you say so.
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
 - **One-tap install.** The app finds the right folder and the right files for you. If an addon needs another addon, or comes in parts (a core and modules), Runeloader installs what it needs too.
-- **Updates.** See which addons are out of date and update them all at once.
+- **Updates.** See which addons are out of date and update them all at once. Something wrong with an addon? Open it in **Installed** and tap **Reinstall** for a clean copy.
 - **Updates itself.** When a new Runeloader comes out, the app tells you. Tap **Update**, and Android installs it.
 - **Auto-update.** Turn it on in **Settings**, and Runeloader checks for updates in the background, even when the app is closed. It can tell you, or install the updates for you.
 - **Your own zips.** Got an addon from somewhere else? Install it from a zip file.
