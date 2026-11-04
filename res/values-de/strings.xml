@@ -337,4 +337,8 @@
     <string name="self_not_newer">Die geladene Datei ist nicht neuer als %1$s.</string>
     <string name="self_cancelled">Update abgebrochen.</string>
     <string name="self_conflict">Dieses Update ist mit einem anderen Schlüssel signiert. Entferne Runeloader und installiere die neue APK von Hand.</string>
+    <string name="filter_verified_on">Nur Addons mit bestätigtem Forever-Build</string>
+    <string name="filter_verified_off">Alle Addons, mit oder ohne bestätigten Forever-Build</string>
+    <string name="verified_only_empty">Kein Addon mit bestätigtem Forever-Build passt. Der Filter ✓ Forever ist an.</string>
+    <string name="action_show_all">Alle zeigen</string>
 </resources>

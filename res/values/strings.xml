@@ -352,4 +352,9 @@
     <string name="self_not_newer">The downloaded file is not newer than %1$s.</string>
     <string name="self_cancelled">Update cancelled.</string>
     <string name="self_conflict">This update is signed with a different key. Remove Runeloader and install the new APK by hand.</string>
+    <string name="filter_verified" translatable="false">Forever</string>
+    <string name="filter_verified_on">Only addons with a confirmed Forever build</string>
+    <string name="filter_verified_off">All addons, with or without a confirmed Forever build</string>
+    <string name="verified_only_empty">No addon with a confirmed Forever build matches. The filter ✓ Forever is on.</string>
+    <string name="action_show_all">Show all</string>
 </resources>

@@ -147,6 +147,7 @@ final class BrowseScreen extends Screen {
         });
         if (categoriesMode && category != null) sr.addView(categoryBack(), Ui.margins(Ui.lp(-2, Ui.dp(42)), 0, 0, 8, 0));
         sr.addView(app.searchField, Ui.lpw(0, Ui.dp(42), 1));
+        if (mode != MODE_FAVORITES) sr.addView(verifiedToggle(), Ui.margins(Ui.lp(-2, Ui.dp(42)), 8, 0, 0, 0));
         app.headerBox.addView(sr);
 
         if (app.store.gameRoot() == null || !app.store.gameReady()) gameFolderBanner();
@@ -188,6 +189,39 @@ final class BrowseScreen extends Screen {
         seg.setContentDescription(s(label));
         seg.setOnClickListener(v -> setMode(segMode, null));
         return seg;
+    }
+
+    /**
+     * "✓ Forever": lists only addons whose source confirms a Forever build, in Popular, the search and
+     * the categories. Next to a category's back button on a narrow list it keeps only its icon.
+     */
+    private View verifiedToggle() {
+        final boolean on = app.store.verifiedOnly();
+        LinearLayout b = Ui.hbox(app);
+        b.setGravity(android.view.Gravity.CENTER);
+        b.setBackground(Ui.selectable(on ? Ui.GREEN_SOFT : Ui.SURFACE2, 12, on ? Ui.GREEN : Ui.STROKE));
+        boolean label = !(categoriesMode && category != null && app.layout.listDp < ROW_LABELS_DP);
+        b.setPadding(Ui.dp(label ? 10 : 11), 0, Ui.dp(label ? 12 : 11), 0);
+        b.setFocusable(true);
+        b.setClickable(true);
+        int fg = on ? Ui.GREEN : Ui.TEXT2;
+        b.addView(Ui.icon(app, R.drawable.ic_check, fg, 17));
+        if (label) b.addView(Ui.oneLine(Ui.text(app, s(R.string.filter_verified), 13, fg, on ? Ui.MEDIUM : Ui.REGULAR)), Ui.margins(Ui.lp(-2, -2), 5, 0, 0, 0));
+        String desc = s(on ? R.string.filter_verified_on : R.string.filter_verified_off);
+        b.setContentDescription(desc);
+        b.setTooltipText(desc);
+        b.setOnClickListener(v -> setVerifiedOnly(!on));
+        return b;
+    }
+
+    private void setVerifiedOnly(boolean on) {
+        app.store.setVerifiedOnly(on);
+        counts = null;
+        app.selected = null;
+        app.results.remove(RESULTS);
+        app.render();
+        if (!showGrid()) runSearch(false);
+        app.snack(s(on ? R.string.filter_verified_on : R.string.filter_verified_off));
     }
 
     /** Back to the grid, named after the open category; the search then looks inside it. */
@@ -287,7 +321,7 @@ final class BrowseScreen extends Screen {
             java.util.Map<String, Integer> got = null;
             String err = null;
             try {
-                got = Search.counts();
+                got = Search.counts(app.store.verifiedOnly());
             } catch (Exception e) {
                 err = MainActivity.friendly(e);
             }
@@ -319,6 +353,9 @@ final class BrowseScreen extends Screen {
                 app.bodyBox.addView(emptyState(R.drawable.ic_star_outline, s(R.string.favorites_empty_title), s(R.string.favorites_empty_text), new View[0]));
             } else if (mode == MODE_FAVORITES) {
                 app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found), s(R.string.favorites_no_match), new View[0]));
+            } else if (app.store.verifiedOnly()) {
+                app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found), s(R.string.verified_only_empty),
+                        Ui.button(app, s(R.string.action_show_all), R.drawable.ic_apps, Ui.Kind.PRIMARY, v -> setVerifiedOnly(false))));
             } else {
                 app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found),
                         s(categoriesMode && category != null ? R.string.category_empty_text : R.string.github_empty_text), new View[0]));
@@ -375,6 +412,12 @@ final class BrowseScreen extends Screen {
         tag.setBackground(Ui.round(Ui.SURFACE3, 6));
         tag.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
         metaRow.addView(tag, Ui.lp(-2, -2));
+        if (it.foreverVerified) {
+            TextView ok = Ui.oneLine(Ui.text(app, s(R.string.pill_forever), 10, Ui.GREEN, Ui.MEDIUM));
+            ok.setBackground(Ui.round(Ui.GREEN_SOFT, 6));
+            ok.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
+            metaRow.addView(ok, Ui.margins(Ui.lp(-2, -2), 4, 0, 0, 0));
+        }
         if (it.tags.contains(Categories.GAMEPAD)) {
             TextView pad = Ui.oneLine(Ui.text(app, s(R.string.tag_gamepad), 10, Ui.ACCENT, Ui.MEDIUM));
             pad.setBackground(Ui.round(Ui.ACCENT_SOFT, 6));
@@ -447,6 +490,7 @@ final class BrowseScreen extends Screen {
         final String q = query;
         final String cat = categoriesMode ? category : null;
         final boolean favs = mode == MODE_FAVORITES;
+        final boolean verifiedOnly = app.store.verifiedOnly();
         final int gen = ++searchGen;
         final List<Model.Item> prev = app.results.get(RESULTS);
         final int offset = more && prev != null ? prev.size() : 0;
@@ -469,7 +513,7 @@ final class BrowseScreen extends Screen {
                         got.add(hit != null ? hit : Sources.GitHub.info(repo));
                     }
                 } else {
-                    Search.Page page = Search.page(q, cat, offset, PAGE);
+                    Search.Page page = Search.page(q, cat, verifiedOnly, offset, PAGE);
                     got = page.items;
                     moreAvail = page.more;
                     warn = page.warning;

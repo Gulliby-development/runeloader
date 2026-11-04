@@ -342,4 +342,8 @@
     <string name="self_not_newer">O arquivo baixado não é mais novo que %1$s.</string>
     <string name="self_cancelled">Atualização cancelada.</string>
     <string name="self_conflict">Esta atualização foi assinada com outra chave. Desinstale o Runeloader e instale o novo APK manualmente.</string>
+    <string name="filter_verified_on">Só addons com versão Forever confirmada</string>
+    <string name="filter_verified_off">Todos os addons, com ou sem versão Forever confirmada</string>
+    <string name="verified_only_empty">Nenhum addon com versão Forever confirmada corresponde. O filtro ✓ Forever está ativo.</string>
+    <string name="action_show_all">Mostrar todos</string>
 </resources>

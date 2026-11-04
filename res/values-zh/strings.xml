@@ -332,4 +332,8 @@
     <string name="self_not_newer">下载的文件不比 %1$s 新。</string>
     <string name="self_cancelled">已取消更新。</string>
     <string name="self_conflict">此更新使用了不同的签名密钥。请卸载 Runeloader 后手动安装新的 APK。</string>
+    <string name="filter_verified_on">仅显示已确认支持 Forever 的插件</string>
+    <string name="filter_verified_off">显示全部插件，无论是否确认支持 Forever</string>
+    <string name="verified_only_empty">没有已确认支持 Forever 的匹配插件。已开启 ✓ Forever 筛选。</string>
+    <string name="action_show_all">显示全部</string>
 </resources>

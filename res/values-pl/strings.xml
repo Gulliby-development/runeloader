@@ -349,4 +349,8 @@
     <string name="self_not_newer">Pobrany plik nie jest nowszy niż %1$s.</string>
     <string name="self_cancelled">Aktualizacja anulowana.</string>
     <string name="self_conflict">Ta aktualizacja jest podpisana innym kluczem. Odinstaluj Runeloader i zainstaluj nowy APK ręcznie.</string>
+    <string name="filter_verified_on">Tylko dodatki z potwierdzoną wersją Forever</string>
+    <string name="filter_verified_off">Wszystkie dodatki, z potwierdzoną wersją Forever lub bez</string>
+    <string name="verified_only_empty">Żaden dodatek z potwierdzoną wersją Forever nie pasuje. Filtr ✓ Forever jest włączony.</string>
+    <string name="action_show_all">Pokaż wszystkie</string>
 </resources>

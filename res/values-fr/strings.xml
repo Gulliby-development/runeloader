@@ -341,4 +341,8 @@
     <string name="self_not_newer">Le fichier téléchargé n’est pas plus récent que %1$s.</string>
     <string name="self_cancelled">Mise à jour annulée.</string>
     <string name="self_conflict">Cette mise à jour est signée avec une autre clé. Désinstallez Runeloader et installez le nouvel APK à la main.</string>
+    <string name="filter_verified_on">Seulement les addons avec une version Forever confirmée</string>
+    <string name="filter_verified_off">Tous les addons, avec ou sans version Forever confirmée</string>
+    <string name="verified_only_empty">Aucun addon avec une version Forever confirmée ne correspond. Le filtre ✓ Forever est actif.</string>
+    <string name="action_show_all">Tout afficher</string>
 </resources>

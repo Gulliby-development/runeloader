@@ -79,6 +79,9 @@ final class Store {
     File root() { String r = gameRoot(); return r == null ? null : new File(r); }
 
     /** True when the user chose a plain folder and addons go straight into it. */
+    /** Browse lists only addons whose source confirms a Forever build. */
+    boolean verifiedOnly() { return prefs.getBoolean("verifiedOnly", false); }
+    void setVerifiedOnly(boolean b) { prefs.edit().putBoolean("verifiedOnly", b).apply(); }
     boolean addonsDirect() { return prefs.getBoolean("addonsDirect", false); }
     void setAddonsDirect(boolean b) { prefs.edit().putBoolean("addonsDirect", b).apply(); }
 

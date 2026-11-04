@@ -349,4 +349,8 @@
     <string name="self_not_newer">Загруженный файл не новее %1$s.</string>
     <string name="self_cancelled">Обновление отменено.</string>
     <string name="self_conflict">Обновление подписано другим ключом. Удалите Runeloader и установите новый APK вручную.</string>
+    <string name="filter_verified_on">Только аддоны с подтверждённой сборкой Forever</string>
+    <string name="filter_verified_off">Все аддоны, с подтверждённой сборкой Forever и без</string>
+    <string name="verified_only_empty">Нет аддонов с подтверждённой сборкой Forever. Включён фильтр ✓ Forever.</string>
+    <string name="action_show_all">Показать все</string>
 </resources>
