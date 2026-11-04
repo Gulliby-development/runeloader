@@ -71,6 +71,12 @@ jobs:
           javac -d /tmp/a src/app/wowforever/addons/AssetName.java test/AssetNameTest.java
           java -cp /tmp/a app.wowforever.addons.AssetNameTest
 
+      - name: Per-module releases
+        run: |
+          mkdir -p /tmp/mo
+          javac -d /tmp/mo src/app/wowforever/addons/Modules.java test/ModulesTest.java
+          java -cp /tmp/mo app.wowforever.addons.ModulesTest
+
       - name: App self-update versions
         run: |
           mkdir -p /tmp/v
