@@ -56,7 +56,7 @@
 
     <string name="browse_title">Addons entdecken</string>
     <string name="browse_subtitle">Nur Builds für WoW Forever · Interface %1$s</string>
-    <string name="browse_hint_github">Suchen oder einen Link github.com/owner/repo einfügen</string>
+    <string name="browse_hint_github">Suchen oder GitHub-Link einfügen</string>
     <string name="browse_hint_category">In dieser Kategorie suchen</string>
     <string name="browse_set_folder">Ordner wählen</string>
     <string name="browse_no_game">Kein Spielordner gewählt. Installieren ist aus.</string>

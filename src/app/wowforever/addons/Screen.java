@@ -139,10 +139,10 @@ abstract class Screen {
         return "GitHub";
     }
 
-    /** The orange "Discontinued" tag of a row: the author stopped the addon. */
+    /** The red "Discontinued" tag of a row: the author stopped the addon. */
     TextView discontinuedTag() {
-        TextView t = Ui.oneLine(Ui.text(app, s(R.string.tag_discontinued), 10, Ui.ORANGE, Ui.MEDIUM));
-        t.setBackground(Ui.round(Ui.ORANGE_SOFT, 6));
+        TextView t = Ui.oneLine(Ui.text(app, s(R.string.tag_discontinued), 10, Ui.RED, Ui.MEDIUM));
+        t.setBackground(Ui.round(Ui.RED_SOFT, 6));
         t.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
         return t;
     }

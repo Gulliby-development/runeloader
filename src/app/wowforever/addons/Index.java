@@ -177,23 +177,38 @@ final class Index {
         return folder == null ? null : byFolder.get(folder.toLowerCase(Locale.ROOT));
     }
 
-    /** Name prefix first, then name, author, summary or folder contains the query. */
+    /**
+     * The exact name first, then names and repo names that start with the query, then a word of the
+     * name, then anything that contains it (name, repo, author, summary, folder). Equal ranks keep the index order.
+     */
     static List<Model.Item> search(String q, int from, int count) throws IOException {
         List<Model.Item> src = items(false);
         String needle = q == null ? "" : q.trim().toLowerCase(Locale.ROOT);
-        List<Model.Item> hits = new ArrayList<>();
-        List<Model.Item> tail = new ArrayList<>();
+        List<List<Model.Item>> ranks = new ArrayList<>();
+        for (int i = 0; i < 5; i++) ranks.add(new ArrayList<>());
         for (Model.Item it : src) {
-            if (needle.isEmpty()) { hits.add(it); continue; }
-            String n = it.name.toLowerCase(Locale.ROOT);
-            if (n.startsWith(needle) || it.id.toLowerCase(Locale.ROOT).contains(needle)) hits.add(it);
-            else if (n.contains(needle) || it.author.toLowerCase(Locale.ROOT).contains(needle)
-                    || it.summary.toLowerCase(Locale.ROOT).contains(needle)) tail.add(it);
-            else for (String d : it.folders) if (d.toLowerCase(Locale.ROOT).contains(needle)) { tail.add(it); break; }
+            int r = needle.isEmpty() ? 0 : rank(it, needle);
+            if (r >= 0) ranks.get(r).add(it);
         }
-        hits.addAll(tail);
+        List<Model.Item> hits = new ArrayList<>();
+        for (List<Model.Item> l : ranks) hits.addAll(l);
         if (from >= hits.size()) return new ArrayList<>();
         return new ArrayList<>(hits.subList(from, Math.min(hits.size(), from + count)));
+    }
+
+    /** 0 (best) to 4, or -1 when the item does not match the lower-case query. */
+    static int rank(Model.Item it, String needle) {
+        String n = it.name.toLowerCase(Locale.ROOT);
+        String id = it.id.toLowerCase(Locale.ROOT);
+        String repoName = id.substring(id.indexOf('/') + 1);
+        String bare = needle.replaceAll("[^\\p{L}\\p{N}]", "");
+        if (n.equals(needle) || (!bare.isEmpty() && n.replaceAll("[^\\p{L}\\p{N}]", "").equals(bare))) return 0;
+        if (n.startsWith(needle) || repoName.startsWith(needle)) return 1;
+        if (n.contains(" " + needle) || n.contains("-" + needle) || n.contains("_" + needle)) return 2;
+        if (n.contains(needle) || id.contains(needle)) return 3;
+        if (it.author.toLowerCase(Locale.ROOT).contains(needle) || it.summary.toLowerCase(Locale.ROOT).contains(needle)) return 4;
+        for (String d : it.folders) if (d.toLowerCase(Locale.ROOT).contains(needle)) return 4;
+        return -1;
     }
 
     private Index() {}

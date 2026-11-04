@@ -169,16 +169,20 @@ final class DetailPanel extends Screen {
         col.addView(n, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 12));
     }
 
-    /** The index says the author stopped this addon: say so, quote the author, offer the replacement. */
-    private void endedCard(LinearLayout col, Model.Item ix) {
-        if (ix == null || !ix.isDiscontinued()) return;
+    /**
+     * The index says the author stopped this addon: say so, quote the author, and offer the replacement
+     * (as the main action when lead). Returns that button, or null without a listed successor.
+     */
+    private View endedCard(LinearLayout col, Model.Item ix, boolean lead) {
+        if (ix == null || !ix.isDiscontinued()) return null;
         StringBuilder t = new StringBuilder(s("archived".equals(ix.discontinued) ? R.string.note_discontinued_archived : R.string.note_discontinued));
         if (!ix.discontinuedNote.isEmpty()) t.append("\n").append(s(R.string.note_discontinued_author, ix.discontinuedNote));
-        noteCard(col, t.toString(), Ui.ORANGE, Ui.ORANGE_SOFT);
+        noteCard(col, t.toString(), Ui.RED, Ui.RED_SOFT);
         final Model.Item next = ix.successor != null ? Index.item(ix.successor) : null;
-        if (next == null) return;
-        LinearLayout b = Ui.button(app, s(R.string.action_use_successor, next.name), R.drawable.ic_link, Ui.Kind.SECONDARY, v -> select(next));
-        col.addView(b, Ui.margins(Ui.lp(-1, Ui.dp(40)), 0, 0, 0, 12));
+        if (next == null) return null;
+        LinearLayout b = Ui.button(app, s(R.string.action_use_successor, next.name), R.drawable.ic_link, lead ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> select(next));
+        primaryAction(col, b);
+        return b;
     }
 
     /** The main action, full width. */
@@ -203,17 +207,22 @@ final class DetailPanel extends Screen {
         List<View> pills = new ArrayList<>();
         if (e != null) pills.add(LibraryScreen.iconPill(app, s(R.string.pill_installed), R.drawable.ic_check, Ui.GREEN, Ui.GREEN_SOFT));
         pills.add(it.foreverVerified ? Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT) : Ui.pill(app, s(R.string.pill_forever_unverified), Ui.ORANGE, Ui.ORANGE_SOFT));
+        Model.Item ended = indexMeta(it.source, it.id, it);
+        if (ended.isDiscontinued()) pills.add(Ui.pill(app, s(R.string.tag_discontinued), Ui.RED, Ui.RED_SOFT));
         detailHeader(col, it.iconUrl, it.name, byline(it.author, sourceName(it.source)), favoriteButton(it), pills.toArray(new View[0]));
 
+        // A discontinued addon leads with its notice and the addon to use instead; installing it stays possible.
+        View successor = endedCard(col, ended, true);
         if (app.busy.containsKey(it.key())) {
             LinearLayout b = Ui.button(app, app.busy.get(it.key()), 0, Ui.Kind.SECONDARY, null);
             b.setEnabled(false);
             primaryAction(col, b);
         } else {
             String label = s(e == null ? R.string.action_install : R.string.action_reinstall);
-            LinearLayout b = Ui.button(app, label, R.drawable.ic_download, e == null ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
+            LinearLayout b = Ui.button(app, label, R.drawable.ic_download, e == null && successor == null ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
             primaryAction(col, b);
-            if (app.landscape) b.post(b::requestFocus);
+            View focus = successor != null ? successor : b;
+            if (app.landscape) focus.post(focus::requestFocus);
         }
         boolean canRemove = e != null && !app.busy.containsKey(it.key());
         if (it.pageUrl != null || canRemove) {
@@ -225,7 +234,6 @@ final class DetailPanel extends Screen {
         }
 
         if (it.note != null) noteCard(col, it.note, Ui.ORANGE, Ui.ORANGE_SOFT);
-        endedCard(col, indexMeta(it.source, it.id, it));
         if (Model.SRC_WOWI.equals(it.source)) noteCard(col, s(R.string.note_wowi_version), Ui.BLUE, Ui.BLUE_SOFT);
 
         if (!it.summary.isEmpty()) {
@@ -288,6 +296,8 @@ final class DetailPanel extends Screen {
             if (r.compatible) pills.add(Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT));
             else pills.add(Ui.pill(app, s(R.string.pill_not_forever), Ui.ORANGE, Ui.ORANGE_SOFT));
         }
+        Model.Item ended = e != null && Model.SRC_GITHUB.equals(e.source) ? Index.item(e.id) : null;
+        if (ended != null && ended.isDiscontinued()) pills.add(Ui.pill(app, s(R.string.tag_discontinued), Ui.RED, Ui.RED_SOFT));
         Model.Item fav = null;
         if (e != null && !Model.SRC_ZIP.equals(e.source)) {
             fav = Model.SRC_GITHUB.equals(e.source) ? Index.item(e.id) : null;
@@ -332,7 +342,7 @@ final class DetailPanel extends Screen {
         final View focusTarget = primary != null ? primary : del;
         if (app.landscape) focusTarget.post(focusTarget::requestFocus);
 
-        if (e != null && Model.SRC_GITHUB.equals(e.source)) endedCard(col, Index.item(e.id));
+        if (e != null && Model.SRC_GITHUB.equals(e.source)) endedCard(col, Index.item(e.id), false);
 
         if (e != null && !Model.SRC_ZIP.equals(e.source) && app.store.autoMode() != UpdatePolicy.MODE_OFF) {
             LinearLayout pin = Ui.button(app, s(e.pinned ? R.string.auto_unpin : R.string.auto_pin), R.drawable.ic_upgrade, Ui.Kind.GHOST, v -> {
