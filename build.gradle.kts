@@ -11,8 +11,8 @@ android {
         applicationId = "app.wowforever.addons"
         minSdk = 29
         targetSdk = 34
-        versionCode = 3
-        versionName = "0.0.3"
+        versionCode = 4
+        versionName = "0.0.4"
     }
 
     // The sources keep the flat layout that build.sh uses.
