@@ -2,11 +2,17 @@ name: Release
 
 # Build the APK with the release key and attach it to a draft GitHub Release, which the
 # owner reviews and publishes. Start it by pushing a tag v<versionName> (for example v0.0.1),
-# or with "Run workflow" on main, which tags the commit it built.
+# or with "Run workflow" on main, which tags the commit it built. A manual run with
+# "publish" set publishes the release at once instead of leaving a draft.
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish the release instead of leaving a draft"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -144,6 +150,12 @@ jobs:
             gh release create "$TAG" dist/* --draft --verify-tag --generate-notes \
               --title "Runeloader $VERSION" --repo "$GITHUB_REPOSITORY"
           fi
+
+      - name: Publish the release (manual run with publish)
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$TAG" --draft=false --latest --repo "$GITHUB_REPOSITORY"
 
       - name: Remove the keystore
         if: always()
