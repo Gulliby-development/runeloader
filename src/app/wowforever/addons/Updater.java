@@ -65,7 +65,7 @@ final class Updater {
         Model.Release rel = Sources.latest(item);
         // dependencies first
         List<Model.Item> deps = new ArrayList<>(rel.deps);
-        for (String d : item.deps) { Model.Item c = Catalog.byKey(d); if (c != null) deps.add(c); }
+        for (String d : item.deps) { Model.Item c = dependency(d); if (c != null) deps.add(c); }
         for (Model.Item d : deps) {
             if (store.entry(d.key()) != null) continue;
             installLocked(d, addons, done, seen, depth + 1, p);
@@ -114,6 +114,26 @@ final class Updater {
         e.pinned = old != null && old.pinned;
         store.put(e);
         done.add(item.name);
+    }
+
+    /** A dependency key ("github:owner/repo#Module") as an item: the catalog first, then the index. */
+    static Model.Item dependency(String key) {
+        Model.Item c = Catalog.byKey(key);
+        if (c != null || key == null || !key.startsWith(Model.SRC_GITHUB + ":")) return c;
+        Index.loadCached();
+        Model.Item ix = Index.item(key.substring(Model.SRC_GITHUB.length() + 1));
+        if (ix != null) return ix;
+        // Not in the index (yet): a bare item still installs from GitHub.
+        String id = key.substring(Model.SRC_GITHUB.length() + 1);
+        String repo = Sources.GitHub.normalize(Modules.repoOf(id));
+        if (repo == null) return null;
+        Model.Item it = new Model.Item();
+        it.source = Model.SRC_GITHUB;
+        it.id = Modules.id(repo, Modules.moduleOf(id));
+        it.name = it.id.substring(it.id.indexOf('/') + 1).replace("#", ": ");
+        it.author = repo.substring(0, repo.indexOf('/'));
+        it.pageUrl = "https://github.com/" + repo;
+        return it;
     }
 
     static boolean containsIgnoreCase(List<String> l, String s) {

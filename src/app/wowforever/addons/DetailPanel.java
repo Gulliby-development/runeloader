@@ -245,8 +245,8 @@ final class DetailPanel extends Screen {
             for (String d : it.deps) { Model.Item c = Catalog.byKey(d); names.add(c != null ? c.name : d); }
             infoRow(col, s(R.string.info_dependencies), s(R.string.info_dependencies_auto, String.join(", ", names)));
         }
-        infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(it.source) ? "github.com/" + it.id : sourceName(it.source) + " #" + it.id);
-        DetailExtras.releases(app, col, meta.releases, e != null ? e.version : null, Model.SRC_GITHUB.equals(it.source) ? it.id : null);
+        infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(it.source) ? "github.com/" + Modules.repoOf(it.id) : sourceName(it.source) + " #" + it.id);
+        DetailExtras.releases(app, col, meta.releases, e != null ? e.version : null, Model.SRC_GITHUB.equals(it.source) ? Modules.repoOf(it.id) : null);
     }
 
     /** The index entry for a GitHub addon, so catalog and installed cards get its metadata too. */
@@ -342,8 +342,8 @@ final class DetailPanel extends Screen {
         for (Model.LocalAddon a : r.folders) fs.add(a.folder);
         if (fs.isEmpty() && e != null) fs.addAll(e.folders);
         infoRow(col, s(R.string.info_folders), joinShort(fs, 8));
-        if (e != null && !Model.SRC_ZIP.equals(e.source)) infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(e.source) ? "github.com/" + e.id : sourceName(e.source) + " #" + e.id);
-        DetailExtras.releases(app, col, meta.releases, r.version, e != null && Model.SRC_GITHUB.equals(e.source) ? e.id : null);
+        if (e != null && !Model.SRC_ZIP.equals(e.source)) infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(e.source) ? "github.com/" + Modules.repoOf(e.id) : sourceName(e.source) + " #" + e.id);
+        DetailExtras.releases(app, col, meta.releases, r.version, e != null && Model.SRC_GITHUB.equals(e.source) ? Modules.repoOf(e.id) : null);
     }
 
     private static String shortVer(String v) {

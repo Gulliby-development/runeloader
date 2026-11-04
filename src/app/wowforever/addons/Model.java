@@ -15,7 +15,7 @@ final class Model {
     /** Something that can be installed: a catalog entry or a search result. */
     static final class Item {
         String source;        // github | wowi
-        String id;            // owner/repo | numeric id
+        String id;            // owner/repo (owner/repo#Module for one module) | numeric id
         String name;
         String author = "";
         String summary = "";

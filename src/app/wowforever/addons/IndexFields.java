@@ -7,7 +7,7 @@ import java.util.Locale;
 
 /**
  * Maps the optional metadata keys of a runeloader-index entry onto an Item: icon, description,
- * screenshots, category, tags, stars, changelog and recent releases. Every key may be missing.
+ * screenshots, category, tags, required addons, stars, changelog and recent releases. Every key may be missing.
  */
 final class IndexFields {
 
@@ -39,13 +39,18 @@ final class IndexFields {
             String t = tags.optString(i, "").trim().toLowerCase(Locale.ROOT);
             if (!t.isEmpty() && !it.tags.contains(t)) it.tags.add(t);
         }
+        JSONArray req = a.optJSONArray("requires");
+        if (req != null) for (int i = 0; i < req.length() && i < MAX_TAGS; i++) {
+            String d = requirement(req.optString(i, ""));
+            if (d != null && !d.equalsIgnoreCase(it.key()) && !it.deps.contains(d)) it.deps.add(d);
+        }
         if (a.has("stars")) it.stars = a.optLong("stars", -1);
         it.changelog = cap(str(a, "changelog"));
         it.releases.clear();
         JSONArray rels = a.optJSONArray("releases");
         if (rels != null) for (int i = 0; i < rels.length() && it.releases.size() < MAX_RELEASES; i++) {
             JSONObject r = rels.optJSONObject(i);
-            if (r != null) it.releases.add(release(r, it.id));
+            if (r != null) it.releases.add(release(r, Modules.repoOf(it.id)));
         }
         if (it.changelog.isEmpty() && !it.releases.isEmpty()) it.changelog = it.releases.get(0).changelog;
     }
@@ -64,6 +69,16 @@ final class IndexFields {
         x.changelog = cap(str(r, "changelog"));
         if (repo != null && !x.tag.isEmpty()) x.changelogUrl = "https://github.com/" + repo + "/releases/tag/" + Http.enc(x.tag);
         return x;
+    }
+
+    /** An index "requires" key ("owner/repo" or "owner/repo#Module") as a dependency key, or null when malformed. */
+    static String requirement(String key) {
+        String repo = Sources.GitHub.normalize(Modules.repoOf(key.trim()));
+        if (repo == null || key.indexOf('/') != key.lastIndexOf('/')) return null;
+        String module = Modules.moduleOf(key.trim());
+        String id = Modules.id(repo, module);
+        if (module != null && id.equals(repo)) return null;
+        return Model.SRC_GITHUB + ":" + id;
     }
 
     /** The index's category keys, mapped onto the app's own categories; 0 when unknown. */

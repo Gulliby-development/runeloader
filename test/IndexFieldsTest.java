@@ -21,6 +21,11 @@ public class IndexFieldsTest {
         && !Categories.matches(it, Categories.GAMEPAD), "gamepad tag selects across categories");
     check(Categories.key("gamepad").isEmpty(), "gamepad is a tag, never a category value");
     check(Categories.order(true)[0].equals(Categories.GAMEPAD) && Categories.order(true).length == Categories.KEYS.length, "gamepad tile first with a controller");
+    Model.Item mod = new Model.Item(); mod.source = "github"; mod.id = "o/IF#Wheel";
+    IndexFields.fill(new JSONObject("{\"repo\":\"o/IF\",\"module\":\"Wheel\",\"requires\":[\"o/IF\",\"x/Lib#Core2\",\"o/IF#Wheel\",\"bad\",\"a/b/c\",\"o/IF\"]}"), base, mod);
+    check(mod.deps.size() == 2 && mod.deps.get(0).equals("github:o/IF") && mod.deps.get(1).equals("github:x/Lib#Core2"),
+        "requires become dependency keys, without itself or malformed keys");
+    check(IndexFields.requirement("o/r#../x") == null, "unsafe module names dropped");
     check(it.stars == 42, "stars");
     check(it.releases.size() == 2 && it.releases.get(0).prerelease && it.releases.get(0).released > 0, "releases parsed");
     check(it.releases.get(1).version.equals("v1.0"), "version falls back to the tag");
