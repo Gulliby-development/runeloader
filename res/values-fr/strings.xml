@@ -56,7 +56,7 @@
 
     <string name="browse_title">Parcourir les addons</string>
     <string name="browse_subtitle">Versions WoW Forever uniquement · interface %1$s</string>
-    <string name="browse_hint_github">Rechercher, ou coller un lien github.com/owner/repo</string>
+    <string name="browse_hint_github">Rechercher ou coller un lien GitHub</string>
     <string name="browse_hint_category">Rechercher dans cette catégorie</string>
     <string name="browse_set_folder">Choisir le dossier</string>
     <string name="browse_no_game">Dossier du jeu non défini. Installation impossible.</string>
