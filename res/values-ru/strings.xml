@@ -238,6 +238,16 @@
     <string name="tag_gamepad">Геймпад</string>
     <string name="browse_mode_popular">Популярные</string>
     <string name="browse_mode_categories">Категории</string>
+    <string name="browse_mode_favorites">Избранное</string>
+    <string name="browse_hint_favorites">Поиск в избранном</string>
+    <string name="favorites_empty_title">В избранном пока пусто</string>
+    <string name="favorites_empty_text">Нажмите на звёздочку на странице аддона, чтобы сохранить его здесь без установки.</string>
+    <string name="favorites_no_match">В избранном ничего не найдено.</string>
+    <string name="favorite_on">В избранном</string>
+    <string name="favorite_add">Добавить в избранное</string>
+    <string name="favorite_remove">Убрать из избранного</string>
+    <string name="favorite_added">Добавлено в избранное</string>
+    <string name="favorite_removed">Убрано из избранного</string>
     <string name="browse_all_categories">Все категории</string>
     <string name="addon_dbm_dungeons">DBM — Подземелья</string>
     <string name="addon_dbm_vanilla">DBM — Классические рейды</string>

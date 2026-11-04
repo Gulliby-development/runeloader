@@ -111,7 +111,7 @@ final class DetailPanel extends Screen {
     }
 
     /** Hero: logo with a mint glow, name, author and source, then the status pills. */
-    private void detailHeader(LinearLayout col, String icon, String name, String byline, View... pills) {
+    private void detailHeader(LinearLayout col, String icon, String name, String byline, View action, View... pills) {
         LinearLayout h = Ui.hbox(app);
         // Let the glow spill past the hero row.
         h.setClipChildren(false);
@@ -130,6 +130,7 @@ final class DetailPanel extends Screen {
         tb.addView(Ui.text(app, name, 18.5f, Ui.TEXT, Ui.BOLD));
         if (byline != null && !byline.isEmpty()) tb.addView(Ui.text(app, byline, 12.5f, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-2, -2), 0, 4, 0, 0));
         h.addView(tb, Ui.margins(Ui.lpw(0, -2, 1), 14, 0, 0, 0));
+        if (action != null) h.addView(action, Ui.margins(Ui.lp(Ui.dp(40), Ui.dp(40)), 8, 0, 0, 0));
         col.addView(h, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 12));
         if (pills.length > 0) {
             Ui.FlowRow badges = new Ui.FlowRow(app, 6, 6);
@@ -190,7 +191,7 @@ final class DetailPanel extends Screen {
         List<View> pills = new ArrayList<>();
         if (e != null) pills.add(LibraryScreen.iconPill(app, s(R.string.pill_installed), R.drawable.ic_check, Ui.GREEN, Ui.GREEN_SOFT));
         pills.add(it.foreverVerified ? Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT) : Ui.pill(app, s(R.string.pill_forever_unverified), Ui.ORANGE, Ui.ORANGE_SOFT));
-        detailHeader(col, it.iconUrl, it.name, byline(it.author, sourceName(it.source)), pills.toArray(new View[0]));
+        detailHeader(col, it.iconUrl, it.name, byline(it.author, sourceName(it.source)), favoriteButton(it), pills.toArray(new View[0]));
 
         if (app.busy.containsKey(it.key())) {
             LinearLayout b = Ui.button(app, app.busy.get(it.key()), 0, Ui.Kind.SECONDARY, null);
@@ -274,7 +275,15 @@ final class DetailPanel extends Screen {
             if (r.compatible) pills.add(Ui.pill(app, s(R.string.pill_forever), Ui.GREEN, Ui.GREEN_SOFT));
             else pills.add(Ui.pill(app, s(R.string.pill_not_forever), Ui.ORANGE, Ui.ORANGE_SOFT));
         }
-        detailHeader(col, icon, r.title, byline(r.author, e != null ? sourceName(e.source) : s(R.string.pill_manual)), pills.toArray(new View[0]));
+        Model.Item fav = null;
+        if (e != null && !Model.SRC_ZIP.equals(e.source)) {
+            fav = Model.SRC_GITHUB.equals(e.source) ? Index.item(e.id) : null;
+            if (fav == null) fav = Sources.itemFor(e);
+        } else if (r.catalogMatch != null) {
+            fav = r.catalogMatch;
+        }
+        detailHeader(col, icon, r.title, byline(r.author, e != null ? sourceName(e.source) : s(R.string.pill_manual)),
+                fav == null ? null : favoriteButton(fav), pills.toArray(new View[0]));
 
         LinearLayout primary = null;
         if (busy) {
@@ -344,6 +353,27 @@ final class DetailPanel extends Screen {
         infoRow(col, s(R.string.info_folders), joinShort(fs, 8));
         if (e != null && !Model.SRC_ZIP.equals(e.source)) infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(e.source) ? "github.com/" + Modules.repoOf(e.id) : sourceName(e.source) + " #" + e.id);
         DetailExtras.releases(app, col, meta.releases, r.version, e != null && Model.SRC_GITHUB.equals(e.source) ? Modules.repoOf(e.id) : null);
+    }
+
+    /** A star in the hero that keeps the addon in Browse, Favorites; it does not install anything. */
+    private View favoriteButton(final Model.Item it) {
+        final boolean on = app.store.isFavorite(it.key());
+        final String label = s(on ? R.string.favorite_remove : R.string.favorite_add);
+        LinearLayout b = Ui.button(app, null, on ? R.drawable.ic_star : R.drawable.ic_star_outline, Ui.Kind.GHOST, v -> {
+            boolean now = app.store.toggleFavorite(it);
+            app.snack(s(now ? R.string.favorite_added : R.string.favorite_removed));
+            app.browse.favoritesChanged();
+            renderDetail();
+        });
+        if (on) {
+            b.setBackground(Ui.selectable(Ui.ACCENT_SOFT, 12, 0));
+            ((ImageView) b.getChildAt(0)).setImageTintList(android.content.res.ColorStateList.valueOf(Ui.ACCENT));
+        }
+        b.setPadding(0, 0, 0, 0);
+        b.setMinimumHeight(0);
+        b.setContentDescription(label);
+        b.setTooltipText(label);
+        return b;
     }
 
     private static String shortVer(String v) {

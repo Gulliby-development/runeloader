@@ -16,9 +16,13 @@ import java.util.Map;
 /** Settings (SharedPreferences) and the list of addons this app manages. */
 final class Store {
     static final String STATE_FILE = "wow-addons.json";
+    static final String FAVORITES_FILE = "favorites.json";
 
     private final SharedPreferences prefs;
     private final File appState;
+    private final File favoritesFile;
+    /** Starred addons by key, newest first; a snapshot so the list shows without the index. */
+    private Map<String, Model.Item> favorites;
     final Map<String, Model.Entry> entries = new LinkedHashMap<>();
 
     private static Store instance;
@@ -33,6 +37,7 @@ final class Store {
     private Store(Context ctx) {
         prefs = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE);
         appState = new File(ctx.getFilesDir(), STATE_FILE);
+        favoritesFile = new File(ctx.getFilesDir(), FAVORITES_FILE);
         Sources.cacheDir = ctx.getCacheDir();
         prefs.edit().remove("curseKey").apply();   // CurseForge is not a source; drop a key saved by an old version
         Sources.githubToken = githubToken();
@@ -200,5 +205,97 @@ final class Store {
     synchronized Model.Entry owner(String folder) {
         for (Model.Entry e : entries.values()) for (String f : e.folders) if (f.equalsIgnoreCase(folder)) return e;
         return null;
+    }
+
+    // ── favorites ──
+    // Kept in the app, not next to AddOns: a favorite is not installed and belongs to no game folder.
+
+    synchronized boolean isFavorite(String key) { return favs().containsKey(key); }
+
+    /** Newest first. */
+    synchronized List<Model.Item> favorites() { return new ArrayList<>(favs().values()); }
+
+    /** Stars or unstars the item; returns true when it is a favorite now. */
+    synchronized boolean toggleFavorite(Model.Item it) {
+        Map<String, Model.Item> f = favs();
+        boolean on = f.remove(it.key()) == null;
+        if (on) {
+            Map<String, Model.Item> next = new LinkedHashMap<>();
+            next.put(it.key(), it);
+            next.putAll(f);
+            favorites = next;
+        }
+        saveFavorites();
+        return on;
+    }
+
+    private Map<String, Model.Item> favs() {
+        if (favorites != null) return favorites;
+        favorites = new LinkedHashMap<>();
+        if (!favoritesFile.exists()) return favorites;
+        try {
+            JSONArray arr = new JSONObject(Sources.readText(favoritesFile)).optJSONArray("addons");
+            if (arr != null) for (int i = 0; i < arr.length(); i++) {
+                JSONObject j = arr.optJSONObject(i);
+                if (j == null || j.optString("id").isEmpty()) continue;
+                Model.Item it = new Model.Item();
+                it.source = j.optString("source", Model.SRC_GITHUB);
+                it.id = j.optString("id");
+                it.name = j.optString("name", it.id);
+                it.author = j.optString("author", "");
+                it.summary = j.optString("summary", "");
+                it.category = j.optString("category", "");
+                it.categoryKey = j.optString("categoryKey", "");
+                it.iconUrl = j.isNull("icon") ? null : j.optString("icon", null);
+                it.pageUrl = j.isNull("page") ? null : j.optString("page", null);
+                it.version = j.isNull("version") ? null : j.optString("version", null);
+                it.stars = j.optLong("stars", -1);
+                it.downloads = j.optLong("downloads", -1);
+                it.updated = j.optLong("updated", 0);
+                it.foreverVerified = j.optBoolean("verified", false);
+                strings(j.optJSONArray("tags"), it.tags);
+                strings(j.optJSONArray("folders"), it.folders);
+                strings(j.optJSONArray("deps"), it.deps);
+                favorites.put(it.key(), it);
+            }
+        } catch (Exception ignored) {
+        }
+        return favorites;
+    }
+
+    private static void strings(JSONArray a, List<String> out) {
+        if (a != null) for (int i = 0; i < a.length(); i++) out.add(a.optString(i));
+    }
+
+    private void saveFavorites() {
+        try {
+            JSONArray arr = new JSONArray();
+            for (Model.Item it : favorites.values()) {
+                JSONObject j = new JSONObject();
+                j.put("source", it.source);
+                j.put("id", it.id);
+                j.put("name", it.name);
+                j.put("author", it.author);
+                j.put("summary", it.summary);
+                j.put("category", it.category);
+                j.put("categoryKey", it.categoryKey);
+                if (it.iconUrl != null) j.put("icon", it.iconUrl);
+                if (it.pageUrl != null) j.put("page", it.pageUrl);
+                if (it.version != null) j.put("version", it.version);
+                j.put("stars", it.stars);
+                j.put("downloads", it.downloads);
+                j.put("updated", it.updated);
+                j.put("verified", it.foreverVerified);
+                j.put("tags", new JSONArray(it.tags));
+                j.put("folders", new JSONArray(it.folders));
+                j.put("deps", new JSONArray(it.deps));
+                arr.put(j);
+            }
+            JSONObject o = new JSONObject();
+            o.put("schema", 1);
+            o.put("addons", arr);
+            Sources.writeText(favoritesFile, o.toString(2));
+        } catch (Exception ignored) {
+        }
     }
 }
