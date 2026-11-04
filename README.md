@@ -24,7 +24,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **Search in one place.** Runeloader searches addons built for Forever on GitHub and WoWInterface. No accounts, no API keys. The most popular addons come first, or open **Categories** to browse quests, interface, combat and more.
 - **Gamepad and handheld addons.** The **Gamepad & handheld** category collects addons made for playing with a controller or on a handheld: extra buttons for back paddles, wheels, chat without a keyboard, Steam Deck presets. With a controller connected, it comes first.
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
-- **One-tap install.** The app finds the right folder and the right files for you.
+- **One-tap install.** The app finds the right folder and the right files for you. If an addon needs another addon, or comes in parts (a core and modules), Runeloader installs what it needs too.
 - **Updates.** See which addons are out of date and update them all at once.
 - **Updates itself.** When a new Runeloader comes out, the app tells you. Tap **Update**, and Android installs it.
 - **Auto-update.** Turn it on in **Settings**, and Runeloader checks for updates in the background, even when the app is closed. It can tell you, or install the updates for you.
@@ -113,6 +113,8 @@ The app picks the TOC file the same way the game does: `_Forever`, then `_Camelo
 1. The zip is unpacked into a temporary folder. Paths that try to leave it (zip slip) are refused.
 2. Addon folders are found by their `.toc` files.
 3. Each folder is swapped into `AddOns` in one step, so the old version stays until the new one is ready.
+
+Some addons release each part on its own tag (`Core-v1`, `Wheel-v2`). Runeloader lists the core and each module as separate addons, installs and updates each from the newest release of its own part, and installs the core first when a module needs it.
 
 An optional GitHub token (Settings) is sent only to GitHub hosts, even when a download redirects somewhere else. Installs always take the asset from GitHub directly, because the index can be a day old.
 </details>

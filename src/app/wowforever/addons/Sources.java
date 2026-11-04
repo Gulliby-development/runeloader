@@ -80,16 +80,24 @@ final class Sources {
             return tag;
         }
 
-        static Model.Release latest(String repo) throws IOException {
+        /** @param id owner/repo, or owner/repo#Module for one module of a repo that releases modules separately. */
+        static Model.Release latest(String id) throws IOException {
+            String repo = Modules.repoOf(id);
+            String module = Modules.moduleOf(id);
             String tag = null;
-            try { tag = latestTag(repo); } catch (Http.HttpException e) {
-                if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_no_releases, repo));
-            }
             boolean pinnedTag = false;
-            String module = Modules.of(tag);
-            if (module != null && !Modules.isCore(module, repoName(repo))) {
-                String core = coreTag(repo);
-                if (core != null) { tag = core; pinnedTag = true; }
+            if (module != null) {
+                tag = groupTag(repo, module);
+                if (tag == null) throw new IOException(Lang.s(R.string.err_gh_no_published, id));
+                pinnedTag = true;
+            } else {
+                try { tag = latestTag(repo); } catch (Http.HttpException e) {
+                    if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_no_releases, repo));
+                }
+                if (tag != null && !Modules.group(tag, repoName(repo)).isEmpty()) {
+                    String core = groupTag(repo, "");
+                    if (core != null) { tag = core; pinnedTag = true; }
+                }
             }
             String base = "https://github.com/" + repo + "/releases/" + (tag == null ? "latest/download/" : "download/" + encPath(tag) + "/");
             JSONObject rj = null;
@@ -184,8 +192,8 @@ final class Sources {
             return repo.substring(repo.indexOf('/') + 1);
         }
 
-        /** The newest core release tag of a repo that releases each module on its own tag, or null. */
-        static String coreTag(String repo) throws IOException {
+        /** The newest published tag of a release group ("" for the core) of a module repo, or null. */
+        static String groupTag(String repo, String group) throws IOException {
             JSONArray rels;
             try {
                 rels = new JSONArray(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100", apiHeaders()));
@@ -203,7 +211,7 @@ final class Sources {
                 tags.add(r.optString("tag_name", ""));
                 pre.add(r.optBoolean("prerelease"));
             }
-            return Modules.coreTag(tags, pre, repoName(repo));
+            return Modules.tagOf(tags, pre, repoName(repo), group);
         }
 
         /** Repository card for a user-entered owner/repo. */

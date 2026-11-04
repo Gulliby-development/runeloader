@@ -122,10 +122,11 @@ final class Index {
         if (a == null) return null;
         String repo = Sources.GitHub.normalize(a.optString("repo", ""));
         if (repo == null) return null;
-        Model.Item c = Catalog.byKey(Model.SRC_GITHUB + ":" + repo);
+        String id = Modules.id(repo, str(a, "module", null));
+        Model.Item c = Catalog.byKey(Model.SRC_GITHUB + ":" + id);
         Model.Item it = new Model.Item();
         it.source = Model.SRC_GITHUB;
-        it.id = repo;
+        it.id = id;
         String owner = repo.substring(0, repo.indexOf('/'));
         it.name = Toc.clean(str(a, "name", repo.substring(repo.indexOf('/') + 1)));
         it.author = str(a, "author", owner);
@@ -147,7 +148,7 @@ final class Index {
             it.category = c.category;
             it.categoryKey = c.categoryKey;
             it.note = c.note;
-            it.deps = c.deps;
+            it.deps = new ArrayList<>(c.deps);
             if (c.iconUrl != null) it.iconUrl = c.iconUrl;
         }
         IndexFields.fill(a, BASE, it);
@@ -160,12 +161,12 @@ final class Index {
         return s.isEmpty() ? def : s;
     }
 
-    /** The raw index entry of owner/repo from the last loaded index, or null. */
+    /** The raw index entry of owner/repo (or owner/repo#Module) from the last loaded index, or null. */
     static synchronized JSONObject addon(String repo) {
         return repo == null ? null : byRepo.get(repo.toLowerCase(Locale.ROOT));
     }
 
-    /** The index item for owner/repo from the last loaded index, or null. */
+    /** The index item for owner/repo (or owner/repo#Module) from the last loaded index, or null. */
     static synchronized Model.Item item(String repo) {
         JSONObject a = addon(repo);
         return a == null ? null : toItem(a);
