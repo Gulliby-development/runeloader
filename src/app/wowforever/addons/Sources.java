@@ -85,6 +85,12 @@ final class Sources {
             try { tag = latestTag(repo); } catch (Http.HttpException e) {
                 if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_no_releases, repo));
             }
+            boolean pinnedTag = false;
+            String module = Modules.of(tag);
+            if (module != null && !Modules.isCore(module, repoName(repo))) {
+                String core = coreTag(repo);
+                if (core != null) { tag = core; pinnedTag = true; }
+            }
             String base = "https://github.com/" + repo + "/releases/" + (tag == null ? "latest/download/" : "download/" + encPath(tag) + "/");
             JSONObject rj = null;
             try {
@@ -125,7 +131,8 @@ final class Sources {
             // No release.json: ask the API for the asset list and pick by name.
             JSONObject rel;
             try {
-                rel = new JSONObject(Http.get("https://api.github.com/repos/" + repo + "/releases/latest", apiHeaders()));
+                rel = new JSONObject(Http.get("https://api.github.com/repos/" + repo + "/releases/"
+                        + (pinnedTag ? "tags/" + encPath(tag) : "latest"), apiHeaders()));
             } catch (Http.HttpException e) {
                 if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_no_published, repo));
                 if (e.code == 403 || e.code == 429) throw new IOException(Lang.s(R.string.err_gh_rate_limit));
@@ -171,6 +178,32 @@ final class Sources {
             r.version = t.isEmpty() ? versionFromFile(r.fileName) : t;
             r.changelogUrl = rel.optString("html_url", null);
             return r;
+        }
+
+        static String repoName(String repo) {
+            return repo.substring(repo.indexOf('/') + 1);
+        }
+
+        /** The newest core release tag of a repo that releases each module on its own tag, or null. */
+        static String coreTag(String repo) throws IOException {
+            JSONArray rels;
+            try {
+                rels = new JSONArray(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100", apiHeaders()));
+            } catch (Http.HttpException e) {
+                if (e.code == 403 || e.code == 429) throw new IOException(Lang.s(R.string.err_gh_rate_limit));
+                throw e;
+            } catch (org.json.JSONException e) {
+                throw new IOException(Lang.s(R.string.err_gh_unexpected));
+            }
+            List<String> tags = new ArrayList<>();
+            List<Boolean> pre = new ArrayList<>();
+            for (int i = 0; i < rels.length(); i++) {
+                JSONObject r = rels.optJSONObject(i);
+                if (r == null || r.optBoolean("draft")) continue;
+                tags.add(r.optString("tag_name", ""));
+                pre.add(r.optBoolean("prerelease"));
+            }
+            return Modules.coreTag(tags, pre, repoName(repo));
         }
 
         /** Repository card for a user-entered owner/repo. */
