@@ -227,6 +227,16 @@
     <string name="tag_gamepad">手柄</string>
     <string name="browse_mode_popular">热门</string>
     <string name="browse_mode_categories">分类</string>
+    <string name="browse_mode_favorites">收藏</string>
+    <string name="browse_hint_favorites">搜索收藏</string>
+    <string name="favorites_empty_title">还没有收藏</string>
+    <string name="favorites_empty_text">在插件页面点击星标，即可不安装而将其保存在这里。</string>
+    <string name="favorites_no_match">没有符合搜索的收藏。</string>
+    <string name="favorite_on">已收藏</string>
+    <string name="favorite_add">加入收藏</string>
+    <string name="favorite_remove">取消收藏</string>
+    <string name="favorite_added">已加入收藏</string>
+    <string name="favorite_removed">已取消收藏</string>
     <string name="browse_all_categories">全部分类</string>
     <string name="addon_dbm_dungeons">DBM：地下城</string>
     <string name="addon_dbm_vanilla">DBM：经典团队副本</string>

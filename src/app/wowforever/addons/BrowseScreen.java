@@ -30,7 +30,9 @@ final class BrowseScreen extends Screen {
     private boolean hasMore;
     private int searchGen;
     private Runnable pendingSearch;
-    /** Categories mode: the grid, then one category's list. Popular mode lists everything. */
+    static final int MODE_POPULAR = 0, MODE_CATEGORIES = 1, MODE_FAVORITES = 2;
+    /** Categories mode: the grid, then one category's list. Popular mode lists everything; Favorites the starred addons. */
+    private int mode = MODE_POPULAR;
     private boolean categoriesMode;
     /** The open category (a Categories key), or null for the grid. */
     private String category;
@@ -41,13 +43,14 @@ final class BrowseScreen extends Screen {
 
     /** Keeps the mode, category and query over a recreate (a language change). */
     void save(android.os.Bundle out) {
-        out.putBoolean("browseCategories", categoriesMode);
+        out.putInt("browseMode", mode);
         out.putString("browseCategory", category);
         out.putString("browseQuery", query);
     }
 
     void restore(android.os.Bundle in) {
-        categoriesMode = in.getBoolean("browseCategories", false);
+        mode = in.getInt("browseMode", MODE_POPULAR);
+        categoriesMode = mode == MODE_CATEGORIES;
         category = in.getString("browseCategory");
         query = in.getString("browseQuery", "");
     }
@@ -110,7 +113,8 @@ final class BrowseScreen extends Screen {
         app.searchField.setHintTextColor(Ui.TEXT3);
         app.searchField.setId(View.generateViewId());
         // Inside a category the back button takes width: a short hint keeps it whole at 4:3.
-        app.searchField.setHint(s(categoriesMode && category != null ? R.string.browse_hint_category : R.string.browse_hint_github));
+        app.searchField.setHint(s(mode == MODE_FAVORITES ? R.string.browse_hint_favorites
+                : categoriesMode && category != null ? R.string.browse_hint_category : R.string.browse_hint_github));
         app.searchField.setText(query);
         app.searchField.setSelection(app.searchField.getText().length());
         app.searchField.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN);
@@ -155,28 +159,34 @@ final class BrowseScreen extends Screen {
         return categoriesMode && category == null && query.trim().isEmpty();
     }
 
-    /** Popular / Categories, a two-segment switch under the header. */
+    /** Below this list width the mode switch drops its icons, so three labels fit. */
+    private static final int SEGMENT_ICONS_DP = 420;
+
+    /** Popular / Categories / Favorites, a three-segment switch under the header. */
     private void modeSwitch() {
         LinearLayout box = Ui.hbox(app);
         box.setBackground(Ui.round(Ui.SURFACE, 11, Ui.SURFACE3, 1f));
         box.setPadding(Ui.dp(3), Ui.dp(3), Ui.dp(3), Ui.dp(3));
-        box.addView(segment(R.string.browse_mode_popular, R.drawable.ic_trending, !categoriesMode, false), Ui.lpw(0, Ui.dp(32), 1));
-        box.addView(segment(R.string.browse_mode_categories, R.drawable.ic_apps, categoriesMode, true), Ui.margins(Ui.lpw(0, Ui.dp(32), 1), 2, 0, 0, 0));
+        box.addView(segment(R.string.browse_mode_popular, R.drawable.ic_trending, MODE_POPULAR), Ui.lpw(0, Ui.dp(32), 1));
+        box.addView(segment(R.string.browse_mode_categories, R.drawable.ic_apps, MODE_CATEGORIES), Ui.margins(Ui.lpw(0, Ui.dp(32), 1), 2, 0, 0, 0));
+        box.addView(segment(R.string.browse_mode_favorites, R.drawable.ic_star, MODE_FAVORITES), Ui.margins(Ui.lpw(0, Ui.dp(32), 1), 2, 0, 0, 0));
         app.headerBox.addView(box, Ui.margins(Ui.lp(-1, -2), gutter(), 0, 16, 8));
     }
 
-    private View segment(int label, int icon, boolean on, final boolean categories) {
+    private View segment(int label, int icon, final int segMode) {
+        boolean on = mode == segMode;
         LinearLayout seg = Ui.hbox(app);
         seg.setGravity(android.view.Gravity.CENTER);
         seg.setBackground(Ui.selectable(on ? Ui.SURFACE3 : 0x00000000, 8, 0));
-        seg.setPadding(Ui.dp(8), 0, Ui.dp(8), 0);
+        seg.setPadding(Ui.dp(6), 0, Ui.dp(6), 0);
         seg.setFocusable(true);
         seg.setClickable(true);
         int fg = on ? Ui.TEXT : Ui.TEXT2;
-        seg.addView(Ui.icon(app, icon, fg, 15));
-        seg.addView(Ui.oneLine(Ui.text(app, s(label), 13, fg, on ? Ui.MEDIUM : Ui.REGULAR)), Ui.margins(Ui.lp(-2, -2), 6, 0, 0, 0));
+        boolean icons = app.layout.listDp >= SEGMENT_ICONS_DP;
+        if (icons) seg.addView(Ui.icon(app, icon, segMode == MODE_FAVORITES && on ? Ui.ACCENT : fg, 15));
+        seg.addView(Ui.oneLine(Ui.text(app, s(label), 13, fg, on ? Ui.MEDIUM : Ui.REGULAR)), Ui.margins(Ui.lp(-2, -2), icons ? 6 : 0, 0, 0, 0));
         seg.setContentDescription(s(label));
-        seg.setOnClickListener(v -> setMode(categories, null));
+        seg.setOnClickListener(v -> setMode(segMode, null));
         return seg;
     }
 
@@ -184,7 +194,7 @@ final class BrowseScreen extends Screen {
     private View categoryBack() {
         LinearLayout b = Ui.button(app, s(Categories.nameRes(category)), R.drawable.ic_back, Ui.Kind.GHOST, v -> {
             query = "";   // back means the grid, not a search over everything
-            setMode(true, null);
+            setMode(MODE_CATEGORIES, null);
         });
         b.setContentDescription(s(R.string.browse_all_categories));
         b.setTooltipText(s(R.string.browse_all_categories));
@@ -192,9 +202,10 @@ final class BrowseScreen extends Screen {
         return b;
     }
 
-    private void setMode(boolean categories, String cat) {
-        if (categories == categoriesMode && (cat == null ? category == null : cat.equals(category))) return;
-        categoriesMode = categories;
+    private void setMode(int m, String cat) {
+        if (m == mode && (cat == null ? category == null : cat.equals(category))) return;
+        mode = m;
+        categoriesMode = m == MODE_CATEGORIES;
         category = cat;
         app.selected = null;
         app.results.remove(RESULTS);
@@ -265,7 +276,7 @@ final class BrowseScreen extends Screen {
         txt.addView(Ui.oneLine(Ui.text(app, sub, 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lp(-1, -2), 0, 2, 0, 0));
         t.addView(txt, Ui.margins(Ui.lp(-1, -2), 0, 10, 0, 0));
         t.setContentDescription(n == null ? name : name + ", " + sub);
-        t.setOnClickListener(v -> setMode(true, key));
+        t.setOnClickListener(v -> setMode(MODE_CATEGORIES, key));
         return t;
     }
 
@@ -304,6 +315,10 @@ final class BrowseScreen extends Screen {
             } else if (resultError != null) {
                 app.bodyBox.addView(emptyState(R.drawable.ic_warning, s(R.string.load_failed), resultError,
                         Ui.button(app, s(R.string.action_retry), R.drawable.ic_refresh, Ui.Kind.PRIMARY, v -> runSearch(false))));
+            } else if (mode == MODE_FAVORITES && query.trim().isEmpty()) {
+                app.bodyBox.addView(emptyState(R.drawable.ic_star_outline, s(R.string.favorites_empty_title), s(R.string.favorites_empty_text), new View[0]));
+            } else if (mode == MODE_FAVORITES) {
+                app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found), s(R.string.favorites_no_match), new View[0]));
             } else {
                 app.bodyBox.addView(emptyState(R.drawable.ic_search, s(R.string.nothing_found),
                         s(categoriesMode && category != null ? R.string.category_empty_text : R.string.github_empty_text), new View[0]));
@@ -337,7 +352,17 @@ final class BrowseScreen extends Screen {
         row.setMinimumHeight(Ui.dp(60));
         row.addView(avatar(it.iconUrl, it.name, 40));
         LinearLayout mid = Ui.vbox(app);
-        mid.addView(Ui.oneLine(Ui.text(app, it.name, 14, Ui.TEXT, Ui.MEDIUM)), Ui.lp(-1, -2));
+        TextView name = Ui.oneLine(Ui.text(app, it.name, 14, Ui.TEXT, Ui.MEDIUM));
+        if (app.store.isFavorite(it.key())) {
+            // A drawable at the end of a wrap_content name stays right after the text, even when it ellipsizes.
+            android.graphics.drawable.Drawable star = app.getDrawable(R.drawable.ic_star).mutate();
+            star.setTint(Ui.ACCENT);
+            star.setBounds(0, 0, Ui.dp(14), Ui.dp(14));
+            name.setCompoundDrawables(null, null, star, null);
+            name.setCompoundDrawablePadding(Ui.dp(6));
+            name.setContentDescription(it.name + ", " + s(R.string.favorite_on));
+        }
+        mid.addView(name, Ui.lp(-2, -2));
         StringBuilder meta = new StringBuilder();
         // The numbers behind the popularity order come first, so a long author list cannot cut them off.
         if (it.stars > 0) meta.append("★ ").append(Ui.formatCount(it.stars));
@@ -421,6 +446,7 @@ final class BrowseScreen extends Screen {
         if (more && loading) return;
         final String q = query;
         final String cat = categoriesMode ? category : null;
+        final boolean favs = mode == MODE_FAVORITES;
         final int gen = ++searchGen;
         final List<Model.Item> prev = app.results.get(RESULTS);
         final int offset = more && prev != null ? prev.size() : 0;
@@ -433,7 +459,9 @@ final class BrowseScreen extends Screen {
             boolean moreAvail = false;
             try {
                 String repo = q.contains("/") ? Sources.GitHub.normalize(q) : null;
-                if (repo != null) {
+                if (favs) {
+                    if (!more) got = favorites(q);
+                } else if (repo != null) {
                     // A pasted owner/repo or link: its index entry if listed, else the repository itself.
                     if (!more) {
                         try { Index.items(false); } catch (IOException ignored) {}
@@ -477,6 +505,26 @@ final class BrowseScreen extends Screen {
                 }
             });
         });
+    }
+
+    /** The starred addons, with fresh index data when the cached index has them; the query filters by name, author or summary. */
+    private List<Model.Item> favorites(String q) {
+        Index.loadCached();
+        String needle = q.trim().toLowerCase(java.util.Locale.ROOT);
+        List<Model.Item> out = new ArrayList<>();
+        for (Model.Item f : app.store.favorites()) {
+            Model.Item ix = Model.SRC_GITHUB.equals(f.source) ? Index.item(f.id) : null;
+            Model.Item it = ix != null ? ix : f;
+            if (!needle.isEmpty() && !(it.name + "\n" + it.author + "\n" + it.summary).toLowerCase(java.util.Locale.ROOT).contains(needle)) continue;
+            out.add(it);
+        }
+        return out;
+    }
+
+    /** A star was toggled: the Favorites list drops or gains the addon, other lists redraw the row. */
+    void favoritesChanged() {
+        if (app.tab != MainActivity.TAB_BROWSE) return;
+        if (mode == MODE_FAVORITES) runSearch(false); else app.refreshList();
     }
 
     private void renderResultsKeepingScroll() {

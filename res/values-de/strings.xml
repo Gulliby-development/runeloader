@@ -230,6 +230,16 @@
     <string name="tag_gamepad">Gamepad</string>
     <string name="browse_mode_popular">Beliebt</string>
     <string name="browse_mode_categories">Kategorien</string>
+    <string name="browse_mode_favorites">Favoriten</string>
+    <string name="browse_hint_favorites">Favoriten durchsuchen</string>
+    <string name="favorites_empty_title">Noch keine Favoriten</string>
+    <string name="favorites_empty_text">Tippe auf der Seite eines Addons auf den Stern, um es hier zu merken, ohne es zu installieren.</string>
+    <string name="favorites_no_match">Kein Favorit passt zu dieser Suche.</string>
+    <string name="favorite_on">Favorit</string>
+    <string name="favorite_add">Zu Favoriten hinzufügen</string>
+    <string name="favorite_remove">Aus Favoriten entfernen</string>
+    <string name="favorite_added">Zu Favoriten hinzugefügt</string>
+    <string name="favorite_removed">Aus Favoriten entfernt</string>
     <string name="browse_all_categories">Alle Kategorien</string>
     <string name="addon_dbm_dungeons">DBM: Dungeons</string>
     <string name="addon_dbm_vanilla">DBM: Klassische Schlachtzüge</string>

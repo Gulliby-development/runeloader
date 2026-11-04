@@ -23,6 +23,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 
 - **Search in one place.** Runeloader searches addons built for Forever on GitHub and WoWInterface. No accounts, no API keys. The most popular addons come first, or open **Categories** to browse quests, interface, combat and more.
 - **Gamepad and handheld addons.** The **Gamepad & handheld** category collects addons made for playing with a controller or on a handheld: extra buttons for back paddles, wheels, chat without a keyboard, Steam Deck presets. With a controller connected, it comes first.
+- **Favorites.** Found an addon you may want later? Tap the star on its page. It waits in **Browse**, **Favorites**, and nothing is installed until you say so.
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
 - **One-tap install.** The app finds the right folder and the right files for you. If an addon needs another addon, or comes in parts (a core and modules), Runeloader installs what it needs too.
 - **Updates.** See which addons are out of date and update them all at once.

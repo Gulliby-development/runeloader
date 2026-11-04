@@ -282,8 +282,8 @@ public class MainActivity extends Activity {
             } else {
                 detailOverlay.addView(detailSheet, new FrameLayout.LayoutParams(-1, -1));
             }
-            detailOverlay.setVisibility(detailSheetOpen ? View.VISIBLE : View.GONE);
             root.addView(detailOverlay, new FrameLayout.LayoutParams(-1, -1));
+            showDetailSheet(detailSheetOpen);
         }
 
         // progress card
@@ -340,6 +340,9 @@ public class MainActivity extends Activity {
     void showDetailSheet(boolean show) {
         detailSheetOpen = show;
         if (detailOverlay != null) detailOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
+        // DPAD focus stays inside the open sheet instead of reaching the list behind it.
+        if (shell != null && detailOverlay != null)
+            shell.setDescendantFocusability(show ? android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS : android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS);
     }
 
     /**

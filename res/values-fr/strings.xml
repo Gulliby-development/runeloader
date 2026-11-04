@@ -234,6 +234,16 @@
     <string name="tag_gamepad">Manette</string>
     <string name="browse_mode_popular">Populaires</string>
     <string name="browse_mode_categories">Catégories</string>
+    <string name="browse_mode_favorites">Favoris</string>
+    <string name="browse_hint_favorites">Chercher dans les favoris</string>
+    <string name="favorites_empty_title">Aucun favori pour l\'instant</string>
+    <string name="favorites_empty_text">Touchez l\'étoile sur la page d\'un addon pour le garder ici sans l\'installer.</string>
+    <string name="favorites_no_match">Aucun favori ne correspond à cette recherche.</string>
+    <string name="favorite_on">Favori</string>
+    <string name="favorite_add">Ajouter aux favoris</string>
+    <string name="favorite_remove">Retirer des favoris</string>
+    <string name="favorite_added">Ajouté aux favoris</string>
+    <string name="favorite_removed">Retiré des favoris</string>
     <string name="browse_all_categories">Toutes les catégories</string>
     <string name="addon_dbm_dungeons">DBM : Donjons</string>
     <string name="addon_dbm_vanilla">DBM : Raids classiques</string>

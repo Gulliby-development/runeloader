@@ -235,6 +235,16 @@
     <string name="tag_gamepad">Comando</string>
     <string name="browse_mode_popular">Populares</string>
     <string name="browse_mode_categories">Categorias</string>
+    <string name="browse_mode_favorites">Favoritos</string>
+    <string name="browse_hint_favorites">Buscar nos favoritos</string>
+    <string name="favorites_empty_title">Ainda sem favoritos</string>
+    <string name="favorites_empty_text">Toque na estrela na página de um addon para guardá-lo aqui sem instalar.</string>
+    <string name="favorites_no_match">Nenhum favorito corresponde à busca.</string>
+    <string name="favorite_on">Favorito</string>
+    <string name="favorite_add">Adicionar aos favoritos</string>
+    <string name="favorite_remove">Remover dos favoritos</string>
+    <string name="favorite_added">Adicionado aos favoritos</string>
+    <string name="favorite_removed">Removido dos favoritos</string>
     <string name="browse_all_categories">Todas as categorias</string>
     <string name="addon_dbm_dungeons">DBM: Masmorras</string>
     <string name="addon_dbm_vanilla">DBM: Raides clássicas</string>
