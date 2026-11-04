@@ -356,6 +356,8 @@ final class DetailPanel extends Screen {
     }
 
     /** A star in the hero that keeps the addon in Browse, Favorites; it does not install anything. */
+    private View star;
+
     private View favoriteButton(final Model.Item it) {
         final boolean on = app.store.isFavorite(it.key());
         final String label = s(on ? R.string.favorite_remove : R.string.favorite_add);
@@ -364,7 +366,10 @@ final class DetailPanel extends Screen {
             app.snack(s(now ? R.string.favorite_added : R.string.favorite_removed));
             app.browse.favoritesChanged();
             renderDetail();
+            // Keep the gamepad focus on the star; the rebuilt panel otherwise focuses its main button.
+            if (v.isFocused()) app.main.post(() -> { if (star != null) star.requestFocus(); });
         });
+        star = b;
         if (on) {
             b.setBackground(Ui.selectable(Ui.ACCENT_SOFT, 12, 0));
             ((ImageView) b.getChildAt(0)).setImageTintList(android.content.res.ColorStateList.valueOf(Ui.ACCENT));

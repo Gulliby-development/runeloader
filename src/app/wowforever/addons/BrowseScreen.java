@@ -352,14 +352,17 @@ final class BrowseScreen extends Screen {
         row.setMinimumHeight(Ui.dp(60));
         row.addView(avatar(it.iconUrl, it.name, 40));
         LinearLayout mid = Ui.vbox(app);
-        LinearLayout nameRow = Ui.hbox(app);
-        nameRow.addView(Ui.oneLine(Ui.text(app, it.name, 14, Ui.TEXT, Ui.MEDIUM)), Ui.lpw(0, -2, 1));
+        TextView name = Ui.oneLine(Ui.text(app, it.name, 14, Ui.TEXT, Ui.MEDIUM));
         if (app.store.isFavorite(it.key())) {
-            View star = Ui.icon(app, R.drawable.ic_star, Ui.ACCENT, 14);
-            star.setContentDescription(s(R.string.favorite_on));
-            nameRow.addView(star, Ui.margins(Ui.lp(Ui.dp(14), Ui.dp(14)), 6, 0, 0, 0));
+            // A drawable at the end of a wrap_content name stays right after the text, even when it ellipsizes.
+            android.graphics.drawable.Drawable star = app.getDrawable(R.drawable.ic_star).mutate();
+            star.setTint(Ui.ACCENT);
+            star.setBounds(0, 0, Ui.dp(14), Ui.dp(14));
+            name.setCompoundDrawables(null, null, star, null);
+            name.setCompoundDrawablePadding(Ui.dp(6));
+            name.setContentDescription(it.name + ", " + s(R.string.favorite_on));
         }
-        mid.addView(nameRow, Ui.lp(-1, -2));
+        mid.addView(name, Ui.lp(-2, -2));
         StringBuilder meta = new StringBuilder();
         // The numbers behind the popularity order come first, so a long author list cannot cut them off.
         if (it.stars > 0) meta.append("★ ").append(Ui.formatCount(it.stars));
