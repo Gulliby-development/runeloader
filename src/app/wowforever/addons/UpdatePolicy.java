@@ -36,10 +36,43 @@ final class UpdatePolicy {
         return s.replaceFirst("^[vV](?=\\d)", "").trim();
     }
 
-    /** The source offers a version other than the installed one (sources do not order versions). */
+    /**
+     * The source offers a version other than the installed one. Sources do not order versions, so any
+     * other tag counts, except a plain dotted number below the installed one: a stale index must never
+     * offer a downgrade.
+     */
     static boolean isNewer(String latest, String installed) {
         if (latest == null || latest.trim().isEmpty()) return false;
-        return !sameVersion(latest, installed == null ? "" : installed);
+        if (sameVersion(latest, installed == null ? "" : installed)) return false;
+        Integer c = compare(latest, installed);
+        return c == null || c > 0;
+    }
+
+    /** True only when both are plain dotted numbers ("12.1.0") and a is below b. */
+    static boolean older(String a, String b) {
+        Integer c = compare(a, b);
+        return c != null && c < 0;
+    }
+
+    /** Orders plain dotted numbers (a missing part counts as 0); null when either is something else. */
+    private static Integer compare(String a, String b) {
+        long[] x = numbers(a), y = numbers(b);
+        if (x == null || y == null) return null;
+        for (int i = 0; i < Math.max(x.length, y.length); i++) {
+            long m = i < x.length ? x[i] : 0, n = i < y.length ? y[i] : 0;
+            if (m != n) return m < n ? -1 : 1;
+        }
+        return 0;
+    }
+
+    private static long[] numbers(String v) {
+        if (v == null) return null;
+        String s = normVersion(v);
+        if (!s.matches("\\d{1,12}(\\.\\d{1,12})*")) return null;
+        String[] p = s.split("\\.");
+        long[] out = new long[p.length];
+        for (int i = 0; i < p.length; i++) out[i] = Long.parseLong(p[i]);
+        return out;
     }
 
     static int mode(int stored) {
