@@ -42,7 +42,7 @@ final class AddonManager {
                     for (Model.Installed o : app.installed) if (o.entry != null && o.entry.key.equals(r.entry.key) && o.entry != r.entry) {
                         r.entry.latest = o.entry.latest;
                         r.entry.checkError = o.entry.checkError;
-                        r.entry.updateAvailable = o.entry.latest != null && !sameVersion(o.entry.latest, r.entry.version);
+                        r.entry.updateAvailable = UpdatePolicy.isNewer(o.entry.latest, r.entry.version);
                     }
                 }
                 app.installed = rows;
@@ -174,7 +174,7 @@ final class AddonManager {
         if (latest != null) {
             if (!sameVersion(latest, e.latest)) e.changelog = null;
             e.latest = latest;
-            e.updateAvailable = !sameVersion(latest, e.version);
+            e.updateAvailable = UpdatePolicy.isNewer(latest, e.version);
             if (changelog != null && !changelog.isEmpty()) e.changelog = changelog;
         }
         if (left.decrementAndGet() == 0) {
@@ -195,7 +195,7 @@ final class AddonManager {
             final String fl = latest, fe = err;
             app.main.post(() -> {
                 e.checkError = fe;
-                if (fl != null) { e.latest = fl; e.updateAvailable = !sameVersion(fl, e.version); }
+                if (fl != null) { e.latest = fl; e.updateAvailable = UpdatePolicy.isNewer(fl, e.version); }
                 app.snack(fe != null ? fe : (e.updateAvailable ? app.getString(R.string.version_available, fl) : app.getString(R.string.latest_installed)));
                 if (app.tab == MainActivity.TAB_INSTALLED) app.render();
             });

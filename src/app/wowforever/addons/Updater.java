@@ -49,7 +49,9 @@ final class Updater {
     /** The index entry that answers the update check for e, or null to ask the source directly. */
     static Model.Item indexHit(Map<String, Model.Item> index, Model.Entry e) {
         Model.Item ix = index.get(e.key.toLowerCase(Locale.ROOT));
-        return ix != null && ix.version != null && !ix.version.isEmpty() ? ix : null;
+        if (ix == null || ix.version == null || ix.version.isEmpty()) return null;
+        // the index can be a day behind a release installed from GitHub: ask the source instead
+        return UpdatePolicy.older(ix.version, e.version) ? null : ix;
     }
 
     /** Installs an item and its missing dependencies; adds the installed names to done. */

@@ -24,6 +24,13 @@ public class UpdatePolicyTest {
         check(UpdatePolicy.isNewer("1.1", null), "an unknown installed version takes the update");
         check(!UpdatePolicy.isNewer(null, "1.0"), "no latest version, no update");
         check(!UpdatePolicy.isNewer("  ", "1.0"), "an empty latest version, no update");
+        check(!UpdatePolicy.isNewer("12.1.0", "12.1.1"), "an older version from a stale index is no update");
+        check(!UpdatePolicy.isNewer("v1.9", "1.10"), "numbers compare as numbers, not text");
+        check(UpdatePolicy.isNewer("1.10", "1.9"), "1.10 is newer than 1.9");
+        check(!UpdatePolicy.isNewer("1.2", "1.2.0"), "a missing part counts as 0");
+        check(UpdatePolicy.isNewer("1.2.0-beta", "1.2.1"), "tags that are not plain numbers are not ordered");
+        check(UpdatePolicy.older("12.1.0", "v12.1.1") && !UpdatePolicy.older("12.1.1", "12.1.0"), "older() orders plain numbers");
+        check(!UpdatePolicy.older("12.1.0", null) && !UpdatePolicy.older("r100", "r200"), "older() is false when either is not a plain number");
 
         check(UpdatePolicy.mode(2) == UpdatePolicy.MODE_INSTALL, "install mode kept");
         check(UpdatePolicy.mode(7) == UpdatePolicy.MODE_OFF, "unknown mode is off");
