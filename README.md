@@ -29,6 +29,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **Know when an addon is over.** If its author stopped it, the addon gets a **Discontinued** tag in **Browse** and **Installed**, and its page shows the addon to use instead.
 - **One-tap install.** The app finds the right folder and the right files for you. If an addon needs another addon, or comes in parts (a core and modules), Runeloader installs what it needs too.
 - **Addons with many parts stay one addon.** Some addons come as a core and many modules. Runeloader shows them as one package: one tap installs it all. In your list, open the package to see its modules and remove the ones you do not need.
+- **See what is happening.** Tap **Install** on as many addons as you like: they line up in a queue and appear in **Installed** right away, grey until they are ready. An addon you remove turns red until it is gone. Tap the progress card at the bottom to open the queue: what runs now, what waits (you can cancel it), and what just finished.
 - **Updates.** See which addons are out of date and update them all at once. Something wrong with an addon? Open it in **Installed** and tap **Reinstall** for a clean copy.
 - **Updates itself.** When a new Runeloader comes out, the app tells you. Tap **Update**, and Android installs it.
 - **Auto-update.** Turn it on in **Settings**, and Runeloader checks for updates in the background, even when the app is closed. It can tell you, or install the updates for you.

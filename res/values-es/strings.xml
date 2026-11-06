@@ -363,4 +363,22 @@
         <item quantity="one">%1$s y %2$d módulo</item>
         <item quantity="other">%1$s y %2$d módulos</item>
     </plurals>
+    <string name="queue_title">Cola</string>
+    <string name="queue_open">Abrir la cola</string>
+    <string name="queue_empty">No hay nada en la cola</string>
+    <string name="queue_empty_text">Las instalaciones, actualizaciones y eliminaciones aparecen aquí mientras se ejecutan.</string>
+    <string name="queue_clear">Borrar terminadas</string>
+    <string name="queue_done">Hecho</string>
+    <string name="queue_failed">Error</string>
+    <string name="queue_cancelled">Cancelado</string>
+    <string name="queue_kind_install">Instalación</string>
+    <string name="queue_kind_update">Actualización</string>
+    <string name="queue_kind_remove">Eliminación</string>
+    <string name="queue_kind_zip">Archivo ZIP</string>
+    <string name="queue_cancel_one">Cancelar: %1$s</string>
+    <string name="queue_removing_files">Eliminando archivos…</string>
+    <string name="pill_removing">Eliminando…</string>
+    <string name="pill_queued">En cola</string>
+    <string name="pill_remove_queued">Por eliminar</string>
+    <string name="action_close">Cerrar</string>
 </resources>

@@ -352,4 +352,22 @@
     <plurals name="package_installed">
         <item quantity="other">%1$s 和 %2$d 个模块</item>
     </plurals>
+    <string name="queue_title">队列</string>
+    <string name="queue_open">打开队列</string>
+    <string name="queue_empty">队列为空</string>
+    <string name="queue_empty_text">安装、更新和移除进行时会显示在这里。</string>
+    <string name="queue_clear">清除已完成</string>
+    <string name="queue_done">完成</string>
+    <string name="queue_failed">失败</string>
+    <string name="queue_cancelled">已取消</string>
+    <string name="queue_kind_install">安装</string>
+    <string name="queue_kind_update">更新</string>
+    <string name="queue_kind_remove">移除</string>
+    <string name="queue_kind_zip">ZIP 文件</string>
+    <string name="queue_cancel_one">取消：%1$s</string>
+    <string name="queue_removing_files">正在删除文件…</string>
+    <string name="pill_removing">正在移除…</string>
+    <string name="pill_queued">排队中</string>
+    <string name="pill_remove_queued">等待移除</string>
+    <string name="action_close">关闭</string>
 </resources>

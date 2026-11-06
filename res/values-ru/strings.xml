@@ -375,4 +375,22 @@
         <item quantity="many">%1$s и %2$d модулей</item>
         <item quantity="other">%1$s и %2$d модуля</item>
     </plurals>
+    <string name="queue_title">Очередь</string>
+    <string name="queue_open">Открыть очередь</string>
+    <string name="queue_empty">Очередь пуста</string>
+    <string name="queue_empty_text">Здесь видны установки, обновления и удаления, пока они идут.</string>
+    <string name="queue_clear">Убрать завершённые</string>
+    <string name="queue_done">Готово</string>
+    <string name="queue_failed">Ошибка</string>
+    <string name="queue_cancelled">Отменено</string>
+    <string name="queue_kind_install">Установка</string>
+    <string name="queue_kind_update">Обновление</string>
+    <string name="queue_kind_remove">Удаление</string>
+    <string name="queue_kind_zip">ZIP-файл</string>
+    <string name="queue_cancel_one">Отменить: %1$s</string>
+    <string name="queue_removing_files">Удаляю файлы…</string>
+    <string name="pill_removing">Удаляется…</string>
+    <string name="pill_queued">В очереди</string>
+    <string name="pill_remove_queued">Ждёт удаления</string>
+    <string name="action_close">Закрыть</string>
 </resources>

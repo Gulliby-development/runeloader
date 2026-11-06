@@ -375,4 +375,22 @@
         <item quantity="one">%1$s and %2$d module</item>
         <item quantity="other">%1$s and %2$d modules</item>
     </plurals>
+    <string name="queue_title">Queue</string>
+    <string name="queue_open">Open the queue</string>
+    <string name="queue_empty">Nothing in the queue</string>
+    <string name="queue_empty_text">Installs, updates and removals show here while they run.</string>
+    <string name="queue_clear">Clear finished</string>
+    <string name="queue_done">Done</string>
+    <string name="queue_failed">Failed</string>
+    <string name="queue_cancelled">Cancelled</string>
+    <string name="queue_kind_install">Install</string>
+    <string name="queue_kind_update">Update</string>
+    <string name="queue_kind_remove">Removal</string>
+    <string name="queue_kind_zip">ZIP file</string>
+    <string name="queue_cancel_one">Cancel: %1$s</string>
+    <string name="queue_removing_files">Removing files…</string>
+    <string name="pill_removing">Removing…</string>
+    <string name="pill_queued">Queued</string>
+    <string name="pill_remove_queued">Waiting to remove</string>
+    <string name="action_close">Close</string>
 </resources>

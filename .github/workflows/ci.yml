@@ -83,6 +83,12 @@ jobs:
           javac -d /tmp/pk src/app/wowforever/addons/{Model,Modules,Packages}.java test/PackagesTest.java
           java -cp /tmp/pk app.wowforever.addons.PackagesTest
 
+      - name: Install and remove queue
+        run: |
+          mkdir -p /tmp/q
+          javac -d /tmp/q src/app/wowforever/addons/Queue.java test/QueueTest.java
+          java -cp /tmp/q app.wowforever.addons.QueueTest
+
       - name: App self-update versions
         run: |
           mkdir -p /tmp/v
