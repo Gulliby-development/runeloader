@@ -362,4 +362,19 @@
     <string name="filter_verified_off">All addons, with or without a confirmed Forever build</string>
     <string name="verified_only_empty">No addon with a confirmed Forever build matches. The filter ✓ Forever is on.</string>
     <string name="action_show_all">Show all</string>
+    <string name="action_install_all">Install all</string>
+    <string name="action_remove_all">Remove all</string>
+    <string name="module_core">Core</string>
+    <string name="modules_title">Modules</string>
+    <string name="modules_hint">They install together. Remove a module you do not need, or turn it off in the game.</string>
+    <string name="action_show_modules">Show modules</string>
+    <string name="action_hide_modules">Hide modules</string>
+    <plurals name="modules_count">
+        <item quantity="one">%d module</item>
+        <item quantity="other">%d modules</item>
+    </plurals>
+    <plurals name="package_installed">
+        <item quantity="one">%1$s and %2$d module</item>
+        <item quantity="other">%1$s and %2$d modules</item>
+    </plurals>
 </resources>

@@ -37,9 +37,9 @@ final class AddonManager {
             app.main.post(() -> {
                 if (app.isDestroyed()) return;
                 // carry over update-check results
-                for (Model.Installed r : rows) {
+                for (Model.Installed r : all(rows)) {
                     if (r.entry == null) continue;
-                    for (Model.Installed o : app.installed) if (o.entry != null && o.entry.key.equals(r.entry.key) && o.entry != r.entry) {
+                    for (Model.Installed o : all(app.installed)) if (o.entry != null && o.entry.key.equals(r.entry.key) && o.entry != r.entry) {
                         r.entry.latest = o.entry.latest;
                         r.entry.checkError = o.entry.checkError;
                         r.entry.updateAvailable = UpdatePolicy.isNewer(o.entry.latest, r.entry.version);
@@ -125,7 +125,14 @@ final class AddonManager {
             g.compatible = anyForever(g.folders);
             rows.add(g);
         }
-        return rows;
+        return Packages.fold(rows);
+    }
+
+    /** Every Library row, the modules of packages included. */
+    static List<Model.Installed> all(List<Model.Installed> rows) {
+        List<Model.Installed> l = new ArrayList<>();
+        for (Model.Installed r : rows) l.addAll(r.withModules());
+        return l;
     }
 
     private static boolean anyForever(List<Model.LocalAddon> folders) {
@@ -218,14 +225,28 @@ final class AddonManager {
         install(Sources.itemFor(e), null);
     }
 
+    /** Updates every part of a package (or a single row) that has an update. */
+    void updatePackage(Model.Installed r) {
+        for (Model.Installed m : r.withModules())
+            if (m.entry != null && m.entry.updateAvailable && !app.busy.containsKey(m.entry.key)) update(m.entry);
+    }
+
     void updateAll() {
         int n = 0;
         for (Model.Entry e : app.store.list()) if (e.updateAvailable && !app.busy.containsKey(e.key)) { update(e); n++; }
         if (n > 0) app.snack(app.getString(R.string.updating_n, n));
     }
 
+    /**
+     * Installs an item. A package core that is not installed yet brings every module with it: people
+     * want the whole addon and turn parts off in the game, or remove a module in the Library.
+     */
     void install(final Model.Item item, final Runnable after) {
         if (!requireGame()) return;
+        final List<Model.Item> parts = new ArrayList<>();
+        parts.add(item);
+        if (app.store.entry(item.key()) == null && Model.SRC_GITHUB.equals(item.source))
+            for (Model.Item m : Index.modulesOf(item.id)) if (app.store.entry(m.key()) == null) parts.add(m);
         if (app.busy.containsKey(item.key())) return;
         app.busy.put(item.key(), app.getString(R.string.queued));
         queued.incrementAndGet();
@@ -237,7 +258,8 @@ final class AddonManager {
             String error = null;
             List<String> installedNames = new ArrayList<>();
             try {
-                installWithDeps(item, addons, installedNames, new HashSet<String>(), 0);
+                Set<String> seen = new HashSet<>();
+                for (Model.Item part : parts) installWithDeps(part, addons, installedNames, seen, 0, item);
             } catch (Exception e) {
                 error = MainActivity.friendly(e);
             }
@@ -250,7 +272,9 @@ final class AddonManager {
                 if (fe != null) {
                     app.confirm(app.getString(R.string.install_failed, item.name), fe, null, null);
                 } else {
-                    app.snack(app.getString(R.string.installed_names, installedNames.size() > 1 ? String.join(", ", installedNames) : item.name));
+                    String names = parts.size() > 1 ? app.getResources().getQuantityString(R.plurals.package_installed, parts.size() - 1, item.name, parts.size() - 1)
+                            : installedNames.size() > 1 ? String.join(", ", installedNames) : item.name;
+                    app.snack(app.getString(R.string.installed_names, names));
                 }
                 rescan();
                 app.refreshList();
@@ -261,8 +285,10 @@ final class AddonManager {
     }
 
     /** Runs on the ops thread. */
-    private void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth) throws IOException {
-        new Updater(app, app.store).installWithDeps(item, addons, done, seen, depth, this::progress);
+    /** The progress of a dependency or a module shows on the card of the item the user asked for. */
+    private void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth, final Model.Item asked) throws IOException {
+        new Updater(app, app.store).installWithDeps(item, addons, done, seen, depth,
+                (i, t, f) -> progress(asked, i.key().equals(asked.key()) ? t : i.name + "  ·  " + t, f));
     }
 
     private static boolean containsIgnoreCase(List<String> l, String s) { return Updater.containsIgnoreCase(l, s); }
@@ -312,10 +338,17 @@ final class AddonManager {
         install(it, null);
     }
 
+    /** Removes a row; the core of a package takes its modules with it, since they cannot run without it. */
     void confirmRemove(final Model.Installed r) {
         final List<String> folders = new ArrayList<>();
-        for (Model.LocalAddon a : r.folders) folders.add(a.folder);
-        if (r.entry != null) for (String f : r.entry.folders) if (!containsIgnoreCase(folders, f)) folders.add(f);
+        final List<String> keys = new ArrayList<>();
+        for (Model.Installed m : r.withModules()) {
+            for (Model.LocalAddon a : m.folders) if (!containsIgnoreCase(folders, a.folder)) folders.add(a.folder);
+            if (m.entry != null) {
+                keys.add(m.entry.key);
+                for (String f : m.entry.folders) if (!containsIgnoreCase(folders, f)) folders.add(f);
+            }
+        }
         app.confirm(app.getString(R.string.remove_title, r.title), app.getString(R.string.remove_text, DetailPanel.joinShort(folders, 10)), app.getString(R.string.action_remove), () -> {
             final File addons = app.store.addonsDir();
             app.selected = null;
@@ -326,7 +359,7 @@ final class AddonManager {
                 try {
                     synchronized (Updater.LOCK) {
                         Installer.remove(addons, folders);
-                        if (r.entry != null) app.store.remove(r.entry.key);
+                        for (String k : keys) app.store.remove(k);
                     }
                 } catch (IOException e) {
                     err = MainActivity.friendly(e);
@@ -343,7 +376,7 @@ final class AddonManager {
 
     void confirmRemoveEntry(final Model.Entry e) {
         Model.Installed r = null;
-        for (Model.Installed x : app.installed) if (x.entry != null && x.entry.key.equals(e.key)) r = x;
+        for (Model.Installed x : all(app.installed)) if (x.entry != null && x.entry.key.equals(e.key)) r = x;
         if (r == null) { r = new Model.Installed(); r.entry = e; r.title = e.name; }
         confirmRemove(r);
     }

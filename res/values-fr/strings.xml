@@ -350,4 +350,19 @@
     <string name="filter_verified_off">Tous les addons, avec ou sans version Forever confirmée</string>
     <string name="verified_only_empty">Aucun addon avec une version Forever confirmée ne correspond. Le filtre ✓ Forever est actif.</string>
     <string name="action_show_all">Tout afficher</string>
+    <string name="action_install_all">Tout installer</string>
+    <string name="action_remove_all">Tout supprimer</string>
+    <string name="module_core">Noyau</string>
+    <string name="modules_title">Modules</string>
+    <string name="modules_hint">Ils s\'installent ensemble. Supprimez un module inutile ou désactivez-le dans le jeu.</string>
+    <string name="action_show_modules">Afficher les modules</string>
+    <string name="action_hide_modules">Masquer les modules</string>
+    <plurals name="modules_count">
+        <item quantity="one">%d module</item>
+        <item quantity="other">%d modules</item>
+    </plurals>
+    <plurals name="package_installed">
+        <item quantity="one">%1$s et %2$d module</item>
+        <item quantity="other">%1$s et %2$d modules</item>
+    </plurals>
 </resources>

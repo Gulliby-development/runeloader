@@ -54,7 +54,7 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check in `Http.java` that keeps the GitHub token on GitHub hosts.
 - A new addon source goes into `Sources.java` with a row in the "Where addons come from" table of `README.md`. It declares which TOC field (`X-WoWI-ID`, `X-Wago-ID`, ...) holds its id.
-- The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. The tokens that mark a desktop program zip (`AssetName.java`, `is_app_binary` there) stay identical on both sides, with a case in `test/AssetNameTest.java`. A repo that releases each module on its own tag (`Core-v1`, `Wheel-v2`, ...) is listed as its core (`owner/repo`) and one item per module (`owner/repo#Module`, the index's `module` key); each installs the newest published release of its own group: `Modules.java` here and `module_groups` there, with a case in `test/ModulesTest.java`. Code that needs the repository of an item id uses `Modules.repoOf`. The index's `requires` keys become `item.deps`, which `Updater` resolves through the catalog, then the index. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
+- The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. The tokens that mark a desktop program zip (`AssetName.java`, `is_app_binary` there) stay identical on both sides, with a case in `test/AssetNameTest.java`. A repo that releases each module on its own tag (`Core-v1`, `Wheel-v2`, ...) is listed as its core (`owner/repo`) and one item per module (`owner/repo#Module`, the index's `module` key); each installs the newest published release of its own group: `Modules.java` here and `module_groups` there, with a case in `test/ModulesTest.java`. Code that needs the repository of an item id uses `Modules.repoOf`. Such a repo is a package in the app: Browse shows only its core (`Index.packageOf`), installing a core that is not installed yet installs every module (`AddonManager.install`), and the Library lists the modules under their core (`Packages.fold`, with a case in `test/PackagesTest.java`). Code that walks every Library row uses `AddonManager.all`, which includes the modules. The index's `requires` keys become `item.deps`, which `Updater` resolves through the catalog, then the index. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
 - Discontinued addons come from the index only (`discontinued`, `discontinued_note`, `successor`, read in `IndexFields`, with a case in `test/IndexFieldsTest.java`). A new end-of-life signal goes into runeloader-index (`details.ended_notice` or `discontinued.txt`), never into the app. `Popularity.ORDER` keeps discontinued addons last.
 - A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
 - The GitHub index (runeloader-index) is a hint for search, metadata and update checks. An install always resolves the asset from GitHub directly (`Sources.latest`), because the index can be a day old. If the index is unreachable, the update check falls back to the per-addon check.
@@ -71,6 +71,8 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 2. Tag the merge commit on `main` with `v<versionName>` and push the tag (`git tag v0.0.1 && git push origin v0.0.1`), or start the Release workflow on `main` from the Actions tab ("Run workflow"), which tags the commit it built.
 3. The workflow checks that the tag matches both build files, builds with Gradle and `build.sh` using the release key, compares the two APKs, refuses a debug signature, and creates a **draft** release with `runeloader-<version>.apk` and its SHA-256.
 4. The owner reviews the draft and publishes it. An agent publishes only when the owner asked for it: it starts the manual run with `publish` set, and the workflow publishes the release after the build.
+
+The owner asks for a release after every merged bug fix: once the fix is merged with green CI, bump the version in a follow-up pull request (or in the fix itself) and publish the release right away, with the manual run and `publish` set. Do not wait for other changes to collect.
 
 The workflow needs these repository secrets (Settings, Secrets and variables, Actions). It fails when one is missing:
 
@@ -163,6 +165,13 @@ When you change `Modules.java` (repos that release each module separately), run 
 ```sh
 mkdir -p /tmp/mo && javac -d /tmp/mo src/app/wowforever/addons/Modules.java test/ModulesTest.java
 java -cp /tmp/mo app.wowforever.addons.ModulesTest
+```
+
+When you change `Packages.java` (modules listed under their core in the Library), run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/pk && javac -d /tmp/pk src/app/wowforever/addons/{Model,Modules,Packages}.java test/PackagesTest.java
+java -cp /tmp/pk app.wowforever.addons.PackagesTest
 ```
 
 When you change `Markdown.java` (release notes in the detail panel), run its test (CI runs it too):

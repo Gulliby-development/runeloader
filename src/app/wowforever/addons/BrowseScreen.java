@@ -424,6 +424,14 @@ final class BrowseScreen extends Screen {
             pad.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
             metaRow.addView(pad, Ui.margins(Ui.lp(-2, -2), 4, 0, 0, 0));
         }
+        int modules = Model.SRC_GITHUB.equals(it.source) ? Index.moduleCount(it.id) : 0;
+        if (modules > 0) {
+            // A package: the one row installs the core and every module.
+            TextView pk = Ui.oneLine(Ui.text(app, q(R.plurals.modules_count, modules), 10, Ui.BLUE, Ui.MEDIUM));
+            pk.setBackground(Ui.round(Ui.BLUE_SOFT, 6));
+            pk.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
+            metaRow.addView(pk, Ui.margins(Ui.lp(-2, -2), 4, 0, 0, 0));
+        }
         if (it.isDiscontinued()) metaRow.addView(discontinuedTag(), Ui.margins(Ui.lp(-2, -2), 4, 0, 0, 0));
         if (meta.length() > 0) metaRow.addView(Ui.oneLine(Ui.text(app, meta.toString(), 11.5f, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lpw(0, -2, 1), 6, 0, 0, 0));
         mid.addView(metaRow, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));

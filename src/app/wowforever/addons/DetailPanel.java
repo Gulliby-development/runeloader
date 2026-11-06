@@ -54,7 +54,7 @@ final class DetailPanel extends Screen {
         if (app.selected instanceof Model.Installed) {
             Model.Installed s = (Model.Installed) app.selected;
             Model.Installed fresh = null;
-            for (Model.Installed r : app.installed) {
+            for (Model.Installed r : AddonManager.all(app.installed)) {
                 if (s.entry != null && r.entry != null && r.entry.key.equals(s.entry.key)) fresh = r;
                 else if (s.entry == null && r.entry == null && r.main() != null && s.main() != null && r.main().folder.equals(s.main().folder)) fresh = r;
                 else if (s.entry == null && r.entry != null && s.catalogMatch != null && r.entry.key.equals(s.catalogMatch.key())) fresh = r;
@@ -218,7 +218,8 @@ final class DetailPanel extends Screen {
             b.setEnabled(false);
             primaryAction(col, b);
         } else {
-            String label = s(e == null ? R.string.action_install : R.string.action_reinstall);
+            boolean pkg = e == null && Model.SRC_GITHUB.equals(it.source) && Index.moduleCount(it.id) > 0;
+            String label = s(e == null ? (pkg ? R.string.action_install_all : R.string.action_install) : R.string.action_reinstall);
             LinearLayout b = Ui.button(app, label, R.drawable.ic_download, e == null && successor == null ? Ui.Kind.PRIMARY : Ui.Kind.SECONDARY, v -> app.manager.install(it, null));
             primaryAction(col, b);
             View focus = successor != null ? successor : b;
@@ -232,6 +233,7 @@ final class DetailPanel extends Screen {
         } else {
             col.addView(Ui.space(app, 1, 8));
         }
+        if (Model.SRC_GITHUB.equals(it.source)) modulesSection(col, it.id, null);
 
         if (it.note != null) noteCard(col, it.note, Ui.ORANGE, Ui.ORANGE_SOFT);
         if (Model.SRC_WOWI.equals(it.source)) noteCard(col, s(R.string.note_wowi_version), Ui.BLUE, Ui.BLUE_SOFT);
@@ -337,8 +339,9 @@ final class DetailPanel extends Screen {
             final String p = page;
             addSecondary(more, Ui.button(app, s(R.string.action_page), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl(p)));
         }
-        LinearLayout del = Ui.button(app, s(R.string.action_remove), R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemove(r));
+        LinearLayout del = Ui.button(app, s(r.isPackage() ? R.string.action_remove_all : R.string.action_remove), R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemove(r));
         addSecondary(more, del);
+        if (e != null && Model.SRC_GITHUB.equals(e.source) && r.parent == null) modulesSection(col, e.id, r);
         final View focusTarget = primary != null ? primary : del;
         if (app.landscape) focusTarget.post(focusTarget::requestFocus);
 
@@ -382,6 +385,61 @@ final class DetailPanel extends Screen {
         infoRow(col, s(R.string.info_folders), joinShort(fs, 8));
         if (e != null && !Model.SRC_ZIP.equals(e.source)) infoRow(col, s(R.string.info_source), Model.SRC_GITHUB.equals(e.source) ? "github.com/" + Modules.repoOf(e.id) : sourceName(e.source) + " #" + e.id);
         DetailExtras.releases(app, col, meta.releases, r.version, e != null && Model.SRC_GITHUB.equals(e.source) ? Modules.repoOf(e.id) : null);
+    }
+
+    /**
+     * The modules of a package (core owner/repo): each one installed or not, with a button to add or
+     * remove just that module. Installed modules the index no longer lists show too.
+     */
+    private void modulesSection(LinearLayout col, String repo, Model.Installed pkg) {
+        if (Modules.moduleOf(repo) != null) return;
+        List<Model.Item> mods = Index.modulesOf(repo);
+        List<Model.Installed> extra = new ArrayList<>();
+        if (pkg != null) for (Model.Installed m : pkg.modules) {
+            boolean listed = false;
+            for (Model.Item it : mods) if (m.entry != null && it.key().equalsIgnoreCase(m.entry.key)) listed = true;
+            if (!listed) extra.add(m);
+        }
+        if (mods.isEmpty() && extra.isEmpty()) return;
+        String coreName = pkg != null ? pkg.title : null;
+        if (coreName == null) { Model.Item core = Index.item(repo); coreName = core != null ? core.name : ""; }
+        col.addView(DetailExtras.sectionTitle(app, s(R.string.modules_title) + "  ·  " + (mods.size() + extra.size())), Ui.margins(Ui.lp(-1, -2), 0, 4, 0, 4));
+        col.addView(Ui.text(app, s(R.string.modules_hint), 12.5f, Ui.TEXT3, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 8));
+        for (final Model.Item it : mods) {
+            final Model.Entry me = app.store.entry(it.key());
+            moduleLine(col, Packages.moduleName(it.name, coreName), me != null ? me.version : null, it.key(),
+                    me != null ? (Runnable) () -> app.manager.confirmRemoveEntry(me) : null,
+                    me == null ? (Runnable) () -> app.manager.install(it, null) : null);
+        }
+        for (final Model.Installed m : extra)
+            moduleLine(col, Packages.moduleName(m.title, coreName), m.version, m.entry != null ? m.entry.key : null, () -> app.manager.confirmRemove(m), null);
+        col.addView(Ui.space(app, 1, 12));
+    }
+
+    private void moduleLine(LinearLayout col, String name, String version, String key, final Runnable remove, final Runnable install) {
+        LinearLayout line = Ui.hbox(app);
+        line.setBackground(Ui.round(Ui.SURFACE, 12, Ui.STROKE, 1f));
+        line.setPadding(Ui.dp(12), Ui.dp(4), Ui.dp(4), Ui.dp(4));
+        line.setMinimumHeight(Ui.dp(44));
+        LinearLayout tb = Ui.vbox(app);
+        tb.addView(Ui.oneLine(Ui.text(app, name, 13.5f, Ui.TEXT, Ui.MEDIUM)));
+        if (version != null && !version.isEmpty()) tb.addView(Ui.oneLine(Ui.text(app, version, 11, Ui.TEXT3, Typeface.MONOSPACE)));
+        line.addView(tb, Ui.lpw(0, -2, 1));
+        if (key != null && app.busy.containsKey(key)) {
+            line.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT), Ui.margins(Ui.lp(-2, -2), 0, 0, 6, 0));
+        } else {
+            if (remove == null && install == null) { col.addView(line, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 6)); return; }
+            boolean add = install != null;
+            String label = s(add ? R.string.action_install : R.string.action_remove) + ": " + name;
+            LinearLayout b = Ui.button(app, null, add ? R.drawable.ic_download : R.drawable.ic_delete, add ? Ui.Kind.SECONDARY : Ui.Kind.DANGER,
+                    v -> { if (install != null) install.run(); else remove.run(); });
+            b.setPadding(0, 0, 0, 0);
+            b.setMinimumHeight(0);
+            b.setContentDescription(label);
+            b.setTooltipText(label);
+            line.addView(b, Ui.lp(Ui.dp(36), Ui.dp(36)));
+        }
+        col.addView(line, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 6));
     }
 
     /** A star in the hero that keeps the addon in Browse, Favorites; it does not install anything. */

@@ -29,6 +29,8 @@ final class Index {
     private static List<Model.Item> items;
     private static Map<String, JSONObject> byRepo = new HashMap<>();
     private static Map<String, Model.Item> byFolder = new HashMap<>();
+    /** owner/repo (lower case) of a module repo to its module entries, in index order. */
+    private static Map<String, List<JSONObject>> modules = new HashMap<>();
     private static long loadedAt;
 
     /** All index entries, most popular first (see Popularity). Uses the disk cache when fresh or when offline. */
@@ -101,12 +103,19 @@ final class Index {
         List<Model.Item> out = new ArrayList<>();
         Map<String, JSONObject> repos = new HashMap<>();
         Map<String, Model.Item> folders = new HashMap<>();
+        Map<String, List<JSONObject>> mods = new HashMap<>();
         if (arr != null) for (int i = 0; i < arr.length(); i++) {
             JSONObject a = arr.optJSONObject(i);
             Model.Item it = toItem(a);
             if (it == null) continue;
             out.add(it);
             repos.put(it.id.toLowerCase(Locale.ROOT), a);
+            if (Modules.moduleOf(it.id) != null) {
+                String core = Modules.repoOf(it.id).toLowerCase(Locale.ROOT);
+                List<JSONObject> l = mods.get(core);
+                if (l == null) mods.put(core, l = new ArrayList<>());
+                l.add(a);
+            }
             for (String d : it.folders) {
                 String k = d.toLowerCase(Locale.ROOT);
                 if (!folders.containsKey(k)) folders.put(k, it);
@@ -116,6 +125,7 @@ final class Index {
         items = out;
         byRepo = repos;
         byFolder = folders;
+        modules = mods;
     }
 
     static Model.Item toItem(JSONObject a) {
@@ -170,6 +180,32 @@ final class Index {
     static synchronized Model.Item item(String repo) {
         JSONObject a = addon(repo);
         return a == null ? null : toItem(a);
+    }
+
+    /**
+     * The module entries of owner/repo when the index lists it as a package (its core plus modules
+     * released on their own tags), sorted by name; empty for an ordinary addon.
+     */
+    static synchronized List<Model.Item> modulesOf(String repo) {
+        List<Model.Item> out = new ArrayList<>();
+        List<JSONObject> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
+        if (l == null || byRepo.get(repo.toLowerCase(Locale.ROOT)) == null) return out;
+        for (JSONObject a : l) { Model.Item it = toItem(a); if (it != null) out.add(it); }
+        Collections.sort(out, (x, y) -> x.name.compareToIgnoreCase(y.name));
+        return out;
+    }
+
+    /** How many modules the package owner/repo has; 0 for an ordinary addon or a repo the index lacks. */
+    static synchronized int moduleCount(String repo) {
+        List<JSONObject> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
+        return l == null || byRepo.get(repo.toLowerCase(Locale.ROOT)) == null ? 0 : l.size();
+    }
+
+    /** The core of a module entry when the index lists that core, else the item itself: Browse shows one row per package. */
+    static Model.Item packageOf(Model.Item it) {
+        if (it == null || !Model.SRC_GITHUB.equals(it.source) || Modules.moduleOf(it.id) == null) return it;
+        Model.Item core = item(Modules.repoOf(it.id));
+        return core != null ? core : it;
     }
 
     /** The index item that installs this AddOns folder, from the last loaded index, or null. */

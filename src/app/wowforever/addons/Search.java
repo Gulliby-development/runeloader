@@ -50,7 +50,8 @@ final class Search {
         Set<String> names = new HashSet<>();
         // Hand-picked entries the index does not list yet go first: they are known to work on Forever.
         for (Model.Item c : catalog(q)) if (Index.item(c.id) == null) add(all, c, keys, folders, names);
-        for (Model.Item it : github) add(all, it, keys, folders, names);
+        // A module of a package shows as its package: one row installs the core and every module.
+        for (Model.Item it : github) add(all, Index.packageOf(it), keys, folders, names);
         if (!q.isEmpty()) {
             try {
                 for (Model.Item w : Sources.Wowi.search(q, 0, Integer.MAX_VALUE)) {
@@ -82,7 +83,8 @@ final class Search {
     static Map<String, Integer> counts(boolean verifiedOnly) throws IOException {
         Map<String, Integer> n = new HashMap<>();
         for (String k : Categories.KEYS) n.put(k, 0);
-        List<Model.Item> all = new ArrayList<>(Index.items(false));
+        List<Model.Item> all = new ArrayList<>();
+        for (Model.Item it : Index.items(false)) if (Index.packageOf(it) == it) all.add(it);
         for (Model.Item c : Catalog.all()) if (Index.item(c.id) == null) all.add(c);
         if (verifiedOnly) all = verified(all);
         for (Model.Item it : all) {

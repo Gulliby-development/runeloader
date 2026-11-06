@@ -472,7 +472,7 @@ public class MainActivity extends Activity {
     void updateNavBadge() {
         if (navBadge == null) return;
         int n = 0;
-        for (Model.Installed r : installed) if (r.entry != null && r.entry.updateAvailable) n++;
+        for (Model.Installed r : AddonManager.all(installed)) if (r.entry != null && r.entry.updateAvailable) n++;
         navBadge.setText(n > 99 ? "99+" : String.valueOf(n));
         navBadge.setContentDescription(n > 0 ? getResources().getQuantityString(R.plurals.updates_available, n, n) : null);
         navBadge.setVisibility(n > 0 ? View.VISIBLE : View.GONE);
