@@ -358,4 +358,23 @@
     <string name="filter_verified_off">Wszystkie dodatki, z potwierdzoną wersją Forever lub bez</string>
     <string name="verified_only_empty">Żaden dodatek z potwierdzoną wersją Forever nie pasuje. Filtr ✓ Forever jest włączony.</string>
     <string name="action_show_all">Pokaż wszystkie</string>
+    <string name="action_install_all">Zainstaluj wszystko</string>
+    <string name="action_remove_all">Usuń wszystko</string>
+    <string name="module_core">Rdzeń</string>
+    <string name="modules_title">Moduły</string>
+    <string name="modules_hint">Instalują się razem. Usuń moduł, którego nie potrzebujesz, albo wyłącz go w grze.</string>
+    <string name="action_show_modules">Pokaż moduły</string>
+    <string name="action_hide_modules">Ukryj moduły</string>
+    <plurals name="modules_count">
+        <item quantity="one">%d moduł</item>
+        <item quantity="few">%d moduły</item>
+        <item quantity="many">%d modułów</item>
+        <item quantity="other">%d modułu</item>
+    </plurals>
+    <plurals name="package_installed">
+        <item quantity="one">%1$s i %2$d moduł</item>
+        <item quantity="few">%1$s i %2$d moduły</item>
+        <item quantity="many">%1$s i %2$d modułów</item>
+        <item quantity="other">%1$s i %2$d modułu</item>
+    </plurals>
 </resources>

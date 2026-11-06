@@ -20,7 +20,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** The installed-addons tab. */
 final class LibraryScreen extends Screen {
@@ -29,12 +31,51 @@ final class LibraryScreen extends Screen {
 
     LibraryScreen(MainActivity app) { super(app); }
 
+    /** Packages whose modules are shown, by row id. */
+    private final Set<String> expanded = new HashSet<>();
+    /** The list as shown: top rows, and under an open package its core and modules. */
+    private final List<Line> lines = new ArrayList<>();
+    private List<Model.Installed> sorted = new ArrayList<>();
+
+    /** One list line: a Library row, or a part of an open package (core is that package's own row). */
+    private static final class Line {
+        final Model.Installed row;
+        final boolean part;
+        Line(Model.Installed row, boolean part) { this.row = row; this.part = part; }
+    }
+
+    private static String rowId(Model.Installed r) {
+        return r.entry != null ? r.entry.key : (r.catalogMatch != null ? r.catalogMatch.key() : r.title);
+    }
+
+    private static boolean anyUpdate(Model.Installed r) {
+        for (Model.Installed m : r.withModules()) if (m.entry != null && m.entry.updateAvailable) return true;
+        return false;
+    }
+
+    private void flatten() {
+        lines.clear();
+        for (Model.Installed r : sorted) {
+            lines.add(new Line(r, false));
+            if (r.isPackage() && expanded.contains(rowId(r))) for (Model.Installed m : r.withModules()) lines.add(new Line(m, true));
+        }
+    }
+
+    /** A package line opens or closes its list of parts; where the detail is docked it also shows the package. */
+    private void toggle(Model.Installed r) {
+        String id = rowId(r);
+        if (!expanded.remove(id)) expanded.add(id);
+        flatten();
+        if (app.layout.docked) app.detail.select(r);
+        else app.refreshList();
+    }
+
     void renderInstalled() {
         int managed = 0;
         List<String> updateNames = new ArrayList<>();
         for (Model.Installed r : app.installed) {
             if (r.entry != null) managed++;
-            if (r.entry != null && r.entry.updateAvailable) updateNames.add(r.title);
+            if (anyUpdate(r)) updateNames.add(r.title);
         }
         String sub = q(R.plurals.addons_count, app.installed.size())
                 + " · " + s(R.string.installed_managed, managed) + (app.checking ? " · " + s(R.string.installed_checking) : "");
@@ -61,20 +102,29 @@ final class LibraryScreen extends Screen {
         if (!updateNames.isEmpty()) app.headerBox.addView(updateBar(updateNames));
         final List<Model.Installed> rows = new ArrayList<>(app.installed);
         Collections.sort(rows, (a, b) -> {
-            int ua = a.entry != null && a.entry.updateAvailable ? 0 : 1;
-            int ub = b.entry != null && b.entry.updateAvailable ? 0 : 1;
+            int ua = anyUpdate(a) ? 0 : 1;
+            int ub = anyUpdate(b) ? 0 : 1;
             if (ua != ub) return ua - ub;
             return a.title.compareToIgnoreCase(b.title);
         });
+        sorted = rows;
+        flatten();
         ListView lv = makeList();
         app.currentAdapter = new BaseAdapter() {
-            @Override public int getCount() { return rows.size(); }
-            @Override public Object getItem(int p) { return rows.get(p); }
+            @Override public int getCount() { return lines.size(); }
+            @Override public Object getItem(int p) { return lines.get(p); }
             @Override public long getItemId(int p) { return p; }
-            @Override public View getView(int p, View cv, ViewGroup parent) { return installedRow(rows.get(p)); }
+            @Override public View getView(int p, View cv, ViewGroup parent) {
+                Line l = lines.get(p);
+                return l.part ? partRow(l.row) : l.row.isPackage() ? packageRow(l.row) : installedRow(l.row);
+            }
         };
         lv.setAdapter(app.currentAdapter);
-        lv.setOnItemClickListener((parent, view, position, id) -> app.detail.select(rows.get(position)));
+        lv.setOnItemClickListener((parent, view, position, id) -> {
+            Line l = lines.get(position);
+            if (!l.part && l.row.isPackage()) toggle(l.row);
+            else app.detail.select(l.row);
+        });
         app.bodyBox.addView(lv, new FrameLayout.LayoutParams(-1, -1));
         app.currentList = lv;
     }
@@ -182,6 +232,82 @@ final class LibraryScreen extends Screen {
             row.addView(w, Ui.margins(Ui.lp(Ui.dp(18), Ui.dp(18)), 8, 0, 0, 0));
         }
         return row;
+    }
+
+    /** A package: one line for the core and its modules, with a chevron that opens the list of parts. */
+    private View packageRow(final Model.Installed r) {
+        LinearLayout row = rowShell(r == app.selected);
+        row.setPadding(Ui.dp(10), Ui.dp(8), Ui.dp(8), Ui.dp(8));
+        row.setMinimumHeight(Ui.dp(60));
+        row.addView(avatar(r.entry != null ? r.entry.iconUrl : (r.catalogMatch != null ? r.catalogMatch.iconUrl : null), r.title, 40));
+
+        int updates = 0;
+        boolean busy = false, unchecked = false, missing = false;
+        for (Model.Installed m : r.withModules()) {
+            String key = m.entry != null ? m.entry.key : (m.catalogMatch != null ? m.catalogMatch.key() : null);
+            if (key != null && app.busy.containsKey(key)) busy = true;
+            if (m.entry != null && m.entry.updateAvailable) updates++;
+            if (m.entry != null && m.entry.checkError != null) unchecked = true;
+            if (m.missing) missing = true;
+        }
+        LinearLayout mid = Ui.vbox(app);
+        mid.addView(Ui.oneLine(Ui.text(app, r.title, 14, Ui.TEXT, Ui.MEDIUM)), Ui.lp(-1, -2));
+        String parts = q(R.plurals.modules_count, r.modules.size());
+        TextView st = Ui.oneLine(Ui.text(app, updates > 0 && !busy ? q(R.plurals.updates_available, updates) + "  ·  " + parts
+                : parts + "  ·  " + (r.entry != null ? sourceName(r.entry.source) : s(R.string.installed_manually)), 11.5f, updates > 0 && !busy ? Ui.ACCENT : Ui.TEXT3, Ui.REGULAR));
+        mid.addView(st, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
+        row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
+
+        String coreVer = r.entry != null && r.entry.version != null && !r.entry.version.isEmpty() ? r.entry.version : r.version;
+        if (busy) {
+            row.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
+        } else if (missing) {
+            row.addView(Ui.pill(app, s(R.string.pill_folders_missing), Ui.RED, Ui.RED_SOFT));
+        } else if (updates > 0) {
+            LinearLayout up = Ui.button(app, null, R.drawable.ic_upgrade, Ui.Kind.PRIMARY, v -> app.manager.updatePackage(r));
+            up.setFocusable(false);
+            up.setMinimumHeight(Ui.dp(36));
+            up.setPadding(Ui.dp(9), Ui.dp(9), Ui.dp(9), Ui.dp(9));
+            up.setContentDescription(s(R.string.action_update));
+            up.setTooltipText(s(R.string.action_update));
+            row.addView(up, Ui.lp(Ui.dp(36), Ui.dp(36)));
+        } else if (unchecked) {
+            row.addView(Ui.pill(app, s(R.string.pill_unchecked), Ui.TEXT2, Ui.SURFACE3));
+        } else if (r.entry != null && r.entry.latest != null) {
+            boolean hasVer = coreVer != null && !coreVer.isEmpty();
+            TextView p = iconPill(app, hasVer ? clip(coreVer, 14) : s(R.string.pill_up_to_date), R.drawable.ic_check, Ui.GREEN, Ui.GREEN_SOFT);
+            p.setContentDescription(s(R.string.pill_up_to_date));
+            row.addView(p);
+        }
+        boolean open = expanded.contains(rowId(r));
+        ImageView chev = Ui.icon(app, R.drawable.ic_chevron, Ui.TEXT2, 22);
+        chev.setRotation(open ? 270 : 90);
+        row.setContentDescription(r.title + ", " + parts + ", " + s(open ? R.string.action_hide_modules : R.string.action_show_modules));
+        row.addView(chev, Ui.margins(Ui.lp(Ui.dp(22), Ui.dp(22)), 6, 0, 0, 0));
+        return row;
+    }
+
+    /** A part of an open package, indented under it: the core first, then each module by its short name. */
+    private View partRow(Model.Installed m) {
+        LinearLayout row = (LinearLayout) installedRow(m);
+        boolean core = m.parent == null;
+        Model.Installed pkg = core ? m : m.parent;
+        // The title is the second child's first line.
+        LinearLayout mid = (LinearLayout) row.getChildAt(1);
+        TextView name = (TextView) mid.getChildAt(0);
+        name.setText(core ? s(R.string.module_core) : Packages.moduleName(m.title, pkg.title));
+        row.removeViewAt(0);
+        row.setMinimumHeight(Ui.dp(48));
+        row.setPadding(Ui.dp(14), Ui.dp(6), Ui.dp(8), Ui.dp(6));
+        LinearLayout box = new LinearLayout(app);
+        box.setOrientation(LinearLayout.HORIZONTAL);
+        // A thin line on the left ties the parts to their package.
+        View rule = new View(app);
+        rule.setBackground(Ui.round(Ui.STROKE, 2));
+        box.addView(rule, Ui.margins(Ui.lp(Ui.dp(3), -1), 22, 2, 10, 2));
+        box.addView(row, Ui.lpw(0, -2, 1));
+        box.setLayoutParams(new android.widget.AbsListView.LayoutParams(-1, -2));
+        return box;
     }
 
     /** "1.14.3 → 1.15.0" in monospace, the new version in gold. */

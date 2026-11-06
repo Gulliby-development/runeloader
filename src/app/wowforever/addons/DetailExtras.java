@@ -152,7 +152,7 @@ final class DetailExtras {
         return sb;
     }
 
-    private static TextView sectionTitle(MainActivity app, String s) {
+    static TextView sectionTitle(MainActivity app, String s) {
         return Ui.oneLine(Ui.text(app, s, 14, Ui.TEXT, Ui.BOLD));
     }
 

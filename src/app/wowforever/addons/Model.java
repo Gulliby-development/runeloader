@@ -110,8 +110,20 @@ final class Model {
         boolean compatible = true;
         boolean missing;                   // tracked but folders deleted
         Item catalogMatch;                 // a catalog entry that can manage it
+        List<Installed> modules = new ArrayList<>();   // a package core: its installed modules (see Packages)
+        Installed parent;                  // a module: the core row it is listed under
 
         LocalAddon main() { return folders.isEmpty() ? null : folders.get(0); }
+
+        boolean isPackage() { return !modules.isEmpty(); }
+
+        /** This row and the modules under it. */
+        List<Installed> withModules() {
+            List<Installed> l = new ArrayList<>();
+            l.add(this);
+            l.addAll(modules);
+            return l;
+        }
     }
 
     private Model() {}

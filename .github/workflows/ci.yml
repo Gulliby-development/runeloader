@@ -77,6 +77,12 @@ jobs:
           javac -d /tmp/mo src/app/wowforever/addons/Modules.java test/ModulesTest.java
           java -cp /tmp/mo app.wowforever.addons.ModulesTest
 
+      - name: Packages in the Library
+        run: |
+          mkdir -p /tmp/pk
+          javac -d /tmp/pk src/app/wowforever/addons/{Model,Modules,Packages}.java test/PackagesTest.java
+          java -cp /tmp/pk app.wowforever.addons.PackagesTest
+
       - name: App self-update versions
         run: |
           mkdir -p /tmp/v
