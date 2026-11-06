@@ -1,12 +1,8 @@
 package app.wowforever.addons;
 
-import android.text.InputType;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -40,9 +36,8 @@ final class SettingsScreen extends Screen {
 
         gameCard(left);
         languageCard(left);
-        githubCard(right);
         autoUpdateCard(right);
-        aboutCard(left);
+        aboutCard(right);
 
         app.bodyBox.addView(sv, new FrameLayout.LayoutParams(-1, -1));
     }
@@ -99,26 +94,14 @@ final class SettingsScreen extends Screen {
         lang.addView(chips, Ui.lp(-1, -2));
     }
 
-    private void githubCard(LinearLayout parent) {
-        LinearLayout gh = card(parent, R.drawable.ic_link, s(R.string.settings_github_token));
-        gh.addView(Ui.text(app, s(R.string.settings_github_text), 12.5f, Ui.TEXT2, Ui.REGULAR), Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 10));
-        final EditText tok = field(app.store.githubToken(), "ghp_…", true);
-        gh.addView(tok, Ui.lp(-1, Ui.dp(42)));
-        gh.addView(actions(
-                Ui.button(app, s(R.string.action_save), R.drawable.ic_check, Ui.Kind.SECONDARY, v -> {
-                    app.store.setGithubToken(tok.getText().toString());
-                    app.hideKeyboard();
-                    app.snack(s(R.string.saved));
-                })),
-                Ui.margins(Ui.lp(-1, -2), 0, 10, 0, 0));
-    }
-
     private void aboutCard(LinearLayout parent) {
         LinearLayout ab = card(parent, R.drawable.ic_info, s(R.string.settings_about));
         int col = app.layout.listDp >= TWO_COLUMNS_DP ? app.layout.listDp / 2 : app.layout.listDp;
         int wmh = Math.min(40, Math.round((col - 80) / Ui.WORDMARK_RATIO));
         ab.addView(Ui.wordmark(app, wmh), Ui.margins(Ui.lp(Math.round(Ui.dp(wmh) * Ui.WORDMARK_RATIO), Ui.dp(wmh)), 0, 2, 0, 12));
-        ab.addView(Ui.text(app, s(R.string.settings_about_text), 12.5f, Ui.TEXT2, Ui.REGULAR));
+        ab.addView(Ui.text(app, s(R.string.settings_about_text), 13, Ui.TEXT2, Ui.REGULAR));
+        ab.addView(Ui.text(app, s(R.string.settings_about_gamepad), 13, Ui.TEXT, Ui.MEDIUM), Ui.margins(Ui.lp(-1, -2), 0, 12, 0, 4));
+        ab.addView(Ui.text(app, s(R.string.settings_about_gamepad_keys), 12.5f, Ui.TEXT2, Ui.REGULAR));
         final SelfUpdate su = app.selfUpdate;
         String state = su.available != null ? s(R.string.self_available, su.available.version)
                 : su.checking ? s(R.string.self_checking) : s(R.string.settings_version, s(R.string.app_name), versionName());
@@ -236,24 +219,6 @@ final class SettingsScreen extends Screen {
         c.addView(h, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 10));
         parent.addView(c, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 12));
         return c;
-    }
-
-    private EditText field(String value, String hint, boolean secret) {
-        EditText e = new EditText(app);
-        e.setSingleLine(true);
-        e.setText(value);
-        e.setHint(hint);
-        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        e.setTextColor(Ui.TEXT);
-        e.setHintTextColor(Ui.TEXT3);
-        e.setInputType(InputType.TYPE_CLASS_TEXT | (secret ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD : 0) | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        e.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
-        android.graphics.drawable.StateListDrawable fbg = new android.graphics.drawable.StateListDrawable();
-        fbg.addState(new int[]{android.R.attr.state_focused}, Ui.round(Ui.SURFACE2, 12, Ui.ACCENT, 1.5f));
-        fbg.addState(new int[]{}, Ui.round(Ui.SURFACE2, 12, Ui.STROKE, 1f));
-        e.setBackground(fbg);
-        e.setPadding(Ui.dp(12), Ui.dp(8), Ui.dp(12), Ui.dp(8));
-        return e;
     }
 
     private String versionName() {

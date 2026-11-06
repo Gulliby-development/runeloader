@@ -56,7 +56,6 @@
     <string name="source_zip">ZIP 文件</string>
 
     <string name="browse_title">浏览插件</string>
-    <string name="browse_subtitle">仅限 WoW Forever 版本 · 界面 %1$s</string>
     <string name="browse_hint_github">搜索，或粘贴 GitHub 链接</string>
     <string name="browse_hint_category">在此分类中搜索</string>
     <string name="browse_set_folder">设置文件夹</string>
@@ -80,11 +79,10 @@
     <string name="settings_language_text">应用默认跟随系统语言，可在此选择其他语言。</string>
     <string name="language_system">跟随系统</string>
     <string name="action_save">保存</string>
-    <string name="settings_github_token">GitHub 令牌（可选）</string>
-    <string name="settings_github_text">搜索和安装无需令牌。只有当你经常从没有 release.json 的仓库安装并达到每小时 60 次请求的限制时才需要。</string>
-    <string name="saved">已保存</string>
     <string name="settings_about">关于</string>
-    <string name="settings_about_text">Android 上的 WoW Forever 插件管理器。只安装 Forever 版本（TOC _Forever / _Camelot，界面 16001），保持更新，除 AddOns 文件夹外不改动任何内容。\n\n手柄：L1/R1 切换标签页，X 检查更新，Y 搜索，B 返回。</string>
+    <string name="settings_about_text">Runeloader 帮你查找、安装和更新《魔兽世界》插件。\n\n• 在一个地方搜索 GitHub 和 WoWInterface 上的插件。\n• 一键安装，一次更新全部，也可以让应用在后台自动更新。\n• 只改动你的 AddOns 文件夹，不碰其他任何东西。</string>
+    <string name="settings_about_gamepad">手柄</string>
+    <string name="settings_about_gamepad_keys">L1 / R1：切换标签页\nX：检查更新\nY：搜索\nB：返回</string>
     <string name="action_clear_cache">清除缓存</string>
     <string name="cache_cleared">缓存已清除</string>
 
@@ -176,7 +174,7 @@
     <string name="err_gh_repo_no_releases">未找到仓库 %1$s，或其中没有发布版本</string>
     <string name="err_gh_no_forever_build">%1$s 的最新发布中没有 WoW Forever 版本</string>
     <string name="err_gh_no_published">仓库 %1$s 没有已发布的版本</string>
-    <string name="err_gh_rate_limit">GitHub 请求次数已用完。请等待一小时，或在设置中添加令牌。</string>
+    <string name="err_gh_rate_limit">GitHub 请求次数已用完。请等待一小时后再试。</string>
     <string name="err_gh_unexpected">GitHub 返回了意外的响应</string>
     <string name="err_gh_repo_not_found">未找到仓库 %1$s</string>
     <string name="err_wowi_list">无法读取 WoWInterface 列表</string>

@@ -55,7 +55,6 @@
     <string name="source_zip">ZIP-файл</string>
 
     <string name="browse_title">Обзор аддонов</string>
-    <string name="browse_subtitle">Только сборки для WoW Forever · интерфейс %1$s</string>
     <string name="browse_hint_github">Поиск или ссылка на GitHub</string>
     <string name="browse_hint_category">Поиск в категории</string>
     <string name="browse_set_folder">Выбрать папку</string>
@@ -79,11 +78,10 @@
     <string name="settings_language_text">По умолчанию приложение говорит на языке системы. Здесь можно выбрать другой.</string>
     <string name="language_system">Системный</string>
     <string name="action_save">Сохранить</string>
-    <string name="settings_github_token">GitHub-токен (необязательно)</string>
-    <string name="settings_github_text">Поиск и установка работают без токена. Токен нужен, только если вы часто ставите аддоны из репозиториев без release.json и упираетесь в лимит 60 запросов в час.</string>
-    <string name="saved">Сохранено</string>
     <string name="settings_about">О приложении</string>
-    <string name="settings_about_text">Менеджер аддонов для WoW Forever на Android. Ставит только Forever-сборки (TOC _Forever / _Camelot, интерфейс 16001), обновляет их и не трогает ничего, кроме папки AddOns.\n\nУправление с геймпада: L1/R1 — вкладки, X — проверить обновления, Y — поиск, B — назад.</string>
+    <string name="settings_about_text">Runeloader находит, устанавливает и обновляет аддоны для World of Warcraft.\n\n• Поиск аддонов с GitHub и WoWInterface в одном месте.\n• Установка в одно касание и обновление всего сразу, или пусть приложение делает это в фоне.\n• Меняет только вашу папку AddOns и ничего больше.</string>
+    <string name="settings_about_gamepad">Геймпад</string>
+    <string name="settings_about_gamepad_keys">L1 / R1: вкладки\nX: проверить обновления\nY: поиск\nB: назад</string>
     <string name="action_clear_cache">Очистить кэш</string>
     <string name="cache_cleared">Кэш очищен</string>
 
@@ -175,7 +173,7 @@
     <string name="err_gh_repo_no_releases">Репозиторий %1$s не найден или в нём нет релизов</string>
     <string name="err_gh_no_forever_build">У %1$s нет сборки для WoW Forever в последнем релизе</string>
     <string name="err_gh_no_published">В репозитории %1$s нет опубликованных релизов</string>
-    <string name="err_gh_rate_limit">Лимит запросов GitHub исчерпан. Подождите час или добавьте токен в настройках.</string>
+    <string name="err_gh_rate_limit">Лимит запросов GitHub исчерпан. Подождите час и попробуйте снова.</string>
     <string name="err_gh_unexpected">GitHub вернул неожиданный ответ</string>
     <string name="err_gh_repo_not_found">Репозиторий %1$s не найден</string>
     <string name="err_wowi_list">Не удалось разобрать список WoWInterface</string>

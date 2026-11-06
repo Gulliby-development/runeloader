@@ -58,25 +58,7 @@ final class BrowseScreen extends Screen {
     /** Below this list width the row actions drop their labels. */
     private static final int ROW_LABELS_DP = 480;
 
-    /** Below this list width the subtitle gets its own line, as on 4:3. */
-    private static final int INLINE_SUBTITLE_DP = 600;
-
     private int gutter() { return app.landscape ? 20 : 16; }
-
-    /** Header with the title and subtitle on one line when the window is low and wide enough. */
-    private LinearLayout browseHeader(String title, String subtitle) {
-        if (!app.layout.compactHeight || app.layout.listDp < INLINE_SUBTITLE_DP) return header(title, subtitle);
-        LinearLayout h = Ui.hbox(app);
-        h.setPadding(Ui.dp(gutter()), Ui.dp(10), Ui.dp(app.landscape ? 16 : 12), Ui.dp(6));
-        LinearLayout tbox = Ui.hbox(app);
-        tbox.setBaselineAligned(true);
-        tbox.setGravity(android.view.Gravity.BOTTOM);
-        tbox.addView(Ui.oneLine(Ui.text(app, title, 19, Ui.TEXT, Ui.BOLD)), Ui.lp(-2, -2));
-        tbox.addView(Ui.oneLine(Ui.text(app, subtitle, 12, Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lpw(0, -2, 1), 10, 0, 0, 0));
-        h.addView(tbox, Ui.lpw(0, -2, 1));
-        app.headerBox.addView(h);
-        return h;
-    }
 
     /** What is wrong, and a button that fixes it. The message wraps: some languages need two lines. */
     private void gameFolderBanner() {
@@ -98,7 +80,7 @@ final class BrowseScreen extends Screen {
     }
 
     void renderBrowse() {
-        LinearLayout h = browseHeader(s(R.string.browse_title), s(R.string.browse_subtitle, Toc.FOREVER_INTERFACE_PREFIX + "01"));
+        LinearLayout h = header(s(R.string.browse_title), null);
         addHeaderButton(h, s(R.string.action_from_zip), R.drawable.ic_zip, Ui.Kind.GHOST, v -> app.pickZip());
 
         modeSwitch();

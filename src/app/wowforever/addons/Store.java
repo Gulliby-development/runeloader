@@ -39,16 +39,14 @@ final class Store {
         appState = new File(ctx.getFilesDir(), STATE_FILE);
         favoritesFile = new File(ctx.getFilesDir(), FAVORITES_FILE);
         Sources.cacheDir = ctx.getCacheDir();
-        prefs.edit().remove("curseKey").apply();   // CurseForge is not a source; drop a key saved by an old version
-        Sources.githubToken = githubToken();
+        // CurseForge is not a source, and the GitHub token setting is gone; drop values saved by old versions.
+        prefs.edit().remove("curseKey").remove("githubToken").apply();
     }
 
     // ── settings ──
 
     String gameRoot() { return prefs.getString("gameRoot", null); }
     void setGameRoot(String p) { prefs.edit().putString("gameRoot", p).apply(); }
-    String githubToken() { return prefs.getString("githubToken", ""); }
-    void setGithubToken(String t) { prefs.edit().putString("githubToken", t == null ? "" : t.trim()).apply(); Sources.githubToken = githubToken(); }
     long lastCheck() { return prefs.getLong("lastCheck", 0); }
     void setLastCheck(long t) { prefs.edit().putLong("lastCheck", t).apply(); }
 

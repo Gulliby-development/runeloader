@@ -55,7 +55,6 @@
     <string name="source_zip">Fichier ZIP</string>
 
     <string name="browse_title">Parcourir les addons</string>
-    <string name="browse_subtitle">Versions WoW Forever uniquement · interface %1$s</string>
     <string name="browse_hint_github">Rechercher ou coller un lien GitHub</string>
     <string name="browse_hint_category">Rechercher dans cette catégorie</string>
     <string name="browse_set_folder">Choisir le dossier</string>
@@ -79,11 +78,10 @@
     <string name="settings_language_text">L\'application suit la langue du système. Vous pouvez en choisir une autre ici.</string>
     <string name="language_system">Système</string>
     <string name="action_save">Enregistrer</string>
-    <string name="settings_github_token">Jeton GitHub (facultatif)</string>
-    <string name="settings_github_text">La recherche et l\'installation fonctionnent sans jeton. Il n\'est utile que si vous installez souvent depuis des dépôts sans release.json et atteignez la limite de 60 requêtes par heure.</string>
-    <string name="saved">Enregistré</string>
     <string name="settings_about">À propos</string>
-    <string name="settings_about_text">Gestionnaire d\'addons pour WoW Forever sur Android. Il n\'installe que des versions Forever (TOC _Forever / _Camelot, interface 16001), les garde à jour et ne touche à rien d\'autre que le dossier AddOns.\n\nManette : L1/R1 changent d\'onglet, X vérifie les mises à jour, Y ouvre la recherche, B revient en arrière.</string>
+    <string name="settings_about_text">Runeloader trouve, installe et met à jour les addons World of Warcraft pour vous.\n\n• Cherchez des addons de GitHub et WoWInterface au même endroit.\n• Installez d\'un geste et mettez tout à jour d\'un coup, ou laissez l\'app le faire en arrière-plan.\n• Elle ne modifie que votre dossier AddOns, rien d\'autre.</string>
+    <string name="settings_about_gamepad">Manette</string>
+    <string name="settings_about_gamepad_keys">L1 / R1 : changer d\'onglet\nX : vérifier les mises à jour\nY : recherche\nB : retour</string>
     <string name="action_clear_cache">Vider le cache</string>
     <string name="cache_cleared">Cache vidé</string>
 
@@ -175,7 +173,7 @@
     <string name="err_gh_repo_no_releases">Dépôt %1$s introuvable ou sans release</string>
     <string name="err_gh_no_forever_build">%1$s n\'a pas de version WoW Forever dans sa dernière release</string>
     <string name="err_gh_no_published">Le dépôt %1$s n\'a aucune release publiée</string>
-    <string name="err_gh_rate_limit">Limite de requêtes GitHub atteinte. Attendez une heure ou ajoutez un jeton dans les réglages.</string>
+    <string name="err_gh_rate_limit">Limite de requêtes GitHub atteinte. Attendez une heure et réessayez.</string>
     <string name="err_gh_unexpected">GitHub a renvoyé une réponse inattendue</string>
     <string name="err_gh_repo_not_found">Dépôt %1$s introuvable</string>
     <string name="err_wowi_list">Impossible de lire la liste WoWInterface</string>
