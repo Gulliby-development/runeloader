@@ -176,7 +176,7 @@ abstract class Screen {
     /** What the row says under its name: the kind while it waits, then the step that runs. */
     String statusLine(Queue.Op op) {
         if (op.state == Queue.State.WAITING || op.status == null || op.status.isEmpty())
-            return kindName(op.kind) + (op.modules > 0 ? "  ·  " + q(R.plurals.modules_count, op.modules + 1) : "");
+            return kindName(op.kind) + (op.modules > 0 ? "  ·  " + q(R.plurals.modules_count, op.modules) : "");
         return op.status;
     }
 

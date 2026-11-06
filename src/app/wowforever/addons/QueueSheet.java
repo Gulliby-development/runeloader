@@ -97,7 +97,7 @@ final class QueueSheet extends Screen {
         if (op.active()) {
             queueLines(mid, op);
         } else {
-            String line = kindName(op.kind) + (op.modules > 0 ? "  ·  " + q(R.plurals.modules_count, op.modules + 1) : "");
+            String line = kindName(op.kind) + (op.modules > 0 ? "  ·  " + q(R.plurals.modules_count, op.modules) : "");
             TextView st = Ui.text(app, op.state == Queue.State.FAILED && op.error != null ? line + "  ·  " + op.error : line, 11.5f,
                     op.state == Queue.State.FAILED ? Ui.RED : Ui.TEXT3, Ui.REGULAR);
             st.setMaxLines(3);

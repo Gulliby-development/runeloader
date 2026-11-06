@@ -86,8 +86,13 @@ final class LibraryScreen extends Screen {
             if ((op.active() || landing) && !listed.contains(op.key)) l.add(op);
         }
         // the next to run first, as in the queue
-        Collections.sort(l, (a, b) -> a.state == b.state ? Long.compare(a.id, b.id) : a.state.ordinal() - b.state.ordinal());
+        Collections.sort(l, (a, b) -> a.state == b.state ? Long.compare(a.id, b.id) : rank(a) - rank(b));
         return l;
+    }
+
+    /** Running first, then waiting, then just finished. */
+    private static int rank(Queue.Op o) {
+        return o.state == Queue.State.RUNNING ? 0 : o.state == Queue.State.WAITING ? 1 : 2;
     }
 
     /** The queue changed: the list follows without losing its scroll position. */

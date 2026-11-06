@@ -80,6 +80,7 @@ public class MainActivity extends Activity {
     FrameLayout root;
     LinearLayout headerBox;
     FrameLayout bodyBox;
+    private FrameLayout bodyFrame;
     FrameLayout detailBox;
     FrameLayout detailSheet;
     private FrameLayout detailOverlay;
@@ -242,7 +243,10 @@ public class MainActivity extends Activity {
         headerBox = Ui.vbox(this);
         bodyBox = new FrameLayout(this);
         mainCol.addView(headerBox, Ui.lp(-1, -2));
-        mainCol.addView(bodyBox, Ui.lpw(-1, 0, 1));
+        // The progress card floats over the list column only, never over the rail or the detail panel.
+        bodyFrame = new FrameLayout(this);
+        bodyFrame.addView(bodyBox, new FrameLayout.LayoutParams(-1, -1));
+        mainCol.addView(bodyFrame, Ui.lpw(-1, 0, 1));
 
         detailBox = null;
         detailSheet = null;
@@ -319,8 +323,8 @@ public class MainActivity extends Activity {
         progressCard.setOnClickListener(v -> queueSheet.open());
         progressCard.setVisibility(queue.activeCount() == 0 ? View.GONE : View.VISIBLE);
         FrameLayout.LayoutParams pcl = Ui.flp(landscape ? Ui.dp(330) : -1, -2, Gravity.BOTTOM | (landscape ? Gravity.START : Gravity.CENTER_HORIZONTAL));
-        pcl.setMargins(landscape ? Ui.dp(100) : Ui.dp(12), 0, Ui.dp(12), landscape ? Ui.dp(16) : Ui.dp(76));
-        root.addView(progressCard, pcl);
+        pcl.setMargins(landscape ? Ui.dp(16) : Ui.dp(12), 0, Ui.dp(12), Ui.dp(landscape ? 16 : 12));
+        bodyFrame.addView(progressCard, pcl);
 
         snack = Ui.text(this, "", 14, Ui.TEXT, Ui.MEDIUM);
         snack.setBackground(Ui.round(Ui.SNACK, 14, Ui.STROKE, 1));
@@ -333,6 +337,8 @@ public class MainActivity extends Activity {
         root.addView(snack, sl);
 
         modalLayer = new FrameLayout(this);
+        // above the progress card and the snackbar, which would cover the dialog's buttons
+        modalLayer.setElevation(Ui.dp(30));
         root.addView(modalLayer, new FrameLayout.LayoutParams(-1, -1));
 
         root.setOnApplyWindowInsetsListener((v, insets) -> {
@@ -452,7 +458,15 @@ public class MainActivity extends Activity {
 
     // ─────────────────────────── rendering ───────────────────────────
 
+    private int renderedTab = -1;
+
     void render() {
+        int pos = -1, top = 0;
+        if (currentList != null && renderedTab == tab && tab == TAB_INSTALLED) {
+            pos = currentList.getFirstVisiblePosition();
+            View first = currentList.getChildAt(0);
+            top = first == null ? 0 : first.getTop() - currentList.getPaddingTop();
+        }
         headerBox.removeAllViews();
         bodyBox.removeAllViews();
         searchField = null;
@@ -468,7 +482,9 @@ public class MainActivity extends Activity {
             browse.renderBrowse();
         } else {
             library.renderInstalled();
+            if (pos >= 0 && currentList != null) currentList.setSelectionFromTop(pos, top);
         }
+        renderedTab = tab;
         detail.renderDetail();
         updateNavBadge();
     }
@@ -595,6 +611,9 @@ public class MainActivity extends Activity {
     void snack(String text) {
         if (snack == null) return;
         snack.setText(text);
+        // sits above the progress card where the two would meet
+        boolean card = progressCard != null && progressCard.getVisibility() == View.VISIBLE;
+        snack.setTranslationY(card ? -(progressCard.getHeight() + Ui.dp(landscape ? 12 : 8)) : 0);
         snack.setAlpha(0f);
         snack.setVisibility(View.VISIBLE);
         snack.animate().alpha(1f).setDuration(160).start();
