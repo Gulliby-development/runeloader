@@ -28,7 +28,6 @@ final class Sources {
     private static final String[] OTHER_FLAVOR_MARKS = {"classic", "bcc", "tbc", "wrath", "wotlk", "cata", "mists", "vanilla", "titan", "mainline", "retail"};
 
     static File cacheDir;
-    static String githubToken = "";
 
     static Model.Release latest(Model.Item item) throws IOException {
         if (Model.SRC_WOWI.equals(item.source)) return Wowi.latest(item.id);
@@ -69,8 +68,7 @@ final class Sources {
         }
 
         private static Map<String, String> apiHeaders() {
-            return Http.headers("Accept", "application/vnd.github+json", "Authorization",
-                    githubToken == null || githubToken.trim().isEmpty() ? null : "Bearer " + githubToken.trim());
+            return Http.headers("Accept", "application/vnd.github+json");
         }
 
         static String latestTag(String repo) throws IOException {

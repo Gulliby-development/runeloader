@@ -55,7 +55,6 @@
     <string name="source_zip">Archivo ZIP</string>
 
     <string name="browse_title">Explorar addons</string>
-    <string name="browse_subtitle">Solo versiones para WoW Forever · interfaz %1$s</string>
     <string name="browse_hint_github">Busca o pega un enlace de GitHub</string>
     <string name="browse_hint_category">Buscar en esta categoría</string>
     <string name="browse_set_folder">Elegir carpeta</string>
@@ -79,11 +78,10 @@
     <string name="settings_language_text">La app usa el idioma del sistema. Aquí puedes elegir otro.</string>
     <string name="language_system">Sistema</string>
     <string name="action_save">Guardar</string>
-    <string name="settings_github_token">Token de GitHub (opcional)</string>
-    <string name="settings_github_text">La búsqueda y la instalación funcionan sin token. Solo lo necesitas si instalas a menudo desde repositorios sin release.json y llegas al límite de 60 peticiones por hora.</string>
-    <string name="saved">Guardado</string>
     <string name="settings_about">Acerca de</string>
-    <string name="settings_about_text">Gestor de addons para WoW Forever en Android. Instala solo versiones Forever (TOC _Forever / _Camelot, interfaz 16001), las mantiene al día y no toca nada salvo la carpeta AddOns.\n\nMando: L1/R1 cambian de pestaña, X busca actualizaciones, Y abre la búsqueda, B vuelve atrás.</string>
+    <string name="settings_about_text">Runeloader busca, instala y actualiza addons de World of Warcraft por ti.\n\n• Busca addons de GitHub y WoWInterface en un solo lugar.\n• Instala con un toque y actualiza todo a la vez, o deja que la app lo haga en segundo plano.\n• Solo cambia tu carpeta AddOns y nada más.</string>
+    <string name="settings_about_gamepad">Mando</string>
+    <string name="settings_about_gamepad_keys">L1 / R1: cambiar de pestaña\nX: buscar actualizaciones\nY: búsqueda\nB: atrás</string>
     <string name="action_clear_cache">Borrar caché</string>
     <string name="cache_cleared">Caché borrada</string>
 
@@ -175,7 +173,7 @@
     <string name="err_gh_repo_no_releases">Repositorio %1$s no encontrado o sin releases</string>
     <string name="err_gh_no_forever_build">%1$s no tiene versión para WoW Forever en su última release</string>
     <string name="err_gh_no_published">El repositorio %1$s no tiene releases publicadas</string>
-    <string name="err_gh_rate_limit">Límite de solicitudes de GitHub agotado. Espera una hora o añade un token en Ajustes.</string>
+    <string name="err_gh_rate_limit">Límite de solicitudes de GitHub agotado. Espera una hora y vuelve a intentarlo.</string>
     <string name="err_gh_unexpected">GitHub devolvió una respuesta inesperada</string>
     <string name="err_gh_repo_not_found">Repositorio %1$s no encontrado</string>
     <string name="err_wowi_list">No se pudo leer la lista de WoWInterface</string>

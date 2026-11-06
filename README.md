@@ -120,7 +120,7 @@ The app picks the TOC file the same way the game does: `_Forever`, then `_Camelo
 
 Some addons release each part on its own tag (`Core-v1`, `Wheel-v2`). Runeloader treats them as one package: Browse shows the core only, with the number of modules, and installing it installs the core and every module. The Library shows the package as one row that opens into its core and modules; each module can be added or removed on its own, and removing the core removes the whole package. Each part installs and updates from the newest release of its own tag, and the core goes first when a module needs it.
 
-An optional GitHub token (Settings) is sent only to GitHub hosts, even when a download redirects somewhere else. Installs always take the asset from GitHub directly, because the index can be a day old.
+Runeloader needs no GitHub account or token. Most lookups read `release.json` through plain github.com links, which do not count against the API limit; the API (60 requests per hour) is used only for repositories without one. Installs always take the asset from GitHub directly, because the index can be a day old.
 </details>
 
 <details>

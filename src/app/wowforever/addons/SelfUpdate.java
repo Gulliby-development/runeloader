@@ -95,9 +95,8 @@ final class SelfUpdate {
 
     /** The latest release when it is newer than {@code installed} and has the APK, else null. */
     static Release latest(String installed) throws Exception {
-        String tok = Sources.githubToken == null ? "" : Sources.githubToken.trim();
         JSONObject rel = new JSONObject(Http.get("https://api.github.com/repos/" + REPO + "/releases/latest",
-                Http.headers("Accept", "application/vnd.github+json", "Authorization", tok.isEmpty() ? null : "Bearer " + tok)));
+                Http.headers("Accept", "application/vnd.github+json")));
         String version = AppVersion.clean(rel.optString("tag_name", ""));
         if (version == null || !AppVersion.newer(version, installed)) return null;
         String apk = AppVersion.apkName(version);
