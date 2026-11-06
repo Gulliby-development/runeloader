@@ -146,4 +146,114 @@ abstract class Screen {
         t.setPadding(Ui.dp(6), Ui.dp(1), Ui.dp(6), Ui.dp(1));
         return t;
     }
+    // ── the queue on rows: a status line, a thin bar and a pill, updated in place by tick ──
+
+    /** The operation that works on a row now: a removal of any of its folders first, else an install or update of its keys. */
+    Queue.Op opFor(Model.Installed r) {
+        java.util.List<String> folders = new java.util.ArrayList<>();
+        for (Model.Installed m : r.withModules()) {
+            for (Model.LocalAddon a : m.folders) folders.add(a.folder);
+            if (m.entry != null) folders.addAll(m.entry.folders);
+        }
+        Queue.Op rm = app.queue.removing(folders);
+        if (rm != null) return rm;
+        for (Model.Installed m : r.withModules()) {
+            Queue.Op o = app.queue.activeFor(m.entry != null ? m.entry.key : (m.catalogMatch != null ? m.catalogMatch.key() : null));
+            if (o != null) return o;
+        }
+        return null;
+    }
+
+    String kindName(Queue.Kind k) {
+        switch (k) {
+            case UPDATE: return s(R.string.queue_kind_update);
+            case REMOVE: return s(R.string.queue_kind_remove);
+            case ZIP: return s(R.string.queue_kind_zip);
+            default: return s(R.string.queue_kind_install);
+        }
+    }
+
+    /** What the row says under its name: the kind while it waits, then the step that runs. */
+    String statusLine(Queue.Op op) {
+        if (op.state == Queue.State.WAITING || op.status == null || op.status.isEmpty())
+            return kindName(op.kind) + (op.modules > 0 ? "  ·  " + q(R.plurals.modules_count, op.modules) : "");
+        return op.status;
+    }
+
+    String pillText(Queue.Op op) {
+        boolean rm = op.kind == Queue.Kind.REMOVE;
+        if (op.state == Queue.State.WAITING) return s(rm ? R.string.pill_remove_queued : R.string.pill_queued);
+        if (op.state == Queue.State.DONE) return s(R.string.queue_done);
+        if (op.state == Queue.State.FAILED) return s(R.string.queue_failed);
+        if (op.state == Queue.State.CANCELLED) return s(R.string.queue_cancelled);
+        if (rm) return s(R.string.pill_removing);
+        return op.fraction >= 0 ? Math.round(op.fraction * 100) + "%" : s(R.string.pill_installing);
+    }
+
+    /** Red for a removal, grey while waiting, gold while it runs. */
+    TextView queuePill(Queue.Op op) {
+        boolean rm = op.kind == Queue.Kind.REMOVE, waiting = op.state == Queue.State.WAITING;
+        TextView p = Ui.pill(app, pillText(op), rm ? Ui.RED : waiting ? Ui.TEXT2 : Ui.ACCENT, rm ? Ui.RED_SOFT : waiting ? Ui.SURFACE3 : Ui.ACCENT_SOFT);
+        p.setTag("qpill:" + op.id);
+        return p;
+    }
+
+    /** The status line and a thin bar, for the middle column of a row. */
+    void queueLines(LinearLayout mid, Queue.Op op) {
+        boolean rm = op.kind == Queue.Kind.REMOVE, waiting = op.state == Queue.State.WAITING;
+        TextView st = Ui.oneLine(Ui.text(app, statusLine(op), 11.5f, waiting ? Ui.TEXT3 : rm ? Ui.RED : Ui.ACCENT, Ui.REGULAR));
+        st.setTag("qstatus:" + op.id);
+        mid.addView(st, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
+        mid.addView(queueBar(op, rm ? Ui.RED : Ui.ACCENT), Ui.margins(Ui.lp(-1, Ui.dp(3)), 0, 6, 0, 0));
+    }
+
+    ProgressBar queueBar(Queue.Op op, int color) {
+        ProgressBar b = new ProgressBar(app, null, android.R.attr.progressBarStyleHorizontal);
+        b.setProgressTintList(ColorStateList.valueOf(color));
+        b.setIndeterminateTintList(ColorStateList.valueOf(color));
+        b.setProgressBackgroundTintList(ColorStateList.valueOf(Ui.SURFACE3));
+        b.setMax(1000);
+        b.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            @Override public void getOutline(View v, android.graphics.Outline o) { o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), v.getHeight() / 2f); }
+        });
+        b.setClipToOutline(true);
+        b.setTag("qbar:" + op.id);
+        setBar(b, op);
+        return b;
+    }
+
+    static void setBar(ProgressBar b, Queue.Op op) {
+        boolean indeterminate = op.state == Queue.State.RUNNING && op.fraction < 0;
+        if (b.isIndeterminate() != indeterminate) b.setIndeterminate(indeterminate);
+        if (!indeterminate) b.setProgress(op.state == Queue.State.WAITING ? 0 : (int) (Math.max(0, op.fraction) * 1000));
+    }
+
+    /** A progress step: updates every status line, bar and pill of this operation under the view. */
+    void tick(View v, Queue.Op op) {
+        if (v == null) return;
+        Object tag = v.getTag();
+        if (tag instanceof String) {
+            String s = (String) tag;
+            if (s.equals("qbar:" + op.id) && v instanceof ProgressBar) setBar((ProgressBar) v, op);
+            else if (s.equals("qpill:" + op.id) && v instanceof TextView) ((TextView) v).setText(pillText(op));
+            else if (s.equals("qstatus:" + op.id) && v instanceof TextView) ((TextView) v).setText(statusLine(op));
+        }
+        if (v instanceof android.view.ViewGroup) {
+            android.view.ViewGroup g = (android.view.ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) tick(g.getChildAt(i), op);
+        }
+    }
+
+    /** A slow breathing of the alpha for a row that waits its turn; it stops when the row leaves the screen. */
+    static void pulse(View v, float from, float to) {
+        final android.animation.ObjectAnimator a = android.animation.ObjectAnimator.ofFloat(v, View.ALPHA, from, to);
+        a.setDuration(900);
+        a.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+        a.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+        v.setAlpha(from);
+        v.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override public void onViewAttachedToWindow(View x) { a.start(); }
+            @Override public void onViewDetachedFromWindow(View x) { a.cancel(); }
+        });
+    }
 }

@@ -37,12 +37,19 @@ final class LibraryScreen extends Screen {
     private final List<Line> lines = new ArrayList<>();
     private List<Model.Installed> sorted = new ArrayList<>();
 
-    /** One list line: a Library row, or a part of an open package (core is that package's own row). */
+    /** One list line: a Library row, a part of an open package (core is that package's own row), or an addon on its way in. */
     private static final class Line {
         final Model.Installed row;
         final boolean part;
-        Line(Model.Installed row, boolean part) { this.row = row; this.part = part; }
+        final Queue.Op ghost;
+        Line(Model.Installed row, boolean part) { this.row = row; this.part = part; this.ghost = null; }
+        Line(Queue.Op ghost) { this.row = null; this.part = false; this.ghost = ghost; }
     }
+
+    /** Ghost rows that already slid in, so a new list does not animate them again. */
+    private final Set<Long> appeared = new HashSet<>();
+    /** When the last finished scan of the AddOns folder started: a finished install stays a ghost until a scan sees it. */
+    long scanStartedAt;
 
     private static String rowId(Model.Installed r) {
         return r.entry != null ? r.entry.key : (r.catalogMatch != null ? r.catalogMatch.key() : r.title);
@@ -55,10 +62,52 @@ final class LibraryScreen extends Screen {
 
     private void flatten() {
         lines.clear();
+        for (Queue.Op op : ghosts()) lines.add(new Line(op));
         for (Model.Installed r : sorted) {
             lines.add(new Line(r, false));
             if (r.isPackage() && expanded.contains(rowId(r))) for (Model.Installed m : r.withModules()) lines.add(new Line(m, true));
         }
+    }
+
+    /**
+     * Addons queued to install that the Library does not list yet: they show at the top, grey, from the
+     * moment they are queued until the scan after the install finds them.
+     */
+    private List<Queue.Op> ghosts() {
+        List<Queue.Op> l = new ArrayList<>();
+        Set<String> listed = new HashSet<>();
+        for (Model.Installed r : AddonManager.all(app.installed)) {
+            if (r.entry != null) listed.add(r.entry.key);
+            if (r.catalogMatch != null) listed.add(r.catalogMatch.key());
+        }
+        for (Queue.Op op : app.queue.snapshot()) {
+            if (op.kind != Queue.Kind.INSTALL && op.kind != Queue.Kind.ZIP) continue;
+            boolean landing = op.state == Queue.State.DONE && op.kind == Queue.Kind.INSTALL && op.finishedAt >= scanStartedAt;
+            if ((op.active() || landing) && !listed.contains(op.key)) l.add(op);
+        }
+        // the next to run first, as in the queue
+        Collections.sort(l, (a, b) -> a.state == b.state ? Long.compare(a.id, b.id) : rank(a) - rank(b));
+        return l;
+    }
+
+    /** Running first, then waiting, then just finished. */
+    private static int rank(Queue.Op o) {
+        return o.state == Queue.State.RUNNING ? 0 : o.state == Queue.State.WAITING ? 1 : 2;
+    }
+
+    /** The queue changed: the list follows without losing its scroll position. */
+    void refresh() {
+        if (app.tab != MainActivity.TAB_INSTALLED) return;
+        if (app.currentList == null || (app.installed.isEmpty() && ghosts().isEmpty())) { app.render(); return; }
+        flatten();
+        app.refreshList();
+    }
+
+    /** A progress step of one operation. */
+    void tick(Queue.Op op) {
+        if (app.tab == MainActivity.TAB_INSTALLED || app.tab == MainActivity.TAB_BROWSE) tick(app.currentList, op);
+        tick(app.detailBox, op);
+        tick(app.detailSheet, op);
     }
 
     /** A package line opens or closes its list of parts; where the detail is docked it also shows the package. */
@@ -92,7 +141,7 @@ final class LibraryScreen extends Screen {
             app.bodyBox.addView(centerSpinner());
             return;
         }
-        if (app.installed.isEmpty()) {
+        if (app.installed.isEmpty() && ghosts().isEmpty()) {
             app.bodyBox.addView(emptyState(R.drawable.ic_extension, s(R.string.installed_empty_title),
                     s(R.string.installed_empty_text),
                     Ui.button(app, s(R.string.action_open_catalog), R.drawable.ic_apps, Ui.Kind.PRIMARY, v -> app.switchTab(MainActivity.TAB_BROWSE)),
@@ -116,12 +165,14 @@ final class LibraryScreen extends Screen {
             @Override public long getItemId(int p) { return p; }
             @Override public View getView(int p, View cv, ViewGroup parent) {
                 Line l = lines.get(p);
+                if (l.ghost != null) return ghostRow(l.ghost);
                 return l.part ? partRow(l.row) : l.row.isPackage() ? packageRow(l.row) : installedRow(l.row);
             }
         };
         lv.setAdapter(app.currentAdapter);
         lv.setOnItemClickListener((parent, view, position, id) -> {
             Line l = lines.get(position);
+            if (l.ghost != null) { app.queueSheet.open(); return; }
             if (!l.part && l.row.isPackage()) toggle(l.row);
             else app.detail.select(l.row);
         });
@@ -171,8 +222,8 @@ final class LibraryScreen extends Screen {
         row.addView(av);
 
         final Model.Entry e = r.entry;
-        String key = e != null ? e.key : (r.catalogMatch != null ? r.catalogMatch.key() : null);
-        boolean busy = key != null && app.busy.containsKey(key);
+        Queue.Op op = opFor(r);
+        boolean busy = op != null;
         boolean update = !busy && !r.missing && e != null && e.updateAvailable;
         boolean upToDate = !busy && !r.missing && !update && e != null && e.checkError == null && e.latest != null;
         boolean wide = app.layout.listDp >= VERSION_COLUMN_DP;
@@ -181,7 +232,10 @@ final class LibraryScreen extends Screen {
         LinearLayout mid = Ui.vbox(app);
         mid.addView(Ui.oneLine(Ui.text(app, r.title, 14, Ui.TEXT, Ui.MEDIUM)), Ui.lp(-1, -2));
         TextView st;
-        if (update && !wide) {
+        if (busy) {
+            queueLines(mid, op);
+            st = null;
+        } else if (update && !wide) {
             st = versionText(installedVer, e.latest);
         } else {
             StringBuilder sub = new StringBuilder();
@@ -192,18 +246,18 @@ final class LibraryScreen extends Screen {
             st = Ui.oneLine(Ui.text(app, sub.toString(), 11.5f, Ui.TEXT3, Ui.REGULAR));
         }
         Model.Item ix = e != null && Model.SRC_GITHUB.equals(e.source) ? Index.item(e.id) : null;
-        if (ix != null && ix.isDiscontinued()) {
+        if (st != null && ix != null && ix.isDiscontinued()) {
             LinearLayout line = Ui.hbox(app);
             line.addView(discontinuedTag(), Ui.lp(-2, -2));
             line.addView(st, Ui.margins(Ui.lpw(0, -2, 1), 6, 0, 0, 0));
             mid.addView(line, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
-        } else {
+        } else if (st != null) {
             mid.addView(st, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
         }
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
 
         if (busy) {
-            row.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
+            row.addView(queuePill(op));
         } else if (r.missing) {
             row.addView(Ui.pill(app, s(R.string.pill_folders_missing), Ui.RED, Ui.RED_SOFT));
         } else if (update) {
@@ -227,9 +281,52 @@ final class LibraryScreen extends Screen {
         } else if (e == null) {
             row.addView(Ui.pill(app, s(R.string.pill_manual), Ui.TEXT2, Ui.SURFACE3));
         }
-        if (!r.compatible && !r.missing) {
+        if (!r.compatible && !r.missing && !busy) {
             ImageView w = Ui.icon(app, R.drawable.ic_warning, Ui.ORANGE, 18);
             row.addView(w, Ui.margins(Ui.lp(Ui.dp(18), Ui.dp(18)), 8, 0, 0, 0));
+        }
+        if (busy) markBusy(row, (TextView) mid.getChildAt(0), op);
+        return row;
+    }
+
+    /** Grey while an install or update waits or runs; red and struck through while it is removed. */
+    private void markBusy(LinearLayout row, TextView title, Queue.Op op) {
+        boolean waiting = op.state == Queue.State.WAITING;
+        if (op.kind == Queue.Kind.REMOVE) {
+            row.setBackground(Ui.round(Ui.RED_SOFT, 14, alpha(Ui.RED, 0x80), 1f));
+            title.setTextColor(Ui.RED);
+            title.setPaintFlags(title.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            if (waiting) pulse(row, 0.55f, 1f); else row.setAlpha(0.85f);
+        } else {
+            title.setTextColor(Ui.TEXT2);
+            if (waiting) pulse(row, 0.4f, 0.7f); else row.setAlpha(0.75f);
+        }
+    }
+
+    /** An addon on its way in: grey, with a dashed edge, until the install lands and the scan lists it. */
+    private View ghostRow(Queue.Op op) {
+        LinearLayout row = rowShell(false);
+        row.setPadding(Ui.dp(10), Ui.dp(8), Ui.dp(8), Ui.dp(8));
+        row.setMinimumHeight(Ui.dp(60));
+        GradientDrawable bg = Ui.round(Ui.SURFACE, 14);
+        bg.setStroke(Math.max(1, Ui.dp(1.2f)), Ui.STROKE, Ui.dp(6), Ui.dp(4));
+        row.setBackground(bg);
+        ImageView av = avatar(op.iconUrl, op.name, 40);
+        av.setColorFilter(alpha(Ui.BG, 0x66));
+        row.addView(av);
+        LinearLayout mid = Ui.vbox(app);
+        mid.addView(Ui.oneLine(Ui.text(app, op.name, 14, Ui.TEXT2, Ui.MEDIUM)), Ui.lp(-1, -2));
+        queueLines(mid, op);
+        row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
+        if (op.state == Queue.State.DONE) row.addView(iconPill(app, s(R.string.queue_done), R.drawable.ic_check, Ui.GREEN, Ui.GREEN_SOFT));
+        else row.addView(queuePill(op));
+        row.setContentDescription(op.name + ", " + pillText(op));
+        if (op.state == Queue.State.WAITING) pulse(row, 0.45f, 0.8f);
+        else row.setAlpha(0.8f);
+        if (appeared.add(op.id)) {
+            // slides in from the left the first time it shows
+            row.setTranslationX(-Ui.dp(28));
+            row.animate().translationX(0).setDuration(260).setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
         }
         return row;
     }
@@ -242,10 +339,9 @@ final class LibraryScreen extends Screen {
         row.addView(avatar(r.entry != null ? r.entry.iconUrl : (r.catalogMatch != null ? r.catalogMatch.iconUrl : null), r.title, 40));
 
         int updates = 0;
-        boolean busy = false, unchecked = false, missing = false;
+        Queue.Op op = opFor(r);
+        boolean busy = op != null, unchecked = false, missing = false;
         for (Model.Installed m : r.withModules()) {
-            String key = m.entry != null ? m.entry.key : (m.catalogMatch != null ? m.catalogMatch.key() : null);
-            if (key != null && app.busy.containsKey(key)) busy = true;
             if (m.entry != null && m.entry.updateAvailable) updates++;
             if (m.entry != null && m.entry.checkError != null) unchecked = true;
             if (m.missing) missing = true;
@@ -253,14 +349,14 @@ final class LibraryScreen extends Screen {
         LinearLayout mid = Ui.vbox(app);
         mid.addView(Ui.oneLine(Ui.text(app, r.title, 14, Ui.TEXT, Ui.MEDIUM)), Ui.lp(-1, -2));
         String parts = q(R.plurals.modules_count, r.modules.size());
-        TextView st = Ui.oneLine(Ui.text(app, updates > 0 && !busy ? q(R.plurals.updates_available, updates) + "  ·  " + parts
-                : parts + "  ·  " + (r.entry != null ? sourceName(r.entry.source) : s(R.string.installed_manually)), 11.5f, updates > 0 && !busy ? Ui.ACCENT : Ui.TEXT3, Ui.REGULAR));
-        mid.addView(st, Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
+        if (busy) queueLines(mid, op);
+        else mid.addView(Ui.oneLine(Ui.text(app, updates > 0 && !busy ? q(R.plurals.updates_available, updates) + "  ·  " + parts
+                : parts + "  ·  " + (r.entry != null ? sourceName(r.entry.source) : s(R.string.installed_manually)), 11.5f, updates > 0 && !busy ? Ui.ACCENT : Ui.TEXT3, Ui.REGULAR)), Ui.margins(Ui.lp(-1, -2), 0, 3, 0, 0));
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
 
         String coreVer = r.entry != null && r.entry.version != null && !r.entry.version.isEmpty() ? r.entry.version : r.version;
         if (busy) {
-            row.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
+            row.addView(queuePill(op));
         } else if (missing) {
             row.addView(Ui.pill(app, s(R.string.pill_folders_missing), Ui.RED, Ui.RED_SOFT));
         } else if (updates > 0) {
@@ -284,6 +380,7 @@ final class LibraryScreen extends Screen {
         chev.setRotation(open ? 270 : 90);
         row.setContentDescription(r.title + ", " + parts + ", " + s(open ? R.string.action_hide_modules : R.string.action_show_modules));
         row.addView(chev, Ui.margins(Ui.lp(Ui.dp(22), Ui.dp(22)), 6, 0, 0, 0));
+        if (busy) markBusy(row, (TextView) mid.getChildAt(0), op);
         return row;
     }
 

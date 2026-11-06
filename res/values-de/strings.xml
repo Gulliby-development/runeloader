@@ -359,4 +359,22 @@
         <item quantity="one">%1$s und %2$d Modul</item>
         <item quantity="other">%1$s und %2$d Module</item>
     </plurals>
+    <string name="queue_title">Warteschlange</string>
+    <string name="queue_open">Warteschlange öffnen</string>
+    <string name="queue_empty">Nichts in der Warteschlange</string>
+    <string name="queue_empty_text">Installationen, Updates und Entfernungen erscheinen hier, solange sie laufen.</string>
+    <string name="queue_clear">Erledigte leeren</string>
+    <string name="queue_done">Fertig</string>
+    <string name="queue_failed">Fehlgeschlagen</string>
+    <string name="queue_cancelled">Abgebrochen</string>
+    <string name="queue_kind_install">Installation</string>
+    <string name="queue_kind_update">Update</string>
+    <string name="queue_kind_remove">Entfernen</string>
+    <string name="queue_kind_zip">ZIP-Datei</string>
+    <string name="queue_cancel_one">Abbrechen: %1$s</string>
+    <string name="queue_removing_files">Dateien werden entfernt…</string>
+    <string name="pill_removing">Wird entfernt…</string>
+    <string name="pill_queued">Wartet</string>
+    <string name="pill_remove_queued">Entfernen geplant</string>
+    <string name="action_close">Schließen</string>
 </resources>

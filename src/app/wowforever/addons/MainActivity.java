@@ -33,7 +33,6 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -49,6 +48,7 @@ public class MainActivity extends Activity {
     final DetailPanel detail = new DetailPanel(this);
     final AddonManager manager = new AddonManager(this);
     final GameFolder gameFolder = new GameFolder(this);
+    final QueueSheet queueSheet = new QueueSheet(this);
 
     static final int TAB_INSTALLED = 0, TAB_BROWSE = 1, TAB_SETTINGS = 2;
     private static final int REQ_ZIP = 41, REQ_PERM = 42;
@@ -73,12 +73,14 @@ public class MainActivity extends Activity {
 
     Object selected;                 // Model.Item or Model.Installed
     boolean detailSheetOpen = false;
-    final Map<String, String> busy = new LinkedHashMap<>();   // key -> status text
+    /** Installs, updates and removes, waiting, running and just finished. */
+    final Queue queue = Queue.get();
 
     // ── views ──
     FrameLayout root;
     LinearLayout headerBox;
     FrameLayout bodyBox;
+    private FrameLayout bodyFrame;
     FrameLayout detailBox;
     FrameLayout detailSheet;
     private FrameLayout detailOverlay;
@@ -241,7 +243,10 @@ public class MainActivity extends Activity {
         headerBox = Ui.vbox(this);
         bodyBox = new FrameLayout(this);
         mainCol.addView(headerBox, Ui.lp(-1, -2));
-        mainCol.addView(bodyBox, Ui.lpw(-1, 0, 1));
+        // The progress card floats over the list column only, never over the rail or the detail panel.
+        bodyFrame = new FrameLayout(this);
+        bodyFrame.addView(bodyBox, new FrameLayout.LayoutParams(-1, -1));
+        mainCol.addView(bodyFrame, Ui.lpw(-1, 0, 1));
 
         detailBox = null;
         detailSheet = null;
@@ -288,12 +293,16 @@ public class MainActivity extends Activity {
 
         // progress card
         progressCard = Ui.vbox(this);
-        progressCard.setBackground(Ui.round(Ui.SURFACE2, 14, Ui.STROKE, 1));
+        progressCard.setBackground(Ui.selectable(Ui.SURFACE2, 14, Ui.STROKE));
         progressCard.setPadding(Ui.dp(14), Ui.dp(10), Ui.dp(14), Ui.dp(12));
         progressCard.setElevation(Ui.dp(12));
         LinearLayout pr = Ui.hbox(this);
         progressTitle = Ui.oneLine(Ui.text(this, "", 13.5f, Ui.TEXT, Ui.BOLD));
         pr.addView(progressTitle, Ui.lpw(0, -2, 1));
+        // The card opens the queue: what runs now, what waits, what just finished.
+        ImageView open = Ui.icon(this, R.drawable.ic_chevron, Ui.TEXT2, 20);
+        open.setRotation(270);
+        pr.addView(open, Ui.margins(Ui.lp(Ui.dp(20), Ui.dp(20)), 6, 0, 0, 0));
         progressCard.addView(pr);
         progressText = Ui.oneLine(Ui.text(this, "", 12, Ui.TEXT3, Ui.REGULAR));
         progressCard.addView(progressText, Ui.margins(Ui.lp(-1, -2), 0, 4, 0, 8));
@@ -308,10 +317,14 @@ public class MainActivity extends Activity {
         });
         progressBar.setClipToOutline(true);
         progressCard.addView(progressBar, Ui.lp(-1, Ui.dp(5)));
-        progressCard.setVisibility(busy.isEmpty() ? View.GONE : View.VISIBLE);
+        progressCard.setClickable(true);
+        progressCard.setFocusable(true);
+        progressCard.setContentDescription(getString(R.string.queue_open));
+        progressCard.setOnClickListener(v -> queueSheet.open());
+        progressCard.setVisibility(queue.activeCount() == 0 ? View.GONE : View.VISIBLE);
         FrameLayout.LayoutParams pcl = Ui.flp(landscape ? Ui.dp(330) : -1, -2, Gravity.BOTTOM | (landscape ? Gravity.START : Gravity.CENTER_HORIZONTAL));
-        pcl.setMargins(landscape ? Ui.dp(100) : Ui.dp(12), 0, Ui.dp(12), landscape ? Ui.dp(16) : Ui.dp(76));
-        root.addView(progressCard, pcl);
+        pcl.setMargins(landscape ? Ui.dp(16) : Ui.dp(12), 0, Ui.dp(12), Ui.dp(landscape ? 16 : 12));
+        bodyFrame.addView(progressCard, pcl);
 
         snack = Ui.text(this, "", 14, Ui.TEXT, Ui.MEDIUM);
         snack.setBackground(Ui.round(Ui.SNACK, 14, Ui.STROKE, 1));
@@ -324,6 +337,8 @@ public class MainActivity extends Activity {
         root.addView(snack, sl);
 
         modalLayer = new FrameLayout(this);
+        // above the progress card and the snackbar, which would cover the dialog's buttons
+        modalLayer.setElevation(Ui.dp(30));
         root.addView(modalLayer, new FrameLayout.LayoutParams(-1, -1));
 
         root.setOnApplyWindowInsetsListener((v, insets) -> {
@@ -443,7 +458,15 @@ public class MainActivity extends Activity {
 
     // ─────────────────────────── rendering ───────────────────────────
 
+    private int renderedTab = -1;
+
     void render() {
+        int pos = -1, top = 0;
+        if (currentList != null && renderedTab == tab && tab == TAB_INSTALLED) {
+            pos = currentList.getFirstVisiblePosition();
+            View first = currentList.getChildAt(0);
+            top = first == null ? 0 : first.getTop() - currentList.getPaddingTop();
+        }
         headerBox.removeAllViews();
         bodyBox.removeAllViews();
         searchField = null;
@@ -459,7 +482,9 @@ public class MainActivity extends Activity {
             browse.renderBrowse();
         } else {
             library.renderInstalled();
+            if (pos >= 0 && currentList != null) currentList.setSelectionFromTop(pos, top);
         }
+        renderedTab = tab;
         detail.renderDetail();
         updateNavBadge();
     }
@@ -586,6 +611,9 @@ public class MainActivity extends Activity {
     void snack(String text) {
         if (snack == null) return;
         snack.setText(text);
+        // sits above the progress card where the two would meet
+        boolean card = progressCard != null && progressCard.getVisibility() == View.VISIBLE;
+        snack.setTranslationY(card ? -(progressCard.getHeight() + Ui.dp(landscape ? 12 : 8)) : 0);
         snack.setAlpha(0f);
         snack.setVisibility(View.VISIBLE);
         snack.animate().alpha(1f).setDuration(160).start();

@@ -364,4 +364,22 @@
         <item quantity="one">%1$s e %2$d módulo</item>
         <item quantity="other">%1$s e %2$d módulos</item>
     </plurals>
+    <string name="queue_title">Fila</string>
+    <string name="queue_open">Abrir a fila</string>
+    <string name="queue_empty">Nada na fila</string>
+    <string name="queue_empty_text">Instalações, atualizações e remoções aparecem aqui enquanto acontecem.</string>
+    <string name="queue_clear">Limpar concluídas</string>
+    <string name="queue_done">Concluído</string>
+    <string name="queue_failed">Falhou</string>
+    <string name="queue_cancelled">Cancelado</string>
+    <string name="queue_kind_install">Instalação</string>
+    <string name="queue_kind_update">Atualização</string>
+    <string name="queue_kind_remove">Remoção</string>
+    <string name="queue_kind_zip">Arquivo ZIP</string>
+    <string name="queue_cancel_one">Cancelar: %1$s</string>
+    <string name="queue_removing_files">Removendo arquivos…</string>
+    <string name="pill_removing">Removendo…</string>
+    <string name="pill_queued">Na fila</string>
+    <string name="pill_remove_queued">Aguardando remoção</string>
+    <string name="action_close">Fechar</string>
 </resources>

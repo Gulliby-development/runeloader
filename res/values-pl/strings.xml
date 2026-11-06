@@ -375,4 +375,22 @@
         <item quantity="many">%1$s i %2$d modułów</item>
         <item quantity="other">%1$s i %2$d modułu</item>
     </plurals>
+    <string name="queue_title">Kolejka</string>
+    <string name="queue_open">Otwórz kolejkę</string>
+    <string name="queue_empty">Kolejka jest pusta</string>
+    <string name="queue_empty_text">Instalacje, aktualizacje i usunięcia pojawiają się tutaj, gdy trwają.</string>
+    <string name="queue_clear">Wyczyść zakończone</string>
+    <string name="queue_done">Gotowe</string>
+    <string name="queue_failed">Błąd</string>
+    <string name="queue_cancelled">Anulowano</string>
+    <string name="queue_kind_install">Instalacja</string>
+    <string name="queue_kind_update">Aktualizacja</string>
+    <string name="queue_kind_remove">Usuwanie</string>
+    <string name="queue_kind_zip">Plik ZIP</string>
+    <string name="queue_cancel_one">Anuluj: %1$s</string>
+    <string name="queue_removing_files">Usuwanie plików…</string>
+    <string name="pill_removing">Usuwanie…</string>
+    <string name="pill_queued">W kolejce</string>
+    <string name="pill_remove_queued">Czeka na usunięcie</string>
+    <string name="action_close">Zamknij</string>
 </resources>

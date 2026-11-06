@@ -420,8 +420,9 @@ final class BrowseScreen extends Screen {
         row.addView(mid, Ui.margins(Ui.lpw(0, -2, 1), 12, 0, 8, 0));
 
         Model.Entry e = app.store.entry(it.key());
-        if (app.busy.containsKey(it.key())) {
-            row.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
+        Queue.Op op = app.queue.activeFor(it.key());
+        if (op != null) {
+            row.addView(queuePill(op));
         } else if (e != null) {
             row.addView(installedPill());
         } else if (app.layout.listDp < ROW_LABELS_DP) {

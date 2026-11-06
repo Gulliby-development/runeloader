@@ -23,13 +23,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 /** Scans, installs, updates and removes addons, and reports progress. */
 final class AddonManager {
     final MainActivity app;
-    private final AtomicInteger queued = new AtomicInteger();
 
     AddonManager(MainActivity app) { this.app = app; }
 
     void rescan() {
         if (!app.hasStorageAccess() || !app.store.gameReady()) { app.scanned = true; app.installed = new ArrayList<>(); app.renderIfTab(MainActivity.TAB_INSTALLED); return; }
         final File addons = app.store.addonsDir();
+        final long started = System.currentTimeMillis();
         MainActivity.net.execute(() -> {
             List<Model.LocalAddon> locals = addons.isDirectory() ? Toc.scan(addons) : new ArrayList<Model.LocalAddon>();
             Index.loadCached();
@@ -47,6 +47,7 @@ final class AddonManager {
                 }
                 app.installed = rows;
                 app.scanned = true;
+                app.library.scanStartedAt = Math.max(app.library.scanStartedAt, started);
                 if (app.tab == MainActivity.TAB_INSTALLED) { app.render(); }
                 else if (app.tab == MainActivity.TAB_BROWSE) app.refreshList();
                 if (!app.checkedOnce && app.store.list().size() > 0) { app.checkedOnce = true; checkUpdates(false); }
@@ -228,12 +229,12 @@ final class AddonManager {
     /** Updates every part of a package (or a single row) that has an update. */
     void updatePackage(Model.Installed r) {
         for (Model.Installed m : r.withModules())
-            if (m.entry != null && m.entry.updateAvailable && !app.busy.containsKey(m.entry.key)) update(m.entry);
+            if (m.entry != null && m.entry.updateAvailable && !app.queue.busy(m.entry.key)) update(m.entry);
     }
 
     void updateAll() {
         int n = 0;
-        for (Model.Entry e : app.store.list()) if (e.updateAvailable && !app.busy.containsKey(e.key)) { update(e); n++; }
+        for (Model.Entry e : app.store.list()) if (e.updateAvailable && !app.queue.busy(e.key)) { update(e); n++; }
         if (n > 0) app.snack(app.getString(R.string.updating_n, n));
     }
 
@@ -243,32 +244,34 @@ final class AddonManager {
      */
     void install(final Model.Item item, final Runnable after) {
         if (!requireGame()) return;
+        if (app.queue.busy(item.key())) return;
         final List<Model.Item> parts = new ArrayList<>();
         parts.add(item);
-        if (app.store.entry(item.key()) == null && Model.SRC_GITHUB.equals(item.source))
+        final Model.Entry existing = app.store.entry(item.key());
+        if (existing == null && Model.SRC_GITHUB.equals(item.source))
             for (Model.Item m : Index.modulesOf(item.id)) if (app.store.entry(m.key()) == null) parts.add(m);
-        if (app.busy.containsKey(item.key())) return;
-        app.busy.put(item.key(), app.getString(R.string.queued));
-        queued.incrementAndGet();
-        updateProgressCard();
-        app.refreshList();
-        app.detail.renderDetail();
+        String icon = item.iconUrl != null ? item.iconUrl : existing != null ? existing.iconUrl : null;
+        final Queue.Op op = app.queue.add(existing == null ? Queue.Kind.INSTALL : Queue.Kind.UPDATE, item.key(), item.name, icon);
+        for (Model.Item p : parts) op.keys.add(p.key());
+        op.modules = parts.size() - 1;
+        op.status = app.getString(R.string.queued);
+        queueChanged();
         final File addons = app.store.addonsDir();
         MainActivity.ops.execute(() -> {
+            if (!app.queue.start(op)) return;
+            app.main.post(this::queueChanged);
             String error = null;
             List<String> installedNames = new ArrayList<>();
             try {
                 Set<String> seen = new HashSet<>();
-                for (Model.Item part : parts) installWithDeps(part, addons, installedNames, seen, 0, item);
+                for (Model.Item part : parts) installWithDeps(part, addons, installedNames, seen, 0, item, op);
             } catch (Exception e) {
                 error = MainActivity.friendly(e);
             }
+            app.queue.finish(op, error);
             final String fe = error;
             app.main.post(() -> {
                 if (app.isDestroyed()) return;
-                app.busy.remove(item.key());
-                queued.decrementAndGet();
-                updateProgressCard();
                 if (fe != null) {
                     app.confirm(app.getString(R.string.install_failed, item.name), fe, null, null);
                 } else {
@@ -276,9 +279,8 @@ final class AddonManager {
                             : installedNames.size() > 1 ? String.join(", ", installedNames) : item.name;
                     app.snack(app.getString(R.string.installed_names, names));
                 }
+                queueChanged();
                 rescan();
-                app.refreshList();
-                app.detail.renderDetail();
                 if (after != null) after.run();
             });
         });
@@ -286,46 +288,48 @@ final class AddonManager {
 
     /** Runs on the ops thread. */
     /** The progress of a dependency or a module shows on the card of the item the user asked for. */
-    private void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth, final Model.Item asked) throws IOException {
+    private void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth, final Model.Item asked, final Queue.Op op) throws IOException {
         new Updater(app, app.store).installWithDeps(item, addons, done, seen, depth,
-                (i, t, f) -> progress(asked, i.key().equals(asked.key()) ? t : i.name + "  ·  " + t, f));
+                (i, t, f) -> progress(op, i.key().equals(asked.key()) ? t : i.name + "  ·  " + t, f));
     }
 
     private static boolean containsIgnoreCase(List<String> l, String s) { return Updater.containsIgnoreCase(l, s); }
 
     private static String safeName(String s) { return Updater.safeName(s); }
 
-    private void progress(final Model.Item item, final String text, final float fraction) {
+    /** Runs on the ops thread: a progress step updates the views in place, without a new list. */
+    private void progress(final Queue.Op op, final String text, final float fraction) {
+        app.queue.progress(op, text, fraction);
         app.main.post(() -> {
-            if (!app.busy.containsKey(item.key())) return;
-            app.busy.put(item.key(), text);
-            app.progressTitle.setText(item.name + (queued.get() > 1 ? "  ·  " + app.getString(R.string.more_queued, queued.get() - 1) : ""));
-            app.progressText.setText(text);
-            if (fraction < 0) app.progressBar.setIndeterminate(true);
-            else { app.progressBar.setIndeterminate(false); app.progressBar.setProgress((int) (fraction * 1000)); }
-            app.progressCard.setVisibility(View.VISIBLE);
+            if (app.isDestroyed()) return;
+            updateProgressCard();
+            app.library.tick(op);
+            app.queueSheet.tick(op);
         });
+    }
+
+    /** The queue gained, started, lost or finished an operation: every view that shows it follows. */
+    void queueChanged() {
+        updateProgressCard();
+        if (app.tab == MainActivity.TAB_INSTALLED) app.library.refresh(); else app.refreshList();
+        app.detail.renderDetail();
+        app.queueSheet.refresh();
     }
 
     void updateProgressCard() {
         if (app.progressCard == null) return;
-        if (app.busy.isEmpty()) { app.progressCard.setVisibility(View.GONE); return; }
+        Queue.Op cur = app.queue.current();
+        if (cur == null) { app.progressCard.setVisibility(View.GONE); return; }
         app.progressCard.setVisibility(View.VISIBLE);
-        Map.Entry<String, String> first = null;
-        for (Map.Entry<String, String> en : app.busy.entrySet()) { if (!app.getString(R.string.queued).equals(en.getValue())) { first = en; break; } }
-        if (first == null) first = app.busy.entrySet().iterator().next();
-        app.progressTitle.setText(nameOfKey(first.getKey()) + (app.busy.size() > 1 ? "  ·  " + app.getString(R.string.more_queued, app.busy.size() - 1) : ""));
-        app.progressText.setText(first.getValue());
-        app.progressBar.setIndeterminate(true);
-    }
-
-    private String nameOfKey(String key) {
-        Model.Item c = Catalog.byKey(key);
-        if (c != null) return c.name;
-        Model.Entry e = app.store.entry(key);
-        if (e != null) return e.name;
-        for (List<Model.Item> l : app.results.values()) for (Model.Item it : l) if (it.key().equals(key)) return it.name;
-        return key;
+        int more = app.queue.activeCount() - 1;
+        app.progressTitle.setText(cur.name + (more > 0 ? "  ·  " + app.getString(R.string.more_queued, more) : ""));
+        app.progressText.setText(cur.status);
+        boolean remove = cur.kind == Queue.Kind.REMOVE;
+        int color = remove ? Ui.RED : Ui.ACCENT;
+        app.progressBar.setProgressTintList(android.content.res.ColorStateList.valueOf(color));
+        app.progressBar.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(color));
+        if (cur.state != Queue.State.RUNNING || cur.fraction < 0) app.progressBar.setIndeterminate(true);
+        else { app.progressBar.setIndeterminate(false); app.progressBar.setProgress((int) (cur.fraction * 1000)); }
     }
 
     void adoptWowi(final String id, final Model.Installed r) {
@@ -349,27 +353,42 @@ final class AddonManager {
                 for (String f : m.entry.folders) if (!containsIgnoreCase(folders, f)) folders.add(f);
             }
         }
-        app.confirm(app.getString(R.string.remove_title, r.title), app.getString(R.string.remove_text, DetailPanel.joinShort(folders, 10)), app.getString(R.string.action_remove), () -> {
-            final File addons = app.store.addonsDir();
-            app.selected = null;
-            if (!app.layout.docked) app.detail.closeDetailSheet(); else app.detail.renderDetail();
-            app.snack(app.getString(R.string.removing, r.title));
-            MainActivity.ops.execute(() -> {
-                String err = null;
-                try {
-                    synchronized (Updater.LOCK) {
-                        Installer.remove(addons, folders);
-                        for (String k : keys) app.store.remove(k);
-                    }
-                } catch (IOException e) {
-                    err = MainActivity.friendly(e);
+        app.confirm(app.getString(R.string.remove_title, r.title), app.getString(R.string.remove_text, DetailPanel.joinShort(folders, 10)), app.getString(R.string.action_remove), () -> remove(r, folders, keys));
+    }
+
+    /** Queues the removal; the Library shows the row in red until the files are gone. */
+    private void remove(final Model.Installed r, final List<String> folders, final List<String> keys) {
+        String key = keys.isEmpty() ? (r.catalogMatch != null ? r.catalogMatch.key() : "folders:" + (folders.isEmpty() ? r.title : folders.get(0))) : keys.get(0);
+        String icon = r.entry != null ? r.entry.iconUrl : (r.catalogMatch != null ? r.catalogMatch.iconUrl : null);
+        final Queue.Op op = app.queue.add(Queue.Kind.REMOVE, key, r.title, icon);
+        op.keys.addAll(keys);
+        for (String f : folders) op.addFolder(f);
+        op.modules = r.modules.size();
+        op.status = app.getString(R.string.queued);
+        final File addons = app.store.addonsDir();
+        app.selected = null;
+        if (!app.layout.docked) app.detail.closeDetailSheet();
+        queueChanged();
+        MainActivity.ops.execute(() -> {
+            if (!app.queue.start(op)) return;
+            app.queue.progress(op, app.getString(R.string.queue_removing_files), -1);
+            app.main.post(this::queueChanged);
+            String err = null;
+            try {
+                synchronized (Updater.LOCK) {
+                    Installer.remove(addons, folders);
+                    for (String k : keys) app.store.remove(k);
                 }
-                final String fe = err;
-                app.main.post(() -> {
-                    if (app.isDestroyed()) return;
-                    app.snack(fe != null ? fe : app.getString(R.string.removed, r.title));
-                    rescan();
-                });
+            } catch (IOException e) {
+                err = MainActivity.friendly(e);
+            }
+            app.queue.finish(op, err);
+            final String fe = err;
+            app.main.post(() -> {
+                if (app.isDestroyed()) return;
+                app.snack(fe != null ? fe : app.getString(R.string.removed, r.title));
+                queueChanged();
+                rescan();
             });
         });
     }
@@ -384,12 +403,15 @@ final class AddonManager {
     void installZip(final Uri uri) {
         final String name = displayName(uri);
         final String key = "zip:" + name;
-        if (app.busy.containsKey(key)) return;
-        app.busy.put(key, app.getString(R.string.copying));
-        queued.incrementAndGet();
-        updateProgressCard();
+        if (app.queue.busy(key)) return;
+        final Queue.Op op = app.queue.add(Queue.Kind.ZIP, key, name, null);
+        op.status = app.getString(R.string.queued);
+        queueChanged();
         final File addons = app.store.addonsDir();
         MainActivity.ops.execute(() -> {
+            if (!app.queue.start(op)) return;
+            app.queue.progress(op, app.getString(R.string.copying), -1);
+            app.main.post(this::queueChanged);
             String err = null;
             List<String> folders = null;
             try {
@@ -420,13 +442,12 @@ final class AddonManager {
             } catch (Exception e) {
                 err = MainActivity.friendly(e);
             }
+            app.queue.finish(op, err);
             final String fe = err;
             final List<String> ff = folders;
             app.main.post(() -> {
                 if (app.isDestroyed()) return;
-                app.busy.remove(key);
-                queued.decrementAndGet();
-                updateProgressCard();
+                queueChanged();
                 if (fe != null) app.confirm(app.getString(R.string.zip_install_failed), fe, null, null);
                 else app.snack(app.getString(R.string.zip_installed, DetailPanel.joinShort(ff, 4)));
                 rescan();

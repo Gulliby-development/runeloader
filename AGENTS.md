@@ -19,6 +19,7 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
 - `Toc.java` picks the TOC file the same way the game does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
 - `SelfUpdate.java` updates Runeloader itself: on start (at most every 12 hours) and from Settings it reads this repository's latest GitHub release, offers the newer version, downloads `runeloader-<version>.apk`, checks it against the `.apk.sha256` file, its package name and a higher `versionCode`, and installs it through `PackageInstaller`. The asset names come from `release.yml` and `AppVersion.apkName`; a change to one changes the other. Version comparison lives in `AppVersion.java` with a case in `test/AppVersionTest.java`.
+- `Queue.java` is the one process-wide list of installs, updates and removes, waiting, running and just finished. `AddonManager` adds every operation to it before it runs on the `ops` thread, and calls `queueChanged` when one starts or ends. The Library reads it to show addons on their way in (grey ghost rows), being updated (grey) or removed (red), and `QueueSheet` lists it when the progress card is tapped. A new kind of operation that changes addons goes through the queue too, with a `Queue.Kind`.
 - `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. The app sends no GitHub token (there is no token setting); keep API calls rare, since the anonymous limit is 60 per hour. `Http.java` follows redirects by hand and drops an `Authorization` header on any host but GitHub.
 
 ## Task workflow
@@ -172,6 +173,13 @@ When you change `Packages.java` (modules listed under their core in the Library)
 ```sh
 mkdir -p /tmp/pk && javac -d /tmp/pk src/app/wowforever/addons/{Model,Modules,Packages}.java test/PackagesTest.java
 java -cp /tmp/pk app.wowforever.addons.PackagesTest
+```
+
+When you change `Queue.java` (the install and remove queue), run its test (CI runs it too):
+
+```sh
+mkdir -p /tmp/q && javac -d /tmp/q src/app/wowforever/addons/Queue.java test/QueueTest.java
+java -cp /tmp/q app.wowforever.addons.QueueTest
 ```
 
 When you change `Markdown.java` (release notes in the detail panel), run its test (CI runs it too):

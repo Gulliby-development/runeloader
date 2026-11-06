@@ -213,8 +213,8 @@ final class DetailPanel extends Screen {
 
         // A discontinued addon leads with its notice and the addon to use instead; installing it stays possible.
         View successor = endedCard(col, ended, true);
-        if (app.busy.containsKey(it.key())) {
-            LinearLayout b = Ui.button(app, app.busy.get(it.key()), 0, Ui.Kind.SECONDARY, null);
+        if (app.queue.busy(it.key())) {
+            LinearLayout b = Ui.button(app, app.queue.status(it.key()), 0, Ui.Kind.SECONDARY, v -> app.queueSheet.open());
             b.setEnabled(false);
             primaryAction(col, b);
         } else {
@@ -225,7 +225,7 @@ final class DetailPanel extends Screen {
             View focus = successor != null ? successor : b;
             if (app.landscape) focus.post(focus::requestFocus);
         }
-        boolean canRemove = e != null && !app.busy.containsKey(it.key());
+        boolean canRemove = e != null && !app.queue.busy(it.key());
         if (it.pageUrl != null || canRemove) {
             Ui.FlowRow more = secondaryActions(col);
             if (it.pageUrl != null) addSecondary(more, Ui.button(app, s(R.string.action_page), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl(it.pageUrl)));
@@ -285,9 +285,9 @@ final class DetailPanel extends Screen {
         final Model.Entry e = r.entry;
         String icon = e != null ? e.iconUrl : (r.catalogMatch != null ? r.catalogMatch.iconUrl : null);
         List<View> pills = new ArrayList<>();
-        String busyKey = e != null ? e.key : (r.catalogMatch != null ? r.catalogMatch.key() : null);
-        boolean busy = busyKey != null && app.busy.containsKey(busyKey);
-        if (busy) pills.add(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT));
+        final Queue.Op op = opFor(r);
+        boolean busy = op != null;
+        if (busy) pills.add(queuePill(op));
         else if (r.missing) pills.add(Ui.pill(app, s(R.string.pill_folders_missing), Ui.RED, Ui.RED_SOFT));
         else if (e != null && e.updateAvailable) pills.add(LibraryScreen.iconPill(app, s(R.string.action_update_to, shortVer(e.latest)), R.drawable.ic_upgrade, Ui.ACCENT, Ui.ACCENT_SOFT));
         else if (e != null && e.checkError != null) pills.add(Ui.pill(app, s(R.string.pill_unchecked), Ui.TEXT2, Ui.SURFACE3));
@@ -312,7 +312,8 @@ final class DetailPanel extends Screen {
 
         LinearLayout primary = null;
         if (busy) {
-            LinearLayout b = Ui.button(app, app.busy.get(busyKey), 0, Ui.Kind.SECONDARY, null);
+            // opens the queue, where a waiting operation can be cancelled
+            LinearLayout b = Ui.button(app, statusLine(op), 0, Ui.Kind.SECONDARY, v -> app.queueSheet.open());
             primaryAction(col, b);
         } else if (e != null && !Model.SRC_ZIP.equals(e.source)) {
             if (e.updateAvailable) {
@@ -339,11 +340,14 @@ final class DetailPanel extends Screen {
             final String p = page;
             addSecondary(more, Ui.button(app, s(R.string.action_page), R.drawable.ic_open, Ui.Kind.GHOST, v -> app.openUrl(p)));
         }
-        LinearLayout del = Ui.button(app, s(r.isPackage() ? R.string.action_remove_all : R.string.action_remove), R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemove(r));
-        addSecondary(more, del);
+        LinearLayout del = null;
+        if (!busy) {
+            del = Ui.button(app, s(r.isPackage() ? R.string.action_remove_all : R.string.action_remove), R.drawable.ic_delete, Ui.Kind.DANGER, v -> app.manager.confirmRemove(r));
+            addSecondary(more, del);
+        }
         if (e != null && Model.SRC_GITHUB.equals(e.source) && r.parent == null) modulesSection(col, e.id, r);
         final View focusTarget = primary != null ? primary : del;
-        if (app.landscape) focusTarget.post(focusTarget::requestFocus);
+        if (app.landscape && focusTarget != null) focusTarget.post(focusTarget::requestFocus);
 
         if (e != null && Model.SRC_GITHUB.equals(e.source)) endedCard(col, Index.item(e.id), false);
 
@@ -425,8 +429,9 @@ final class DetailPanel extends Screen {
         tb.addView(Ui.oneLine(Ui.text(app, name, 13.5f, Ui.TEXT, Ui.MEDIUM)));
         if (version != null && !version.isEmpty()) tb.addView(Ui.oneLine(Ui.text(app, version, 11, Ui.TEXT3, Typeface.MONOSPACE)));
         line.addView(tb, Ui.lpw(0, -2, 1));
-        if (key != null && app.busy.containsKey(key)) {
-            line.addView(Ui.pill(app, s(R.string.pill_installing), Ui.ACCENT, Ui.ACCENT_SOFT), Ui.margins(Ui.lp(-2, -2), 0, 0, 6, 0));
+        Queue.Op op = key != null ? app.queue.activeFor(key) : null;
+        if (op != null) {
+            line.addView(queuePill(op), Ui.margins(Ui.lp(-2, -2), 0, 0, 6, 0));
         } else {
             if (remove == null && install == null) { col.addView(line, Ui.margins(Ui.lp(-1, -2), 0, 0, 0, 6)); return; }
             boolean add = install != null;

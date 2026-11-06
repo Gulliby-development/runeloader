@@ -363,4 +363,22 @@
         <item quantity="one">%1$s et %2$d module</item>
         <item quantity="other">%1$s et %2$d modules</item>
     </plurals>
+    <string name="queue_title">File d\'attente</string>
+    <string name="queue_open">Ouvrir la file d\'attente</string>
+    <string name="queue_empty">Rien en attente</string>
+    <string name="queue_empty_text">Les installations, mises à jour et suppressions s\'affichent ici pendant leur exécution.</string>
+    <string name="queue_clear">Effacer les terminées</string>
+    <string name="queue_done">Terminé</string>
+    <string name="queue_failed">Échec</string>
+    <string name="queue_cancelled">Annulé</string>
+    <string name="queue_kind_install">Installation</string>
+    <string name="queue_kind_update">Mise à jour</string>
+    <string name="queue_kind_remove">Suppression</string>
+    <string name="queue_kind_zip">Fichier ZIP</string>
+    <string name="queue_cancel_one">Annuler : %1$s</string>
+    <string name="queue_removing_files">Suppression des fichiers…</string>
+    <string name="pill_removing">Suppression…</string>
+    <string name="pill_queued">En attente</string>
+    <string name="pill_remove_queued">Suppression prévue</string>
+    <string name="action_close">Fermer</string>
 </resources>
