@@ -376,6 +376,7 @@
         <item quantity="other">%1$s и %2$d модуля</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="action_track">Подключить</string>
     <string name="action_open_folder">Открыть папку</string>
     <string name="col_addon">Аддон</string>
     <string name="col_version">Версия</string>

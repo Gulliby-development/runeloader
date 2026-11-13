@@ -360,6 +360,7 @@
         <item quantity="other">%1$s und %2$d Module</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="action_track">Verfolgen</string>
     <string name="action_open_folder">Ordner öffnen</string>
     <string name="col_addon">Addon</string>
     <string name="col_version">Version</string>

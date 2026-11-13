@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
@@ -65,7 +66,14 @@ fun LibraryScreen(app: AppState) {
                 else -> LibraryList(app)
             }
         }
-        if (app.gameReady && app.rows.isNotEmpty()) DetailPane { RowDetail(app, app.selectedRow) }
+        // The detail column opens with a selection, so the table has the whole width until then.
+        val sel = app.selectedRow
+        if (app.gameReady && sel != null) DetailPane {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Button(null, Kind.GHOST, icon = "ic_close", small = true) { app.selectedRow = null }
+            }
+            RowDetail(app, sel)
+        }
     }
 }
 
@@ -92,10 +100,10 @@ private fun LibraryList(app: AppState) {
     if (lines.isEmpty()) { Empty("ic_search", t("nothing_found"), t("favorites_no_match")); return }
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
         val cols = when {
-            maxWidth >= 700.dp -> Cols(150.dp, 92.dp, 128.dp)
-            maxWidth >= 570.dp -> Cols(124.dp, 80.dp, 116.dp)
-            maxWidth >= 500.dp -> Cols(130.dp, 0.dp, 116.dp)
-            else -> Cols(0.dp, 0.dp, 110.dp)
+            maxWidth >= 760.dp -> Cols(170.dp, 100.dp, 150.dp)
+            maxWidth >= 600.dp -> Cols(130.dp, 84.dp, 140.dp)
+            maxWidth >= 500.dp -> Cols(130.dp, 0.dp, 140.dp)
+            else -> Cols(0.dp, 0.dp, 140.dp)
         }
         Column {
             TableHead(cols)
@@ -147,7 +155,7 @@ private fun TableHead(cols: Cols) {
         Label(t("col_addon"), Modifier.weight(1f))
         if (cols.version > 0.dp) Label(t("col_version"), Modifier.width(cols.version))
         if (cols.source > 0.dp) Label(t("col_source"), Modifier.width(cols.source))
-        Box(Modifier.width(cols.status), contentAlignment = Alignment.CenterEnd) { Label(t("col_status")) }
+        Box(Modifier.width(cols.status).clipToBounds(), contentAlignment = Alignment.CenterEnd) { Label(t("col_status")) }
     }
     Box(Modifier.fillMaxWidth().height(1.dp).background(Palette.stroke))
 }
@@ -197,12 +205,11 @@ fun clip(v: String?, max: Int): String = if (v == null) "" else if (v.length > m
 
 @Composable
 private fun SourceTag(r: Model.Installed) {
-    val src = r.entry?.source ?: r.catalogMatch?.source
-    when {
-        src == null -> Tag(t("pill_manual"))
-        src == Model.SRC_WOWI -> Tag("WoWI", Palette.blue, Palette.blueSoft)
-        src == Model.SRC_ZIP -> Tag("ZIP")
-        r.entry == null -> Tag(t("pill_in_catalog"), Palette.blue, Palette.blueSoft)
+    // A manual install shows where it could come from; the status column says that it is not tracked yet.
+    when (r.entry?.source ?: r.catalogMatch?.source) {
+        null -> Text("—", color = Palette.text3, fontFamily = Fonts.mono, fontSize = 12.sp)
+        Model.SRC_WOWI -> Tag("WoWI", Palette.blue, Palette.blueSoft)
+        Model.SRC_ZIP -> Tag("ZIP")
         else -> Tag("GitHub")
     }
 }
@@ -220,7 +227,7 @@ private fun RowStatus(app: AppState, r: Model.Installed) {
         ended -> StateText(t("tag_discontinued"), Palette.warn, "ic_warning")
         e != null && e.checkError != null -> StateText(t("pill_unchecked"), Palette.text3, null)
         e != null && e.latest != null -> StateText(t("pill_up_to_date"), Palette.rune, "ic_check")
-        e == null && r.catalogMatch != null -> Button(t("action_track_catalog"), small = true) { app.install(r.catalogMatch) }
+        e == null && r.catalogMatch != null -> Button(t("action_track"), Kind.SECONDARY, small = true) { app.install(r.catalogMatch) }
         e == null -> StateText(t("pill_manual"), Palette.text3, null)
         else -> Unit
     }
@@ -244,9 +251,9 @@ private fun AddonRow(app: AppState, r: Model.Installed, cols: Cols) {
             }
         }
         val update = e?.updateAvailable == true && !r.missing
-        if (cols.version > 0.dp) Box(Modifier.width(cols.version)) { VersionText(e?.version?.takeIf { it.isNotEmpty() } ?: r.version, if (update) e?.latest else null) }
-        if (cols.source > 0.dp) Box(Modifier.width(cols.source)) { SourceTag(r) }
-        Box(Modifier.width(cols.status), contentAlignment = Alignment.CenterEnd) { RowStatus(app, r) }
+        if (cols.version > 0.dp) Box(Modifier.width(cols.version).clipToBounds().padding(end = 8.dp)) { VersionText(e?.version?.takeIf { it.isNotEmpty() } ?: r.version, if (update) e?.latest else null) }
+        if (cols.source > 0.dp) Box(Modifier.width(cols.source).clipToBounds()) { SourceTag(r) }
+        Box(Modifier.width(cols.status).clipToBounds(), contentAlignment = Alignment.CenterEnd) { RowStatus(app, r) }
     }
 }
 
@@ -272,15 +279,16 @@ private fun PackageRow(app: AppState, r: Model.Installed, cols: Cols) {
                     Modifier.size(18.dp).rotate(if (open) 270f else 90f), tint = Palette.text3)
             }
         }
-        if (cols.version > 0.dp) Box(Modifier.width(cols.version)) { VersionText(r.entry?.version?.takeIf { it.isNotEmpty() } ?: r.version, null) }
-        if (cols.source > 0.dp) Box(Modifier.width(cols.source)) { SourceTag(r) }
-        Box(Modifier.width(cols.status), contentAlignment = Alignment.CenterEnd) {
+        if (cols.version > 0.dp) Box(Modifier.width(cols.version).clipToBounds().padding(end = 8.dp)) { VersionText(r.entry?.version?.takeIf { it.isNotEmpty() } ?: r.version, null) }
+        if (cols.source > 0.dp) Box(Modifier.width(cols.source).clipToBounds()) { SourceTag(r) }
+        Box(Modifier.width(cols.status).clipToBounds(), contentAlignment = Alignment.CenterEnd) {
             when {
                 busy != null -> BusyBar(busy)
                 parts.any { it.missing } -> StateText(t("pill_folders_missing"), Palette.danger, "ic_warning")
                 updates > 0 -> Button(t("action_update"), Kind.PRIMARY, small = true) { app.updateRow(r) }
                 parts.any { it.entry?.checkError != null } -> StateText(t("pill_unchecked"), Palette.text3, null)
                 r.entry?.latest != null -> StateText(t("pill_up_to_date"), Palette.rune, "ic_check")
+                r.entry == null && r.catalogMatch != null -> Button(t("action_track"), Kind.SECONDARY, small = true) { app.install(r.catalogMatch) }
                 r.entry == null -> StateText(t("pill_manual"), Palette.text3, null)
             }
         }
@@ -300,9 +308,9 @@ private fun PartRow(app: AppState, m: Model.Installed, cols: Cols) {
             NameCell(if (core) t("module_core") else Packages.moduleName(m.title, pkg.title), m.author?.takeIf { it.isNotEmpty() } ?: sourceName(m.entry?.source))
         }
         val e = m.entry
-        if (cols.version > 0.dp) Box(Modifier.width(cols.version)) { VersionText(e?.version?.takeIf { it.isNotEmpty() } ?: m.version, if (e?.updateAvailable == true) e.latest else null) }
+        if (cols.version > 0.dp) Box(Modifier.width(cols.version).clipToBounds().padding(end = 8.dp)) { VersionText(e?.version?.takeIf { it.isNotEmpty() } ?: m.version, if (e?.updateAvailable == true) e.latest else null) }
         if (cols.source > 0.dp) Spacer(Modifier.width(cols.source))
-        Box(Modifier.width(cols.status), contentAlignment = Alignment.CenterEnd) { RowStatus(app, m) }
+        Box(Modifier.width(cols.status).clipToBounds(), contentAlignment = Alignment.CenterEnd) { RowStatus(app, m) }
     }
 }
 
