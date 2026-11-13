@@ -1,7 +1,5 @@
 package app.wowforever.addons;
 
-import android.content.Context;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,11 +19,9 @@ final class Updater {
 
     interface Progress { void on(Model.Item item, String text, float fraction); }
 
-    private final Context ctx;
     private final Store store;
 
-    Updater(Context ctx, Store store) {
-        this.ctx = ctx;
+    Updater(Store store) {
         this.store = store;
     }
 
@@ -63,7 +59,7 @@ final class Updater {
 
     private void installLocked(Model.Item item, File addons, List<String> done, Set<String> seen, int depth, Progress p) throws IOException {
         if (!seen.add(item.key()) || depth > 4) return;
-        p.on(item, ctx.getString(R.string.finding_build), -1);
+        p.on(item, Texts.s("finding_build"), -1);
         Model.Release rel = Sources.latest(item);
         // dependencies first
         List<Model.Item> deps = new ArrayList<>(rel.deps);
@@ -72,17 +68,17 @@ final class Updater {
             if (store.entry(d.key()) != null) continue;
             installLocked(d, addons, done, seen, depth + 1, p);
         }
-        File dl = new File(ctx.getCacheDir(), "dl");
+        File dl = new File(Sources.cacheDir, "dl");
         dl.mkdirs();
         File zip = new File(dl, safeName(rel.fileName == null ? item.name + ".zip" : rel.fileName));
         final Model.Item fItem = item;
-        p.on(item, ctx.getString(R.string.downloading, rel.version == null ? "" : rel.version), 0);
-        Http.download(rel.url, rel.headers, zip, (d, t) -> p.on(fItem, t > 0 ? ctx.getString(R.string.downloading_of, Ui.formatBytes(d), Ui.formatBytes(t)) : ctx.getString(R.string.downloading, Ui.formatBytes(d)), t > 0 ? (float) d / t : -1));
+        p.on(item, Texts.s("downloading", rel.version == null ? "" : rel.version), 0);
+        Http.download(rel.url, rel.headers, zip, (d, t) -> p.on(fItem, t > 0 ? Texts.s("downloading_of", Texts.bytes(d), Texts.bytes(t)) : Texts.s("downloading", Texts.bytes(d)), t > 0 ? (float) d / t : -1));
         if (rel.md5 != null && rel.md5.length() == 32) {
             String got = Installer.md5(zip);
-            if (!got.equalsIgnoreCase(rel.md5)) { zip.delete(); throw new IOException(ctx.getString(R.string.md5_mismatch)); }
+            if (!got.equalsIgnoreCase(rel.md5)) { zip.delete(); throw new IOException(Texts.s("md5_mismatch")); }
         }
-        p.on(item, ctx.getString(R.string.unpacking), -1);
+        p.on(item, Texts.s("unpacking"), -1);
         Model.Entry old = store.entry(item.key());
         List<String> folders = Installer.install(zip, addons, text -> p.on(fItem, text, -1));
         zip.delete();

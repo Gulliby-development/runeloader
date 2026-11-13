@@ -25,7 +25,7 @@ public class UpdateJobService extends JobService {
             try {
                 run();
             } catch (Throwable t) {
-                Store.get(this).setAutoLastRun(System.currentTimeMillis(), 0, 0, String.valueOf(t.getMessage()));
+                AndroidPlatform.store(this).setAutoLastRun(System.currentTimeMillis(), 0, 0, String.valueOf(t.getMessage()));
             }
             jobFinished(params, false);
         }, "auto-update");
@@ -40,7 +40,7 @@ public class UpdateJobService extends JobService {
     }
 
     private void run() {
-        Store store = Store.get(this);
+        Store store = AndroidPlatform.store(this);
         if (store.autoMode() == UpdatePolicy.MODE_OFF) { AutoUpdate.apply(this); return; }   // a stale job: cancel it
         if (!store.isLoaded()) store.load();
         long now = System.currentTimeMillis();
@@ -78,7 +78,7 @@ public class UpdateJobService extends JobService {
         }
 
         File addons = store.addonsDir();
-        Updater updater = new Updater(this, store);
+        Updater updater = new Updater(store);
         List<String> done = new ArrayList<>();
         List<String> failed = new ArrayList<>();
         for (Model.Entry e : found) {

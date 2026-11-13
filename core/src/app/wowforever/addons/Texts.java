@@ -28,6 +28,20 @@ final class Texts {
         return src == null ? Locale.getDefault() : src.locale();
     }
 
+    /** A size for people: 512 B, 12 KB, 3.4 MB. */
+    static String bytes(long b) {
+        if (b < 1024) return s("fmt_bytes", (int) b);
+        if (b < 1024 * 1024) return s("fmt_kb", decimal(b / 1024.0, 0));
+        return s("fmt_mb", decimal(b / (1024.0 * 1024), 1));
+    }
+
+    static String decimal(double v, int maxFraction) {
+        java.text.NumberFormat f = java.text.NumberFormat.getNumberInstance(locale());
+        f.setMaximumFractionDigits(maxFraction);
+        f.setGroupingUsed(false);
+        return f.format(v);
+    }
+
     /** A short message for a failed network or install step. */
     static String friendly(Throwable e) {
         if (e instanceof java.net.UnknownHostException) return s("err_no_internet");

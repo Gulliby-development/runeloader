@@ -23,7 +23,7 @@ final class AutoUpdate {
 
     /** Applies the saved settings: schedules the job, replaces it after a settings change, or cancels it. */
     static void apply(Context ctx) {
-        Store store = Store.get(ctx);
+        Store store = AndroidPlatform.store(ctx);
         JobScheduler js = (JobScheduler) ctx.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         if (js == null) return;
         if (store.autoMode() == UpdatePolicy.MODE_OFF) { js.cancel(JOB_ID); return; }

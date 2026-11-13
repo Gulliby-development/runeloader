@@ -405,9 +405,7 @@ final class Ui {
     }
 
     static String formatBytes(long b) {
-        if (b < 1024) return Lang.s(R.string.fmt_bytes, (int) b);
-        if (b < 1024 * 1024) return Lang.s(R.string.fmt_kb, decimal(b / 1024.0, 0));
-        return Lang.s(R.string.fmt_mb, decimal(b / (1024.0 * 1024), 1));
+        return Texts.bytes(b);
     }
 
     static String formatDate(long ms) {

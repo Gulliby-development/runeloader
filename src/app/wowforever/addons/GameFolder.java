@@ -22,7 +22,7 @@ final class GameFolder extends Screen {
     GameFolder(MainActivity app) { super(app); }
 
     void autoDetect(boolean interactive) {
-        List<File> found = Store.detect();
+        List<File> found = app.store.detect();
         if (found.isEmpty()) {
             if (interactive) app.confirm(s(R.string.game_not_found_title), s(R.string.game_not_found_text), s(R.string.game_pick_folder), this::openFolderPicker);
             return;
