@@ -268,6 +268,8 @@ fun RowDetail(app: AppState, r: Model.Installed?) {
             busy != null -> Pill(t("pill_installing"), Palette.gold, Palette.goldSoft)
             r.missing -> Pill(t("pill_folders_missing"), Palette.danger, Palette.dangerSoft)
             e != null && e.updateAvailable -> Pill(t("action_update_to", clip(e.latest, 22)), Palette.gold, Palette.goldSoft, "ic_upgrade")
+            Library.untrackedUpdate(r) != null -> Pill(t("action_update_to", clip(Library.untrackedUpdate(r), 22)), Palette.gold, Palette.goldSoft, "ic_upgrade")
+            r.modules.any { Library.needsUpdate(it) } -> Pill(q("updates_available", r.modules.count { Library.needsUpdate(it) }), Palette.gold, Palette.goldSoft, "ic_upgrade")
             e != null && e.checkError != null -> Pill(t("pill_unchecked"))
             e != null && e.latest != null -> Pill(t("pill_up_to_date"), Palette.rune, Palette.runeSoft, "ic_check")
             e == null && r.catalogMatch != null -> Pill(t("pill_in_catalog"), Palette.blue, Palette.blueSoft)
