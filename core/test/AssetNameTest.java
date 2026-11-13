@@ -1,6 +1,6 @@
 package app.wowforever.addons;
 
-/** GitHub asset filter. Run: java -cp /tmp/a app.wowforever.addons.AssetNameTest */
+/** GitHub asset filter. Run: core/test.sh */
 public class AssetNameTest {
     public static void main(String[] a) {
         check(AssetName.isAppBinary("wow-ui-sim-v0.1.39-forever-windows-x86_64.zip"), "windows build of a program");

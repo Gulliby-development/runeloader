@@ -15,10 +15,10 @@ android {
         versionName = "0.0.10"
     }
 
-    // The sources keep the flat layout that build.sh uses.
+    // The sources keep the flat layout that build.sh uses; core/ is the code shared with desktop.
     sourceSets["main"].apply {
         manifest.srcFile("AndroidManifest.xml")
-        java.srcDirs("src")
+        java.srcDirs("src", "core/src")
         res.srcDirs("res")
     }
 

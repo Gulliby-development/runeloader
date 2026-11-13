@@ -42,58 +42,9 @@ jobs:
           scripts/apk-summary.sh "$AAPT2" wow-addons.apk > buildsh.txt
           diff -u gradle.txt buildsh.txt
 
-      - name: Installer and TOC classes compile on a plain JVM
-        run: |
-          mkdir -p /tmp/t
-          javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Model}.java test/InstallTest.java
-
-      - name: AddOns folder rules
-        run: |
-          mkdir -p /tmp/f
-          javac -d /tmp/f src/app/wowforever/addons/AddonsFolder.java test/AddonsFolderTest.java
-          java -cp /tmp/f app.wowforever.addons.AddonsFolderTest
-
-      - name: Auto-update rules
-        run: |
-          mkdir -p /tmp/u
-          javac -d /tmp/u src/app/wowforever/addons/{Model,UpdatePolicy}.java test/UpdatePolicyTest.java
-          java -cp /tmp/u app.wowforever.addons.UpdatePolicyTest
-
-      - name: Popularity order
-        run: |
-          mkdir -p /tmp/p
-          javac -d /tmp/p src/app/wowforever/addons/{Model,Popularity}.java test/PopularityTest.java
-          java -cp /tmp/p app.wowforever.addons.PopularityTest
-
-      - name: GitHub asset filter
-        run: |
-          mkdir -p /tmp/a
-          javac -d /tmp/a src/app/wowforever/addons/AssetName.java test/AssetNameTest.java
-          java -cp /tmp/a app.wowforever.addons.AssetNameTest
-
-      - name: Per-module releases
-        run: |
-          mkdir -p /tmp/mo
-          javac -d /tmp/mo src/app/wowforever/addons/Modules.java test/ModulesTest.java
-          java -cp /tmp/mo app.wowforever.addons.ModulesTest
-
-      - name: Packages in the Library
-        run: |
-          mkdir -p /tmp/pk
-          javac -d /tmp/pk src/app/wowforever/addons/{Model,Modules,Packages}.java test/PackagesTest.java
-          java -cp /tmp/pk app.wowforever.addons.PackagesTest
-
-      - name: App self-update versions
-        run: |
-          mkdir -p /tmp/v
-          javac -d /tmp/v src/app/wowforever/addons/AppVersion.java test/AppVersionTest.java
-          java -cp /tmp/v app.wowforever.addons.AppVersionTest
-
-      - name: Release notes Markdown
-        run: |
-          mkdir -p /tmp/m
-          javac -encoding UTF-8 -d /tmp/m src/app/wowforever/addons/Markdown.java test/MarkdownTest.java
-          java -cp /tmp/m app.wowforever.addons.MarkdownTest
+      # core/ is shared with the desktop app: it builds alone with the Java 8 API and runs every core test.
+      - name: Core tests
+        run: core/test.sh
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

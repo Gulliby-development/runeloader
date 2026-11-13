@@ -1,5 +1,5 @@
 package app.wowforever.addons;
-/** Run: javac -d /tmp/m src/app/wowforever/addons/Markdown.java test/MarkdownTest.java && java -cp /tmp/m app.wowforever.addons.MarkdownTest */
+/** Run: core/test.sh */
 public class MarkdownTest {
   static void check(boolean ok, String what) { if (!ok) throw new AssertionError(what); System.out.println("ok  " + what); }
   public static void main(String[] a) {

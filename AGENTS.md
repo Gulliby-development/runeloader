@@ -7,7 +7,7 @@ These instructions apply to every coding agent (Claude Code, GitHub Copilot, Cod
 Runeloader is an Android app that installs, updates and removes addons for WoW Forever. It works with any client: it only writes to the AddOns folder the user picks, so do not tie it to one client app, package or folder layout. It is plain Java on the Android SDK, with no libraries and no XML layouts: the whole UI is built in code. Read `README.md` for the build. The product name is Runeloader; the package and the build output keep their old names for now.
 
 - Package `app.wowforever.addons`, minSdk 29, targetSdk 34, compileSdk 35.
-- Addons go to the AddOns folder that `AddonsFolder.java` finds in the chosen folder: `<game>/_<flavor>_/Interface/AddOns` (`_forever_` first), `<game>/Interface/AddOns`, a picked `Interface` or `AddOns` folder, or any plain folder the user confirms. A new folder layout goes into `AddonsFolder.java` with a case in `test/AddonsFolderTest.java`.
+- Addons go to the AddOns folder that `AddonsFolder.java` finds in the chosen folder: `<game>/_<flavor>_/Interface/AddOns` (`_forever_` first), `<game>/Interface/AddOns`, a picked `Interface` or `AddOns` folder, or any plain folder the user confirms. A new folder layout goes into `AddonsFolder.java` with a case in `core/test/AddonsFolderTest.java`.
 
 ## How the app works
 
@@ -15,11 +15,20 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 - Each tab is a `Screen` subclass: `LibraryScreen` (installed addons), `BrowseScreen` (one addon search over all sources), `SettingsScreen`. `SetupScreen` shows the storage permission and game folder prompts, `DetailPanel` the addon details, `GameFolder` finds and picks the game folder. `Screen.java` has the helpers they share (headers, rows, empty states).
 - `AddonManager.java` scans the AddOns folder and drives installs, updates and removes from the screens. `Updater.java` does the actual install and update without a screen, under one process-wide lock.
 - `UpdateJobService.java` is the background auto-update: a periodic `JobScheduler` job that `AutoUpdate.java` schedules from the settings and that posts the result as a notification. `UpdatePolicy.java` holds its plain-Java rules (which addons, which versions count as new).
-- `Index.java`, `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, searched through the nightly [runeloader-index](https://github.com/Gulliby-development/runeloader-index) `index.json` or added by link, and WoWInterface. The index is only for search: installs and update checks read the repository's release directly. CurseForge is not a source (owner's decision); do not add it back. `Search.java` merges every source into the one Browse list, without per-source tabs: hand-picked catalog entries the index lacks, then the index, then WoWInterface for addons GitHub does not have (same folder or name). Each row shows its source as a tag. That merge order lives only in `Search.java`; a new source joins it there. Without a query, Browse lists everything by `Popularity` (latest-release downloads plus ten per star); a new popularity signal goes into `Popularity.score` with a case in `test/PopularityTest.java`. The Categories mode of Browse shows a grid of `Categories.KEYS` and then one category's list; a new category needs a key there (matching the index's `category` value), a `cat_<key>` string in every language and a `cat_<key>` icon (a PNG in `res/drawable-nodpi/` or, until one is drawn, a vector in `res/drawable/`). `Categories.TAGS` are tiles that select by the index's `tags` list instead of `category` (today `gamepad`, which also shows as a tag on the row); a new tag gets a key there, its strings and icon, a case in `test/IndexFieldsTest.java`, and its rule in runeloader-index.
+- `Index.java`, `Sources.java` and `Catalog.java` find addons: GitHub releases with a `forever` flavor in `release.json`, searched through the nightly [runeloader-index](https://github.com/Gulliby-development/runeloader-index) `index.json` or added by link, and WoWInterface. The index is only for search: installs and update checks read the repository's release directly. CurseForge is not a source (owner's decision); do not add it back. `Search.java` merges every source into the one Browse list, without per-source tabs: hand-picked catalog entries the index lacks, then the index, then WoWInterface for addons GitHub does not have (same folder or name). Each row shows its source as a tag. That merge order lives only in `Search.java`; a new source joins it there. Without a query, Browse lists everything by `Popularity` (latest-release downloads plus ten per star); a new popularity signal goes into `Popularity.score` with a case in `core/test/PopularityTest.java`. The Categories mode of Browse shows a grid of `Categories.KEYS` and then one category's list; a new category needs a key there (matching the index's `category` value), a `cat_<key>` string in every language and a `cat_<key>` icon (a PNG in `res/drawable-nodpi/` or, until one is drawn, a vector in `res/drawable/`). `Categories.TAGS` are tiles that select by the index's `tags` list instead of `category` (today `gamepad`, which also shows as a tag on the row); a new tag gets a key there, its strings and icon, a case in `test/IndexFieldsTest.java`, and its rule in runeloader-index.
 - `Installer.java` unpacks a zip into the AddOns folder: it finds addon folders by their `.toc`, unpacks to a temporary folder, swaps atomically and refuses zip-slip paths.
 - `Toc.java` picks the TOC file the same way the game does: `_Forever`, then `_Camelot`, then `_Mainline`, then the base `.toc`.
-- `SelfUpdate.java` updates Runeloader itself: on start (at most every 12 hours) and from Settings it reads this repository's latest GitHub release, offers the newer version, downloads `runeloader-<version>.apk`, checks it against the `.apk.sha256` file, its package name and a higher `versionCode`, and installs it through `PackageInstaller`. The asset names come from `release.yml` and `AppVersion.apkName`; a change to one changes the other. Version comparison lives in `AppVersion.java` with a case in `test/AppVersionTest.java`.
+- `SelfUpdate.java` updates Runeloader itself: on start (at most every 12 hours) and from Settings it reads this repository's latest GitHub release, offers the newer version, downloads `runeloader-<version>.apk`, checks it against the `.apk.sha256` file, its package name and a higher `versionCode`, and installs it through `PackageInstaller`. The asset names come from `release.yml` and `AppVersion.apkName`; a change to one changes the other. Version comparison lives in `AppVersion.java` with a case in `core/test/AppVersionTest.java`.
 - `Store.java` keeps settings and the list of installed addons; there is one instance per process (`Store.get`), shared by the screens and the background job. The app sends no GitHub token (there is no token setting); keep API calls rare, since the anonymous limit is 60 per hour. `Http.java` follows redirects by hand and drops an `Authorization` header on any host but GitHub.
+
+## Shared core
+
+Runeloader is coming to Windows, Linux and macOS (#95) as a Compose Desktop app in `desktop/`, in this repository. Code that both apps need lives once, in `core/src/app/wowforever/addons/` (same package as the app):
+
+- `core` is plain Java with the Java 8 API: no `android.*`, no `org.json`, no `R`, no libraries. `core/test.sh` compiles it alone with `javac --release 8` and fails on those references.
+- Both Android build paths compile `core/src` with `src` (`build.gradle.kts` and `build.sh`).
+- Logic both apps need goes into `core`, never into a copy in `src/` or `desktop/`. A class that moves there takes its test to `core/test/<Name>Test.java` (a class with a `main` that exits non-zero on failure); `core/test.sh` runs every one, so CI needs no new step.
+- Desktop releases use tags `desktop-v<version>` and are created as not the latest release, so `SelfUpdate` on Android keeps reading only Android releases.
 
 ## Task workflow
 
@@ -54,12 +63,12 @@ Runeloader is an Android app that installs, updates and removes addons for WoW F
 - Do the network and disk work off the main thread. Show progress and errors to the user, never fail silently.
 - Treat every downloaded zip and every server reply as untrusted. Keep the zip-slip check, the atomic swap in `Installer.java`, and the host check in `Http.java` that keeps an `Authorization` header on GitHub hosts.
 - A new addon source goes into `Sources.java` with a row in the "Where addons come from" table of `README.md`. It declares which TOC field (`X-WoWI-ID`, `X-Wago-ID`, ...) holds its id.
-- The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. The tokens that mark a desktop program zip (`AssetName.java`, `is_app_binary` there) stay identical on both sides, with a case in `test/AssetNameTest.java`. A repo that releases each module on its own tag (`Core-v1`, `Wheel-v2`, ...) is listed as its core (`owner/repo`) and one item per module (`owner/repo#Module`, the index's `module` key); each installs the newest published release of its own group: `Modules.java` here and `module_groups` there, with a case in `test/ModulesTest.java`. Code that needs the repository of an item id uses `Modules.repoOf`. Such a repo is a package in the app: Browse shows only its core (`Index.packageOf`), installing a core that is not installed yet installs every module (`AddonManager.install`), and the Library lists the modules under their core (`Packages.fold`, with a case in `test/PackagesTest.java`). Code that walks every Library row uses `AddonManager.all`, which includes the modules. The index's `requires` keys become `item.deps`, which `Updater` resolves through the catalog, then the index. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
+- The app (`Sources.GitHub.latest`) and the indexer (`runeloader-index`, `indexer/forever.py`) pick the Forever build with the same rules. A change to those rules changes both, with a test case in each. The tokens that mark a desktop program zip (`AssetName.java`, `is_app_binary` there) stay identical on both sides, with a case in `core/test/AssetNameTest.java`. A repo that releases each module on its own tag (`Core-v1`, `Wheel-v2`, ...) is listed as its core (`owner/repo`) and one item per module (`owner/repo#Module`, the index's `module` key); each installs the newest published release of its own group: `Modules.java` here and `module_groups` there, with a case in `core/test/ModulesTest.java`. Code that needs the repository of an item id uses `Modules.repoOf`. Such a repo is a package in the app: Browse shows only its core (`Index.packageOf`), installing a core that is not installed yet installs every module (`AddonManager.install`), and the Library lists the modules under their core (`Packages.fold`, with a case in `core/test/PackagesTest.java`). Code that walks every Library row uses `AddonManager.all`, which includes the modules. The index's `requires` keys become `item.deps`, which `Updater` resolves through the catalog, then the index. A new `index.json` field is optional for the app; a breaking change raises `schema` there and `Index.SCHEMA` here.
 - Discontinued addons come from the index only (`discontinued`, `discontinued_note`, `successor`, read in `IndexFields`, with a case in `test/IndexFieldsTest.java`). A new end-of-life signal goes into runeloader-index (`details.ended_notice` or `discontinued.txt`), never into the app. `Popularity.ORDER` keeps discontinued addons last.
 - A new catalog entry goes into `Catalog.java` with the folders the addon installs, so the app can recognize a manual install.
 - The GitHub index (runeloader-index) is a hint for search, metadata and update checks. An install always resolves the asset from GitHub directly (`Sources.latest`), because the index can be a day old. If the index is unreachable, the update check falls back to the per-addon check.
 - The indexer owns icon conversion (TGA/BLP to PNG); the app only shows a ready PNG and keeps the letter icon until it loads. A new optional index key is mapped in `IndexFields.java`, with a case in `test/IndexFieldsTest.java`; the app must work when the key is missing.
-- A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the game uses. Add a case for it to `test/InstallTest.java`.
+- A new TOC suffix or a change to the TOC order goes into `Toc.java` only, and it must match the order the game uses. Add a case for it to `core/test/InstallTest.java`.
 - Keep comments short and about intent that the code does not show.
 - Do not commit build output (`build/`, `*.apk`, `*.idsig`) or `local.properties`.
 
@@ -94,10 +103,11 @@ A new secret for the app build (for example an API key) goes into both `ci.yml` 
 
 ## Navigation
 
-- `src/app/wowforever/addons/`: all app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes), `Lang.java` (UI language and localized strings outside an activity).
+- `core/src/app/wowforever/addons/`: code shared with the desktop app (see [Shared core](#shared-core)); `Model.java` there holds the data classes. `core/test/`: its tests, run by `core/test.sh`.
+- `src/app/wowforever/addons/`: the Android app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Lang.java` (UI language and localized strings outside an activity).
 - `res/`: the adaptive launcher icon and vector icons.
 - `stubs/`: lambda bootstrap stubs for `javac` with a trimmed `android.jar` (used only by `build.sh`).
-- `test/`: JVM tests for the installer, TOC and network paths.
+- `test/`: JVM tests of Android-side classes (`IndexFields`, `LayoutSpec`, the network check).
 - `AndroidManifest.xml`, `build.gradle.kts`, `build.sh`: the manifest and the two build paths.
 - `.github/workflows/`: CI (`ci.yml`) and releases (`release.yml`).
 - `scripts/`: helper scripts for CI (`apk-summary.sh`) and verification (`screenshots.sh`, every tab at each screen ratio).
@@ -118,67 +128,11 @@ mkdir -p /tmp/l && javac -d /tmp/l src/app/wowforever/addons/LayoutSpec.java tes
 java -cp /tmp/l app.wowforever.addons.LayoutSpecTest
 ```
 
-When you change `Installer.java`, `Toc.java` or `Model.java`, also run the installer test on real addon zips:
+The code shared with the desktop app lives in `core/` (see [Shared core](#shared-core)). When you change anything there, run its tests (CI runs them too). The installer test also runs on real addon zips when you pass a folder of them:
 
 ```sh
-mkdir -p /tmp/t && javac -d /tmp/t src/app/wowforever/addons/{Installer,Toc,Model}.java test/InstallTest.java
-java -cp /tmp/t app.wowforever.addons.InstallTest <folder-with-zips> /tmp/fakegame
-```
-
-When you change `AddonsFolder.java` (where addons go), run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/f && javac -d /tmp/f src/app/wowforever/addons/AddonsFolder.java test/AddonsFolderTest.java
-java -cp /tmp/f app.wowforever.addons.AddonsFolderTest
-```
-
-When you change `UpdatePolicy.java`, run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/u && javac -d /tmp/u src/app/wowforever/addons/{Model,UpdatePolicy}.java test/UpdatePolicyTest.java
-java -cp /tmp/u app.wowforever.addons.UpdatePolicyTest
-```
-
-When you change `Popularity.java` (the default Browse order), run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/p && javac -d /tmp/p src/app/wowforever/addons/{Model,Popularity}.java test/PopularityTest.java
-java -cp /tmp/p app.wowforever.addons.PopularityTest
-```
-
-When you change `AssetName.java` (which GitHub zips are programs, not addons), run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/a && javac -d /tmp/a src/app/wowforever/addons/AssetName.java test/AssetNameTest.java
-java -cp /tmp/a app.wowforever.addons.AssetNameTest
-```
-
-When you change `AppVersion.java` (which release counts as a Runeloader update), run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/v && javac -d /tmp/v src/app/wowforever/addons/AppVersion.java test/AppVersionTest.java
-java -cp /tmp/v app.wowforever.addons.AppVersionTest
-```
-
-When you change `Modules.java` (repos that release each module separately), run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/mo && javac -d /tmp/mo src/app/wowforever/addons/Modules.java test/ModulesTest.java
-java -cp /tmp/mo app.wowforever.addons.ModulesTest
-```
-
-When you change `Packages.java` (modules listed under their core in the Library), run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/pk && javac -d /tmp/pk src/app/wowforever/addons/{Model,Modules,Packages}.java test/PackagesTest.java
-java -cp /tmp/pk app.wowforever.addons.PackagesTest
-```
-
-When you change `Markdown.java` (release notes in the detail panel), run its test (CI runs it too):
-
-```sh
-mkdir -p /tmp/m && javac -d /tmp/m src/app/wowforever/addons/Markdown.java test/MarkdownTest.java
-java -cp /tmp/m app.wowforever.addons.MarkdownTest
+core/test.sh
+core/test.sh <folder-with-zips>
 ```
 
 To run the background job on a device now: `adb shell cmd jobscheduler run -f app.wowforever.addons 1901`.

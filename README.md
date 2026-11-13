@@ -131,6 +131,7 @@ You need JDK 17 and the Android SDK (`platforms;android-35`, `build-tools;35.0.0
 ```bash
 ./gradlew assembleRelease               # build/outputs/apk/release/wow-addons.apk
 ANDROID_HOME=~/Android/Sdk ./build.sh   # the same app without Gradle: ./wow-addons.apk
+core/test.sh                            # tests of the code shared with the coming desktop app
 ```
 
 Without the release key, both builds are signed with a debug key. [AGENTS.md](AGENTS.md) has the code map, the development workflow and the checks to run.

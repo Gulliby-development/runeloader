@@ -44,7 +44,7 @@ if ! unzip -l "$ANDROID_JAR" | grep -q "java/lang/invoke/LambdaMetafactory.class
   javac -nowarn -source 8 -target 8 -bootclasspath "$ANDROID_JAR" -d $OUT/stubs stubs/java/lang/invoke/*.java
   BOOT="$ANDROID_JAR:$OUT/stubs"
 fi
-find src $OUT/gen -name '*.java' > $OUT/sources.txt
+find src core/src $OUT/gen -name '*.java' > $OUT/sources.txt
 javac -nowarn -parameters -Xlint:-options -encoding UTF-8 -source 8 -target 8 \
   -bootclasspath "$BOOT" -classpath $OUT/stubs -d $OUT/classes @$OUT/sources.txt
 
