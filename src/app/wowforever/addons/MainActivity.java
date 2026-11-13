@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 30) getWindow().setDecorFitsSystemWindows(false);
         ImageLoader.dir = new File(getCacheDir(), "img");
         ImageLoader.dir.mkdirs();
-        store = Store.get(this);
+        store = AndroidPlatform.store(this);
         if (b != null) { tab = b.getInt("tab", tab); browse.restore(b); }
         if (store.gameRoot() == null && hasStorageAccess()) gameFolder.autoDetect(false);
         store.load();

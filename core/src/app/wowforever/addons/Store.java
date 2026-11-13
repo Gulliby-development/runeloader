@@ -1,22 +1,18 @@
 package app.wowforever.addons;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Environment;
-
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Settings (SharedPreferences) and the list of addons this app manages. */
+/** Settings (Platform.Prefs) and the list of addons this app manages. */
 final class Store {
     static final String STATE_FILE = "wow-addons.json";
     static final String FAVORITES_FILE = "favorites.json";
 
-    private final SharedPreferences prefs;
+    private final Platform platform;
+    private final Platform.Prefs prefs;
     private final File appState;
     private final File favoritesFile;
     /** Starred addons by key, newest first; a snapshot so the list shows without the index. */
@@ -27,49 +23,54 @@ final class Store {
     private boolean loaded;
 
     /** One Store per process, so the screens and the background job see the same addon list. */
-    static synchronized Store get(Context ctx) {
-        if (instance == null) instance = new Store(ctx.getApplicationContext() != null ? ctx.getApplicationContext() : ctx);
+    static synchronized Store get(Platform platform) {
+        if (instance == null) instance = new Store(platform);
         return instance;
     }
 
-    private Store(Context ctx) {
-        prefs = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        appState = new File(ctx.getFilesDir(), STATE_FILE);
-        favoritesFile = new File(ctx.getFilesDir(), FAVORITES_FILE);
-        Sources.cacheDir = ctx.getCacheDir();
+    private Store(Platform platform) {
+        this.platform = platform;
+        prefs = platform.prefs();
+        appState = new File(platform.filesDir(), STATE_FILE);
+        favoritesFile = new File(platform.filesDir(), FAVORITES_FILE);
+        Sources.cacheDir = platform.cacheDir();
         // CurseForge is not a source, and the GitHub token setting is gone; drop values saved by old versions.
-        prefs.edit().remove("curseKey").remove("githubToken").apply();
+        prefs.remove("curseKey");
+        prefs.remove("githubToken");
     }
 
     // ── settings ──
 
     String gameRoot() { return prefs.getString("gameRoot", null); }
-    void setGameRoot(String p) { prefs.edit().putString("gameRoot", p).apply(); }
+    void setGameRoot(String p) { prefs.putString("gameRoot", p); }
     long lastCheck() { return prefs.getLong("lastCheck", 0); }
-    void setLastCheck(long t) { prefs.edit().putLong("lastCheck", t).apply(); }
+    void setLastCheck(long t) { prefs.putLong("lastCheck", t); }
 
     // ── Runeloader's own update ──
     long selfCheckAt() { return prefs.getLong("selfCheckAt", 0); }
-    void setSelfCheckAt(long t) { prefs.edit().putLong("selfCheckAt", t).apply(); }
+    void setSelfCheckAt(long t) { prefs.putLong("selfCheckAt", t); }
     /** The last version offered on start, so "Later" is not asked again for it. */
     String selfOffered() { return prefs.getString("selfOffered", ""); }
-    void setSelfOffered(String v) { prefs.edit().putString("selfOffered", v).apply(); }
+    void setSelfOffered(String v) { prefs.putString("selfOffered", v); }
 
     // ── background auto-update ──
     int autoMode() { return UpdatePolicy.mode(prefs.getInt("autoMode", UpdatePolicy.MODE_OFF)); }
-    void setAutoMode(int m) { prefs.edit().putInt("autoMode", UpdatePolicy.mode(m)).apply(); }
+    void setAutoMode(int m) { prefs.putInt("autoMode", UpdatePolicy.mode(m)); }
     int autoIntervalHours() { return UpdatePolicy.intervalHours(prefs.getInt("autoInterval", UpdatePolicy.DEFAULT_INTERVAL_H)); }
-    void setAutoIntervalHours(int h) { prefs.edit().putInt("autoInterval", UpdatePolicy.intervalHours(h)).apply(); }
+    void setAutoIntervalHours(int h) { prefs.putInt("autoInterval", UpdatePolicy.intervalHours(h)); }
     boolean autoWifiOnly() { return prefs.getBoolean("autoWifiOnly", true); }
-    void setAutoWifiOnly(boolean b) { prefs.edit().putBoolean("autoWifiOnly", b).apply(); }
+    void setAutoWifiOnly(boolean b) { prefs.putBoolean("autoWifiOnly", b); }
     boolean autoChargingOnly() { return prefs.getBoolean("autoCharging", false); }
-    void setAutoChargingOnly(boolean b) { prefs.edit().putBoolean("autoCharging", b).apply(); }
+    void setAutoChargingOnly(boolean b) { prefs.putBoolean("autoCharging", b); }
     long autoLastRun() { return prefs.getLong("autoLastRun", 0); }
     int autoLastUpdated() { return prefs.getInt("autoLastUpdated", 0); }
     int autoLastFound() { return prefs.getInt("autoLastFound", 0); }
     String autoLastError() { return prefs.getString("autoLastError", null); }
     void setAutoLastRun(long t, int found, int updated, String error) {
-        prefs.edit().putLong("autoLastRun", t).putInt("autoLastFound", found).putInt("autoLastUpdated", updated).putString("autoLastError", error).apply();
+        prefs.putLong("autoLastRun", t);
+        prefs.putInt("autoLastFound", found);
+        prefs.putInt("autoLastUpdated", updated);
+        prefs.putString("autoLastError", error);
     }
 
     File root() { String r = gameRoot(); return r == null ? null : new File(r); }
@@ -77,9 +78,9 @@ final class Store {
     /** True when the user chose a plain folder and addons go straight into it. */
     /** Browse lists only addons whose source confirms a Forever build. */
     boolean verifiedOnly() { return prefs.getBoolean("verifiedOnly", false); }
-    void setVerifiedOnly(boolean b) { prefs.edit().putBoolean("verifiedOnly", b).apply(); }
+    void setVerifiedOnly(boolean b) { prefs.putBoolean("verifiedOnly", b); }
     boolean addonsDirect() { return prefs.getBoolean("addonsDirect", false); }
-    void setAddonsDirect(boolean b) { prefs.edit().putBoolean("addonsDirect", b).apply(); }
+    void setAddonsDirect(boolean b) { prefs.putBoolean("addonsDirect", b); }
 
     File addonsDir() {
         File r = root();
@@ -95,18 +96,10 @@ final class Store {
     /** Accepts a game folder of any client, its flavor, Interface or AddOns folder. */
     static File normalizeRoot(File picked) { return AddonsFolder.normalize(picked); }
 
-    /** Looks for a game folder on internal storage and SD cards. */
-    static List<File> detect() {
+    /** Looks for a game folder in the platform's search roots (storage volumes, drives). */
+    List<File> detect() {
         List<File> out = new ArrayList<>();
-        List<File> bases = new ArrayList<>();
-        bases.add(Environment.getExternalStorageDirectory());
-        File[] vols = new File("/storage").listFiles();
-        if (vols != null) for (File v : vols) {
-            String n = v.getName();
-            if (n.equals("emulated") || n.equals("self") || !v.isDirectory()) continue;
-            bases.add(v);
-        }
-        for (File b : bases) {
+        for (File b : platform.searchRoots()) {
             for (String name : AddonsFolder.KNOWN_NAMES) {
                 File c = normalizeRoot(new File(b, name));
                 if (c != null && !out.contains(c)) out.add(c);

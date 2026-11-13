@@ -287,7 +287,7 @@ final class AddonManager {
     /** Runs on the ops thread. */
     /** The progress of a dependency or a module shows on the card of the item the user asked for. */
     private void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth, final Model.Item asked) throws IOException {
-        new Updater(app, app.store).installWithDeps(item, addons, done, seen, depth,
+        new Updater(app.store).installWithDeps(item, addons, done, seen, depth,
                 (i, t, f) -> progress(asked, i.key().equals(asked.key()) ? t : i.name + "  ·  " + t, f));
     }
 
