@@ -352,4 +352,13 @@
     <plurals name="package_installed">
         <item quantity="other">%1$s 和 %2$d 个模块</item>
     </plurals>
+    <!-- Desktop app -->
+    <string name="col_addon">插件</string>
+    <string name="col_version">版本</string>
+    <string name="col_source">来源</string>
+    <string name="col_status">状态</string>
+    <string name="library_filter_hint">按名称筛选</string>
+    <string name="filter_all">全部</string>
+    <string name="filter_updates">更新</string>
+    <string name="sidebar_index">索引中 %1$s</string>
 </resources>

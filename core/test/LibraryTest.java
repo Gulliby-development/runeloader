@@ -92,6 +92,21 @@ public class LibraryTest {
         Library.carryOver(rows, again);
         eq("result carried over", "1.1", copy.latest);
 
+        // a ZIP that brings a managed folder takes it away from its entry
+        Model.Entry hm = new Model.Entry();
+        hm.source = Model.SRC_GITHUB; hm.id = "owner/handmade"; hm.key = hm.source + ":" + hm.id;
+        hm.name = "Hand Made"; hm.folders = new ArrayList<>(Arrays.asList("HandMade", "HandMade_Config"));
+        store.put(hm);
+        File zip = new File(t, "HandMade.zip");
+        try (java.util.zip.ZipOutputStream z = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(zip))) {
+            z.putNextEntry(new java.util.zip.ZipEntry("HandMade/HandMade.toc"));
+            z.write("## Interface: 16001\n## Title: Hand Made\n## Version: 3\n".getBytes(StandardCharsets.UTF_8));
+            z.closeEntry();
+        }
+        eq("zip installs its folder", Arrays.asList("HandMade"), Library.installZip(store, zip));
+        eq("zip folder leaves the entry", Arrays.asList("HandMade_Config"), store.entry(hm.key).folders);
+        store.remove(hm.key);
+
         Library.remove(store, managed);
         eq("folders deleted", false, new File(addons, "Questie_Options").exists());
         eq("entry forgotten", null, store.entry(e.key));

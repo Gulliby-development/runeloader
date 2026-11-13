@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.key
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import java.io.File
@@ -30,8 +31,10 @@ fun main(args: Array<String>) {
     val smoke = args.firstOrNull { it.startsWith("--smoke=") }?.removePrefix("--smoke=")?.let(::File)
     logErrors(smoke)
     try { javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName()) } catch (e: Exception) { }
-    Texts.source = DesktopTexts()
-    val store = Store.get(DesktopPlatform())
+    val platform = DesktopPlatform()
+    val lang = platform.prefs().getString(AppState.LANG_KEY, "") ?: ""
+    Texts.source = DesktopTexts(lang.ifEmpty { DesktopTexts.systemLanguage() })
+    val store = Store.get(platform)
     store.load()
     application {
         val state = rememberWindowState(size = DpSize(1280.dp, 800.dp))
@@ -43,13 +46,14 @@ fun main(args: Array<String>) {
             undecorated = true,
         ) {
             window.minimumSize = Dimension(900, 600)
-            val app = remember { AppState(store).also { it.start() } }
+            val app = remember { AppState(store, platform.prefs()).also { it.start() } }
             val chrome = remember { Chrome(window) }
             RuneloaderTheme {
                 Box(Modifier.fillMaxSize().border(1.dp, if (chrome.maximized) Palette.rail else Palette.stroke)) {
                     Column(Modifier.fillMaxSize().padding(if (chrome.maximized) 0.dp else 1.dp)) {
                         TitleBar(chrome)
-                        Box(Modifier.weight(1f)) { Shell(app) }
+                        // a new language rebuilds every text
+                        Box(Modifier.weight(1f)) { key(app.language) { Shell(app) } }
                     }
                     ResizeEdges(chrome)
                 }

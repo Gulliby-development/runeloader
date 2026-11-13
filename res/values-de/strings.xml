@@ -359,4 +359,13 @@
         <item quantity="one">%1$s und %2$d Modul</item>
         <item quantity="other">%1$s und %2$d Module</item>
     </plurals>
+    <!-- Desktop app -->
+    <string name="col_addon">Addon</string>
+    <string name="col_version">Version</string>
+    <string name="col_source">Quelle</string>
+    <string name="col_status">Status</string>
+    <string name="library_filter_hint">Nach Name filtern</string>
+    <string name="filter_all">Alle</string>
+    <string name="filter_updates">Updates</string>
+    <string name="sidebar_index">%1$s im Index</string>
 </resources>
