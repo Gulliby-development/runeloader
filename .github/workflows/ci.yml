@@ -54,6 +54,40 @@ jobs:
             build/outputs/apk/debug/wow-addons-debug.apk
             build/reports/lint-results-debug.html
 
+  # The desktop app (desktop/, its own Gradle build): tests on Linux, the Windows installer on Windows.
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Build and test
+        shell: bash
+        run: ./gradlew -p desktop build
+
+      - name: Windows installer
+        if: runner.os == 'Windows'
+        shell: bash
+        run: ./gradlew -p desktop packageMsi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: runner.os == 'Windows'
+        with:
+          name: runeloader-desktop-windows
+          path: desktop/build/compose/binaries/main/msi/*.msi
+
   # Branch names follow AGENTS.md: feature/<name> or bugfix/<name>.
   branch-name:
     if: github.event_name == 'pull_request'

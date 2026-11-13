@@ -10,3 +10,4 @@ wow-addons.apk
 *.jks
 # Output of scripts/screenshots.sh.
 screenshots/
+.kotlin/

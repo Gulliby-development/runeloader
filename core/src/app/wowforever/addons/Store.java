@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Settings (Platform.Prefs) and the list of addons this app manages. */
-final class Store {
+public final class Store {
     static final String STATE_FILE = "wow-addons.json";
     static final String FAVORITES_FILE = "favorites.json";
 

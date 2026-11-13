@@ -34,6 +34,14 @@ Runeloader is coming to Windows, Linux and macOS (#95) as a Compose Desktop app 
 - Logic both apps need goes into `core`, never into a copy in `src/` or `desktop/`. A class that moves there takes its test to `core/test/<Name>Test.java` (a class with a `main` that exits non-zero on failure); `core/test.sh` runs every one, so CI needs no new step.
 - Desktop releases use tags `desktop-v<version>` and are created as not the latest release, so `SelfUpdate` on Android keeps reading only Android releases.
 
+## Desktop app
+
+- `desktop/` is its own Gradle build (Kotlin, Compose Desktop, JDK 21): `./gradlew -p desktop run`, `build`, `packageMsi`. It compiles `../core/src` into the app; the Android build never loads Kotlin or Compose. See `desktop/README.md`.
+- Its Kotlin code uses the package `app.wowforever.addons`, so it reaches the package-private core classes. A core type that a Kotlin declaration shows in its signature (`Store`, `Platform`, `Model.Entry`, `Model.Item`) is declared `public`, because Kotlin refuses to expose a package-private Java type; its members can stay package-private. It holds the UI and the desktop side of `Platform` only (`DesktopPlatform`: app folders, `settings.json`, the drives and folders to look for a game in).
+- Texts and icons are the Android resources: the build copies `res/values*/strings.xml` and `res/drawable/*.xml` into the jar, `DesktopTexts` reads the strings (same Android escaping, English fallback) and `drawable(name)` the vector icons. Put no UI text in Kotlin: a desktop-only text is a new string in every `values-<lang>` file, as for Android. A new language is a new entry in `DesktopTexts.LANGUAGES` too.
+- The colours are `Palette` in `Theme.kt`, the same values as `Ui.java`; a brand colour changes in both.
+- The installer version is `appVersion` in `desktop/build.gradle.kts`. CI builds and tests the app on Linux and builds the Windows installer (`runeloader-desktop-windows` artifact).
+
 ## Task workflow
 
 - Track planned work as GitHub Issues in this repository, not in Markdown files or TODO comments. Before you start, find the issue for the task or open one. Record a new idea, a follow-up or a deferred item as an issue.
@@ -107,6 +115,7 @@ A new secret for the app build (for example an API key) goes into both `ci.yml` 
 
 ## Navigation
 
+- `desktop/`: the desktop app (see [Desktop app](#desktop-app)).
 - `core/src/app/wowforever/addons/`: code shared with the desktop app (see [Shared core](#shared-core)); `Model.java` there holds the data classes. `core/test/`: its tests, run by `core/test.sh`.
 - `src/app/wowforever/addons/`: the Android app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Lang.java` (UI language and localized strings outside an activity).
 - `res/`: the adaptive launcher icon and vector icons.
@@ -137,6 +146,12 @@ The code shared with the desktop app lives in `core/` (see [Shared core](#shared
 ```sh
 core/test.sh
 core/test.sh <folder-with-zips>
+```
+
+When you change `desktop/` or `core/`, also build and test the desktop app (CI does it on Linux and Windows):
+
+```sh
+./gradlew -p desktop build
 ```
 
 To run the background job on a device now: `adb shell cmd jobscheduler run -f app.wowforever.addons 1901`.

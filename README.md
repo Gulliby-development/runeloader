@@ -134,6 +134,8 @@ ANDROID_HOME=~/Android/Sdk ./build.sh   # the same app without Gradle: ./wow-add
 core/test.sh                            # tests of the code shared with the coming desktop app
 ```
 
+The desktop app (in progress, not released yet) needs JDK 21: `./gradlew -p desktop run`. See [desktop/README.md](desktop/README.md).
+
 Without the release key, both builds are signed with a debug key. [AGENTS.md](AGENTS.md) has the code map, the development workflow and the checks to run.
 </details>
 
