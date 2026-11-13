@@ -8,7 +8,7 @@ plugins {
 }
 
 /** The desktop app's own version; desktop releases are tagged desktop-v<version>. */
-val appVersion = "0.1.0"
+val appVersion = "0.1.1"
 
 kotlin {
     jvmToolchain(21)
@@ -20,6 +20,8 @@ sourceSets["main"].java.srcDir("../core/src")
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.jetbrains.compose.material3:material3:1.9.0")
+    // Dispatchers.Main on the desktop is the Swing event thread; Compose does not bring it.
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.11.0")
     testImplementation(kotlin("test"))
 }
 

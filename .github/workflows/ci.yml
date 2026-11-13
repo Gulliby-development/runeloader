@@ -82,6 +82,18 @@ jobs:
         shell: bash
         run: ./gradlew -p desktop packageMsi
 
+      # Starts the app as it ships and waits for its first scan; a start that crashes fails here.
+      - name: Start the app (smoke test)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          ./gradlew -p desktop createDistributable
+          out="$RUNNER_TEMP/smoke.txt"
+          rm -f "$out"
+          timeout 180 desktop/build/compose/binaries/main/app/Runeloader/Runeloader.exe "--smoke=$(cygpath -w "$out")" || true
+          cat "$out" 2>/dev/null || echo "no smoke file"
+          grep -q '^ok ' "$out"
+
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: runner.os == 'Windows'
         with:
