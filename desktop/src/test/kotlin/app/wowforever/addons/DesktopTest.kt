@@ -18,6 +18,14 @@ class DesktopTest {
         assertNotEquals(en.get("nav_settings"), DesktopTexts("ru").get("nav_settings"))
     }
 
+    /** AppState runs on Dispatchers.Main: without kotlinx-coroutines-swing the app dies on start. */
+    @Test fun mainDispatcherExists() {
+        val ran = kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { javax.swing.SwingUtilities.isEventDispatchThread() }
+        }
+        assertEquals(true, ran)
+    }
+
     @Test fun pluralsFollowTheLanguage() {
         assertEquals("1 update available", DesktopTexts("en").q("updates_available", 1))
         assertEquals("3 updates available", DesktopTexts("en").q("updates_available", 3))

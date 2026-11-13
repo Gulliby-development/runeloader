@@ -61,6 +61,16 @@ jobs:
       - name: Test and build the installer
         run: ./gradlew -p desktop build packageMsi
 
+      # Starts the app as it ships and waits for its first scan; a start that crashes fails here.
+      - name: Start the app (smoke test)
+        run: |
+          ./gradlew -p desktop createDistributable
+          out="$RUNNER_TEMP/smoke.txt"
+          rm -f "$out"
+          timeout 180 desktop/build/compose/binaries/main/app/Runeloader/Runeloader.exe "--smoke=$(cygpath -w "$out")" || true
+          cat "$out" 2>/dev/null || echo "no smoke file"
+          grep -q '^ok ' "$out"
+
       - name: Collect the files
         run: |
           mkdir -p dist
