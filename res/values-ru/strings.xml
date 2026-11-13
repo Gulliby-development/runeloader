@@ -375,4 +375,14 @@
         <item quantity="many">%1$s и %2$d модулей</item>
         <item quantity="other">%1$s и %2$d модуля</item>
     </plurals>
+    <!-- Desktop app -->
+    <string name="action_open_folder">Открыть папку</string>
+    <string name="col_addon">Аддон</string>
+    <string name="col_version">Версия</string>
+    <string name="col_source">Источник</string>
+    <string name="col_status">Статус</string>
+    <string name="library_filter_hint">Фильтр по названию</string>
+    <string name="filter_all">Все</string>
+    <string name="filter_updates">Обновления</string>
+    <string name="sidebar_index">%1$s в индексе</string>
 </resources>

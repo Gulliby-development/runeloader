@@ -172,6 +172,24 @@ public final class Library {
         }
     }
 
+    /**
+     * Unpacks a ZIP the player picked into the AddOns folder, inside the install lock. A folder it
+     * replaces stops belonging to the managed entry that had it. Returns the folders. Call off the UI thread.
+     */
+    static List<String> installZip(Store store, File zip) throws IOException {
+        synchronized (Updater.LOCK) {
+            List<String> folders = Installer.install(zip, store.addonsDir(), null);
+            for (String f : folders) {
+                Model.Entry other = store.owner(f);
+                if (other == null) continue;
+                other.folders = new ArrayList<>(other.folders);
+                other.folders.remove(f);
+                if (other.folders.isEmpty()) store.remove(other.key); else store.put(other);
+            }
+            return folders;
+        }
+    }
+
     /** The managed entries an update check asks about (a ZIP install has nothing to ask). */
     static List<Model.Entry> checkable(Store store) {
         List<Model.Entry> list = new ArrayList<>();

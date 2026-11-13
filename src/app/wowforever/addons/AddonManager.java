@@ -266,7 +266,6 @@ final class AddonManager {
         app.busy.put(key, app.getString(R.string.copying));
         queued.incrementAndGet();
         updateProgressCard();
-        final File addons = app.store.addonsDir();
         MainActivity.ops.execute(() -> {
             String err = null;
             List<String> folders = null;
@@ -282,19 +281,8 @@ final class AddonManager {
                     int n;
                     while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
                 } finally { out.close(); in.close(); }
-                synchronized (Updater.LOCK) {
-                    folders = Installer.install(zip, addons, null);
-                    zip.delete();
-                    // folders taken over from managed entries stay managed by them only if unchanged — release them
-                    for (String f : folders) {
-                        Model.Entry other = app.store.owner(f);
-                        if (other != null) {
-                            other.folders = new ArrayList<>(other.folders);
-                            other.folders.remove(f);
-                            if (other.folders.isEmpty()) app.store.remove(other.key); else app.store.put(other);
-                        }
-                    }
-                }
+                folders = Library.installZip(app.store, zip);
+                zip.delete();
             } catch (Exception e) {
                 err = MainActivity.friendly(e);
             }

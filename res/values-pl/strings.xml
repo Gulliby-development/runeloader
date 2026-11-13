@@ -375,4 +375,14 @@
         <item quantity="many">%1$s i %2$d modułów</item>
         <item quantity="other">%1$s i %2$d modułu</item>
     </plurals>
+    <!-- Desktop app -->
+    <string name="action_open_folder">Otwórz folder</string>
+    <string name="col_addon">Dodatek</string>
+    <string name="col_version">Wersja</string>
+    <string name="col_source">Źródło</string>
+    <string name="col_status">Stan</string>
+    <string name="library_filter_hint">Filtruj po nazwie</string>
+    <string name="filter_all">Wszystkie</string>
+    <string name="filter_updates">Aktualizacje</string>
+    <string name="sidebar_index">%1$s w indeksie</string>
 </resources>

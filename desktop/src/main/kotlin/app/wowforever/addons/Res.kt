@@ -35,3 +35,31 @@ fun markdown(md: String): androidx.compose.ui.text.AnnotatedString {
     for (r in doc.headings + doc.bold) if (r[0] < r[1] && r[1] <= doc.text.length) b.addStyle(strong, r[0], r[1])
     return b.toAnnotatedString()
 }
+
+/** The system folder picker; null when the player cancels. */
+fun pickFolder(): java.io.File? {
+    val chooser = javax.swing.JFileChooser().apply {
+        fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
+        dialogTitle = t("game_where_title")
+    }
+    return if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
+}
+
+/** The system file picker for an addon ZIP; null when the player cancels. */
+fun pickZip(): java.io.File? {
+    val chooser = javax.swing.JFileChooser().apply {
+        fileSelectionMode = javax.swing.JFileChooser.FILES_ONLY
+        dialogTitle = t("action_install_zip")
+        fileFilter = javax.swing.filechooser.FileNameExtensionFilter("ZIP", "zip")
+    }
+    return if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
+}
+
+/** Shows a folder in the system file manager. */
+fun openFolder(dir: java.io.File) {
+    try { if (dir.isDirectory && java.awt.Desktop.isDesktopSupported()) java.awt.Desktop.getDesktop().open(dir) } catch (e: Exception) { }
+}
+
+fun openUrl(url: String) {
+    try { if (java.awt.Desktop.isDesktopSupported()) java.awt.Desktop.getDesktop().browse(java.net.URI(url)) } catch (e: Exception) { }
+}

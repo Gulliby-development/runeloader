@@ -364,4 +364,14 @@
         <item quantity="one">%1$s e %2$d módulo</item>
         <item quantity="other">%1$s e %2$d módulos</item>
     </plurals>
+    <!-- Desktop app -->
+    <string name="action_open_folder">Abrir pasta</string>
+    <string name="col_addon">Addon</string>
+    <string name="col_version">Versão</string>
+    <string name="col_source">Fonte</string>
+    <string name="col_status">Estado</string>
+    <string name="library_filter_hint">Filtrar por nome</string>
+    <string name="filter_all">Todos</string>
+    <string name="filter_updates">Atualizações</string>
+    <string name="sidebar_index">%1$s no índice</string>
 </resources>

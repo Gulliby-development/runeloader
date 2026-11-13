@@ -34,6 +34,10 @@ class DesktopTexts(private val lang: String = systemLanguage()) : Texts.Source {
         /** The languages with a translation; the same list as Lang.TAGS on Android. */
         val LANGUAGES = listOf("en", "de", "es", "fr", "pl", "pt", "ru", "zh")
 
+        /** Each language named in itself, as Lang.NAMES on Android. */
+        val NAMES = linkedMapOf("en" to "English", "de" to "Deutsch", "es" to "Español", "fr" to "Français",
+            "pl" to "Polski", "pt" to "Português", "ru" to "Русский", "zh" to "中文（简体）")
+
         fun systemLanguage(): String = Locale.getDefault().language.takeIf { it in LANGUAGES } ?: "en"
 
         /** The CLDR plural category of n for the languages the app has. */

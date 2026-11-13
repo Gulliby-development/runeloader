@@ -77,6 +77,19 @@ jobs:
         shell: bash
         run: ./gradlew -p desktop build
 
+      # The screens rendered with sample data (ScreenshotTest), to compare with the design.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: runner.os == 'Linux'
+        with:
+          name: desktop-screenshots
+          path: desktop/build/shots/*.png
+
+      # The same pictures as text in the log, for reviewers without artifact access.
+      - name: Screenshots in the log
+        if: runner.os == 'Linux'
+        shell: bash
+        run: for f in desktop/build/shots/*.jpg; do echo "=== $(basename "$f")"; base64 -w 4000 "$f"; echo "=== end"; done
+
       - name: Windows installer
         if: runner.os == 'Windows'
         shell: bash
