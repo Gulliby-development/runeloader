@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Default Browse order. Run: java -cp /tmp/p app.wowforever.addons.PopularityTest */
+/** Default Browse order. Run: core/test.sh */
 public class PopularityTest {
     public static void main(String[] a) {
         Model.Item questie = item("questie", 6963, 1119);

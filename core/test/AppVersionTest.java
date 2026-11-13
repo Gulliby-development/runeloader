@@ -1,6 +1,6 @@
 package app.wowforever.addons;
 
-/** Self-update version rules. Run: java -cp /tmp/v app.wowforever.addons.AppVersionTest */
+/** Self-update version rules. Run: core/test.sh */
 public class AppVersionTest {
     public static void main(String[] a) {
         check(AppVersion.newer("v0.0.3", "0.0.2"), "patch bump");

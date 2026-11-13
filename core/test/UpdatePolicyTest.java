@@ -3,7 +3,7 @@ package app.wowforever.addons;
 import java.util.Arrays;
 import java.util.List;
 
-/** Rules of the background auto-update. Run: java -cp /tmp/t app.wowforever.addons.UpdatePolicyTest */
+/** Rules of the background auto-update. Run: core/test.sh */
 public class UpdatePolicyTest {
     public static void main(String[] a) {
         Model.Entry gh = entry("github", "owner/repo", "1.0", false);
