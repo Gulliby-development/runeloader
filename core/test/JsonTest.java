@@ -63,6 +63,7 @@ public class JsonTest {
         check("compact", new Json.Obj().put("a", 1).put("b", new Json.Arr()).toString(), "{\"a\":1,\"b\":[]}");
         check("pretty", new Json.Obj().put("a", new Json.Arr().put(1)).toString(2), "{\n  \"a\": [\n    1\n  ]\n}");
         check("whole double prints without .0", new Json.Obj().put("d", 3.0).toString(), "{\"d\":3}");
+        check("array from a list", new Json.Arr(java.util.Arrays.asList("a", "b")).toString(), "[\"a\",\"b\"]");
         check("top-level array", new Json.Arr("[1, {\"a\": [] }, \"x\"]").length(), 3);
         check("empty object", new Json.Obj("  {} ").length(), 0);
         check("BOM and spaces", new Json.Obj("﻿ { \"a\" : 1 }").optInt("a", 0), 1);

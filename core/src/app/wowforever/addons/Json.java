@@ -85,6 +85,9 @@ final class Json {
 
         Arr() {}
 
+        /** The values of a collection, like org.json's JSONArray(Collection). */
+        Arr(java.util.Collection<?> values) { for (Object v : values) put(v); }
+
         Arr(String text) {
             Object v = parse(text);
             if (!(v instanceof Arr)) throw new Error("not a JSON array");

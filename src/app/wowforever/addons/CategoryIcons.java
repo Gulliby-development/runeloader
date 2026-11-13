@@ -11,7 +11,7 @@ final class CategoryIcons {
             case "bags": return R.string.cat_bags;
             case "map": return R.string.cat_map;
             case "tools": return R.string.cat_tools;
-            case GAMEPAD: return R.string.cat_gamepad;
+            case Categories.GAMEPAD: return R.string.cat_gamepad;
             default: return R.string.cat_other;
         }
     }
@@ -24,7 +24,7 @@ final class CategoryIcons {
             case "bags": return R.drawable.cat_bags;
             case "map": return R.drawable.cat_map;
             case "tools": return R.drawable.cat_tools;
-            case GAMEPAD: return R.drawable.cat_gamepad;
+            case Categories.GAMEPAD: return R.drawable.cat_gamepad;
             default: return R.drawable.cat_other;
         }
     }
