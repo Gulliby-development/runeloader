@@ -103,8 +103,8 @@ A new secret for the app build (for example an API key) goes into both `ci.yml` 
 
 ## Navigation
 
-- `core/src/app/wowforever/addons/`: code shared with the desktop app (see [Shared core](#shared-core)); `core/test/`: its tests, run by `core/test.sh`.
-- `src/app/wowforever/addons/`: the Android app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Model.java` (data classes), `Lang.java` (UI language and localized strings outside an activity).
+- `core/src/app/wowforever/addons/`: code shared with the desktop app (see [Shared core](#shared-core)); `Model.java` there holds the data classes. `core/test/`: its tests, run by `core/test.sh`.
+- `src/app/wowforever/addons/`: the Android app code. Besides the files in [How the app works](#how-the-app-works): `Ui.java` (palette, buttons, pills, letter icons, formatting), `ImageLoader.java` (logos with a memory and disk cache), `Lang.java` (UI language and localized strings outside an activity).
 - `res/`: the adaptive launcher icon and vector icons.
 - `stubs/`: lambda bootstrap stubs for `javac` with a trimmed `android.jar` (used only by `build.sh`).
 - `test/`: JVM tests of Android-side classes (`IndexFields`, `LayoutSpec`, the network check).
