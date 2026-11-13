@@ -43,7 +43,7 @@ fun BrowseScreen(app: AppState) {
                     app.browseMode == BrowseMode.CATEGORIES && app.category != null -> t("browse_hint_category")
                     else -> t("browse_hint_github")
                 }
-                Field(app.query, hint, Modifier.weight(1f), big = true) { app.setQuery(it) }
+                Field(app.query, hint, Modifier.weight(1f), big = true) { app.changeQuery(it) }
                 Spacer(Modifier.width(12.dp))
                 Segmented(BrowseMode.values().toList(), app.browseMode, { t(it.label) }, { it.icon }) { app.setBrowseMode(it) }
             }
@@ -70,7 +70,7 @@ private fun Filters(app: AppState) {
     FlowRow(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (app.browseMode == BrowseMode.CATEGORIES) {
-            Chip(t("browse_all_categories"), app.category == null, "ic_back") { app.setQuery(""); app.setBrowseMode(BrowseMode.CATEGORIES, null) }
+            Chip(t("browse_all_categories"), app.category == null, "ic_back") { app.changeQuery(""); app.setBrowseMode(BrowseMode.CATEGORIES, null) }
             app.category?.let { Chip(t(Categories.nameKey(it)), true) {} }
         } else {
             Chip(t("filter_all"), app.category == null) { app.setBrowseMode(BrowseMode.POPULAR, null) }

@@ -285,7 +285,7 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
         }
     }
 
-    fun setLanguage(tag: String) {
+    fun changeLanguage(tag: String) {
         prefs.putString(LANG_KEY, tag)
         Texts.source = DesktopTexts(tag.ifEmpty { DesktopTexts.systemLanguage() })
         language = tag
@@ -325,7 +325,7 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
         search(false)
     }
 
-    fun setQuery(q: String) {
+    fun changeQuery(q: String) {
         if (q == query) return
         query = q
         search(false, delayMs = 250)

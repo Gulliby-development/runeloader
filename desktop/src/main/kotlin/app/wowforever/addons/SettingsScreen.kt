@@ -89,8 +89,8 @@ fun SettingsScreen(app: AppState) {
                         Text(t("settings_language_text"), color = Palette.text3, fontSize = 12.5.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
                         FlowRow(Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 14.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Chip(t("language_system"), app.language.isEmpty(), "ic_language") { app.setLanguage("") }
-                            for ((tag, name) in DesktopTexts.NAMES) Chip(name, app.language == tag) { app.setLanguage(tag) }
+                            Chip(t("language_system"), app.language.isEmpty(), "ic_language") { app.changeLanguage("") }
+                            for ((tag, name) in DesktopTexts.NAMES) Chip(name, app.language == tag) { app.changeLanguage(tag) }
                         }
                     }
 
