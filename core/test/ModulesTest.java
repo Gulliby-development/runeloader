@@ -13,6 +13,11 @@ public class ModulesTest {
                 "release channels are not modules");
         List<String> tags = Arrays.asList("Camp-v0.1.0", "Core-v0.13.0-beta1", "Wheel-v0.10.0", "Core-v0.12.0", "Wheel-v0.9.0", "v0.1");
         List<Boolean> pre = Arrays.asList(false, true, false, false, false, false);
+        check("Core-v1.12.0".equals(Modules.coreTag(Arrays.asList("Core-v1.9.1", "XP-v1.8.0", "Core-v1.12.0", "Core-v1.11.0"),
+                Arrays.asList(false, false, false, false), "gulli-toolkit")), "highest core version, whatever the list order");
+        check("Attune-v1.6.10".equals(Modules.tagOf(Arrays.asList("Attune-v1.6.2", "Attune-v1.6.10", "Core-v1"),
+                Arrays.asList(false, false, false), "gulli-toolkit", "Attune")), "highest module version");
+        check("v0.10.0".equals(Modules.versionOf("Wheel-v0.10.0")) && "v1.2".equals(Modules.versionOf("v1.2")), "version part of a tag");
         check("Core-v0.12.0".equals(Modules.coreTag(tags, pre, "ImprovedForever")), "newest published core");
         check("Wheel-v0.10.0".equals(Modules.tagOf(tags, pre, "ImprovedForever", "wheel")), "newest release of a module");
         check(Modules.tagOf(tags, pre, "ImprovedForever", "Junk") == null, "module without a release");

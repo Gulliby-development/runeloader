@@ -112,6 +112,23 @@ public class LibraryTest {
         eq("entry forgotten", null, store.entry(e.key));
         eq("others stay", true, new File(addons, "HandMade").isDirectory());
 
+        // a module installed by byHand that the index has in a newer version
+        Model.Installed byHand = new Model.Installed();
+        byHand.version = "1.6.2";
+        byHand.catalogMatch = new Model.Item();
+        byHand.catalogMatch.version = "1.8.0";
+        eq("untracked update", "1.8.0", Library.untrackedUpdate(byHand));
+        eq("untracked counts as update", "true", String.valueOf(Library.needsUpdate(byHand)));
+        byHand.catalogMatch.version = "1.6.2";
+        eq("same version is no update", null, Library.untrackedUpdate(byHand));
+        Model.Installed pkg = new Model.Installed();
+        pkg.version = "1.9.1";
+        pkg.catalogMatch = new Model.Item();
+        pkg.catalogMatch.version = "1.12.0";
+        pkg.modules.add(byHand);
+        byHand.catalogMatch.version = "1.8.0";
+        eq("package counts core and modules", "2", String.valueOf(Library.updates(java.util.Arrays.asList(pkg))));
+
         if (fails > 0) { System.out.println(fails + " failed"); System.exit(1); }
         System.out.println("LibraryTest: ok");
     }

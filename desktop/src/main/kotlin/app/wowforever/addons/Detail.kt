@@ -191,16 +191,29 @@ private fun Ended(app: AppState, ix: Model.Item?, lead: Boolean) {
 private fun Modules(app: AppState, repo: String, pkg: Model.Installed?) {
     if (Modules.moduleOf(repo) != null) return
     val mods = Index.modulesOf(repo)
-    val extra = pkg?.modules?.filter { m -> mods.none { m.entry != null && it.key().equals(m.entry.key, ignoreCase = true) } } ?: emptyList()
+    val installed = pkg?.modules ?: emptyList()
+    // An installed module matches its index entry by the managed key or, when installed by hand, by its catalog match.
+    fun keyOf(m: Model.Installed) = m.entry?.key ?: m.catalogMatch?.key()
+    fun installedOf(it: Model.Item) = installed.firstOrNull { m -> keyOf(m)?.equals(it.key(), ignoreCase = true) == true }
+    val extra = installed.filter { m -> mods.none { it.key().equals(keyOf(m), ignoreCase = true) } }
     if (mods.isEmpty() && extra.isEmpty()) return
     val coreName = pkg?.title ?: Index.item(repo)?.name ?: ""
-    Section(t("modules_title") + "  ·  " + (mods.size + extra.size)) {
+    val total = mods.size + extra.size
+    Section(t("modules_title") + "  ·  " + (if (pkg != null) "${installed.size} / $total" else "$total")) {
         Text(t("modules_hint"), color = Palette.text3, fontSize = 12.sp)
         Spacer(Modifier.height(2.dp))
         for (it in mods) {
+            val m = installedOf(it)
             val me = app.store.entry(it.key())
-            ModuleLine(app, Packages.moduleName(it.name, coreName), it.iconUrl, me?.version, it.key(),
-                remove = me?.let { e -> { app.removeEntry(e) } }, install = if (me == null) ({ app.install(it) }) else null)
+            val newer = m != null && Library.needsUpdate(m)
+            ModuleLine(app, Packages.moduleName(it.name, coreName), it.iconUrl, m?.version ?: me?.version, it.key(),
+                remove = when { me != null -> ({ app.removeEntry(me) }); m != null -> ({ app.confirmRemove = m }); else -> null },
+                install = when {
+                    m == null && me == null -> ({ app.install(it) })
+                    newer && me != null -> ({ app.update(me) })
+                    newer -> ({ app.install(it, alone = true) })
+                    else -> null
+                }, update = newer)
         }
         for (m in extra) ModuleLine(app, Packages.moduleName(m.title, coreName), m.entry?.iconUrl, m.version, m.entry?.key,
             remove = { app.confirmRemove = m }, install = null)
@@ -208,7 +221,8 @@ private fun Modules(app: AppState, repo: String, pkg: Model.Installed?) {
 }
 
 @Composable
-private fun ModuleLine(app: AppState, name: String, icon: String?, version: String?, key: String?, remove: (() -> Unit)?, install: (() -> Unit)?) {
+private fun ModuleLine(app: AppState, name: String, icon: String?, version: String?, key: String?, remove: (() -> Unit)?, install: (() -> Unit)?,
+                       update: Boolean = false) {
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp)).background(Palette.surface2).padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically) {
         AddonIcon(icon, name, 26.dp)
@@ -220,6 +234,7 @@ private fun ModuleLine(app: AppState, name: String, icon: String?, version: Stri
         val busy = key?.let { app.busy[it] }
         when {
             busy != null -> Pill(t("pill_installing"), Palette.gold, Palette.goldSoft)
+            install != null && update -> Button(t("action_update"), Kind.PRIMARY, small = true, onClick = install)
             install != null -> Button(null, Kind.SECONDARY, icon = "ic_download", small = true, onClick = install)
             remove != null -> Button(null, Kind.DANGER, icon = "ic_delete", small = true, onClick = remove)
         }
@@ -269,11 +284,13 @@ fun RowDetail(app: AppState, r: Model.Installed?) {
     Actions {
         when {
             busy != null -> BusyBar(busy)
-            managed && r.withModules().any { it.entry?.updateAvailable == true } ->
+            managed && r.withModules().any { Library.needsUpdate(it) } ->
                 Button(if (e.updateAvailable) t("action_update_to", clip(e.latest, 22)) else t("action_update"), Kind.PRIMARY, icon = "ic_upgrade") { app.updateRow(r) }
             managed && r.missing -> Button(t("action_install_again"), Kind.PRIMARY, icon = "ic_download") { app.update(e) }
             managed -> Button(t("action_check_update"), icon = "ic_refresh") { app.checkOne(e) }
-            e == null && r.catalogMatch != null -> Button(t("action_track_catalog"), Kind.PRIMARY, icon = "ic_link") { app.install(r.catalogMatch) }
+            e == null && r.withModules().any { Library.needsUpdate(it) } ->
+                Button(Library.untrackedUpdate(r)?.let { t("action_update_to", clip(it, 22)) } ?: t("action_update"), Kind.PRIMARY, icon = "ic_upgrade") { app.updateRow(r) }
+            e == null && r.catalogMatch != null -> Button(t("action_track_catalog"), Kind.PRIMARY, icon = "ic_link") { app.install(r.catalogMatch, alone = true) }
             e == null && r.main()?.wowiId != null -> Button(t("action_track_wowi"), Kind.PRIMARY, icon = "ic_link") { app.adoptWowi(r.main().wowiId, r) }
         }
         // a clean copy of the installed addon, e.g. one installed by an older version with a bug

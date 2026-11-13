@@ -93,7 +93,7 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
     private var checkedOnce = false
 
     val gameReady: Boolean get() = gameRoot != null && store.gameReady()
-    val updates: Int get() { revision; return Library.updates(store) }
+    val updates: Int get() { revision; return Library.updates(rows) }
     val managed: Int get() { revision; return store.list().size }
     val verifiedOnly: Boolean get() { revision; return store.verifiedOnly() }
 
@@ -130,7 +130,7 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
             withContext(Dispatchers.IO) { Library.checkAll(store, manual) }
             checking = false
             revision++
-            val n = Library.updates(store)
+            val n = updates
             if (manual || n > 0) message = if (n == 0) t("all_up_to_date") else q("updates_available", n)
         }
     }
@@ -148,16 +148,17 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
         }
     }
 
-    fun install(item: Model.Item) {
+    /** @param alone take over an addon installed by hand: no modules of a package come with it. */
+    fun install(item: Model.Item, alone: Boolean = false) {
         if (!gameReady) { message = t("game_not_set"); tab = Tab.SETTINGS; return }
         val key = item.key()
         if (busy.containsKey(key)) return
         busy[key] = t("queued")
         scope.launch {
-            val parts = Library.parts(store, item).size
+            val parts = Library.parts(store, item, alone).size
             val result = withContext(ops) {
                 try {
-                    Result.success(Library.install(store, item) { i, text, _ ->
+                    Result.success(Library.install(store, item, alone) { i, text, _ ->
                         val shown = if (i.key() == key) text else i.name + "  ·  " + text
                         scope.launch { if (busy.containsKey(key)) busy[key] = shown }
                     })
@@ -185,12 +186,19 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
 
     /** Updates every part of a package (or a single row) that has an update. */
     fun updateRow(r: Model.Installed) {
-        for (m in r.withModules()) m.entry?.let { if (it.updateAvailable && !busy.containsKey(it.key)) update(it) }
+        // One button for the whole package: managed parts update, parts installed by hand that the index
+        // has in a newer version are taken over with that version.
+        for (m in r.withModules()) {
+            val e = m.entry
+            if (e != null) { if (e.updateAvailable && !m.missing && !busy.containsKey(e.key)) update(e) }
+            else if (Library.untrackedUpdate(m) != null) install(m.catalogMatch, alone = true)
+        }
     }
 
     fun updateAll() {
         var n = 0
         for (e in store.list()) if (e.updateAvailable && !busy.containsKey(e.key)) { update(e); n++ }
+        for (r in rows) for (m in r.withModules()) if (Library.untrackedUpdate(m) != null && !busy.containsKey(m.catalogMatch.key())) { install(m.catalogMatch, alone = true); n++ }
         if (n > 0) message = t("updating_n", n)
     }
 
@@ -417,7 +425,7 @@ fun rowId(r: Model.Installed): String =
 /** The key of the install that a row is waiting for, if any. */
 fun busyKey(r: Model.Installed): String? = r.entry?.key ?: r.catalogMatch?.key()
 
-fun anyUpdate(r: Model.Installed): Boolean = r.withModules().any { it.entry?.updateAvailable == true }
+fun anyUpdate(r: Model.Installed): Boolean = r.withModules().any { Library.needsUpdate(it) }
 
 fun joinShort(l: List<String>, max: Int): String =
     if (l.size <= max) l.joinToString(", ") else t("join_more", l.take(max).joinToString(", "), l.size - max)
