@@ -610,16 +610,6 @@ public class MainActivity extends Activity {
     }
 
     static String friendly(Throwable e) {
-        if (e instanceof java.net.UnknownHostException) return Lang.s(R.string.err_no_internet);
-        if (e instanceof java.net.SocketTimeoutException) return Lang.s(R.string.err_timeout);
-        if (e instanceof javax.net.ssl.SSLException) return Lang.s(R.string.err_ssl);
-        if (e instanceof java.util.zip.ZipException) return Lang.s(R.string.err_not_zip);
-        if (e instanceof Http.HttpException) {
-            int c = ((Http.HttpException) e).code;
-            if (c == 404) return Lang.s(R.string.err_http_404);
-            if (c == 403 || c == 429) return Lang.s(R.string.err_rate_limited, c);
-        }
-        String m = e.getMessage();
-        return m == null || m.isEmpty() ? e.getClass().getSimpleName() : m;
+        return Texts.friendly(e);
     }
 }

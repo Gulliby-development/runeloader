@@ -208,7 +208,7 @@ final class BrowseScreen extends Screen {
 
     /** Back to the grid, named after the open category; the search then looks inside it. */
     private View categoryBack() {
-        LinearLayout b = Ui.button(app, s(Categories.nameRes(category)), R.drawable.ic_back, Ui.Kind.GHOST, v -> {
+        LinearLayout b = Ui.button(app, s(CategoryIcons.nameRes(category)), R.drawable.ic_back, Ui.Kind.GHOST, v -> {
             query = "";   // back means the grid, not a search over everything
             setMode(MODE_CATEGORIES, null);
         });
@@ -278,12 +278,12 @@ final class BrowseScreen extends Screen {
         FrameLayout iconBox = new FrameLayout(app);
         iconBox.setBackground(Ui.round(Ui.SURFACE3, 10));
         android.widget.ImageView iv = new android.widget.ImageView(app);
-        iv.setImageResource(Categories.iconRes(key));
+        iv.setImageResource(CategoryIcons.iconRes(key));
         iv.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
         iconBox.addView(iv, new FrameLayout.LayoutParams(-1, -1));
         t.addView(iconBox, Ui.lp(Ui.dp(36), Ui.dp(36)));
         LinearLayout txt = Ui.vbox(app);
-        String name = s(Categories.nameRes(key));
+        String name = s(CategoryIcons.nameRes(key));
         TextView title = Ui.text(app, name, 13.5f, Ui.TEXT, Ui.MEDIUM);
         title.setLines(2);   // the same height for every tile in a row
         txt.addView(title, Ui.lp(-1, -2));

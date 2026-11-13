@@ -42,7 +42,7 @@ final class Index {
             } catch (IOException e) {
                 if (!f.exists()) {
                     if (e instanceof Http.HttpException && ((Http.HttpException) e).code == 404)
-                        throw new IOException(Lang.s(R.string.err_index_missing));
+                        throw new IOException(Texts.s("err_index_missing"));
                     throw e;
                 }
             }
@@ -75,9 +75,9 @@ final class Index {
             String body = Http.readAll(c.getInputStream());
             try {
                 Json.Obj probe = new Json.Obj(body);
-                if (probe.optJSONArray("addons") == null) throw new IOException(Lang.s(R.string.err_index_broken));
+                if (probe.optJSONArray("addons") == null) throw new IOException(Texts.s("err_index_broken"));
             } catch (Json.Error e) {
-                throw new IOException(Lang.s(R.string.err_index_broken));
+                throw new IOException(Texts.s("err_index_broken"));
             }
             Sources.writeText(f, body);
             String newTag = c.getHeaderField("ETag");
@@ -91,10 +91,10 @@ final class Index {
         Json.Arr arr;
         try {
             Json.Obj root = new Json.Obj(body);
-            if (root.optInt("schema", SCHEMA) > SCHEMA) throw new IOException(Lang.s(R.string.err_index_newer));
+            if (root.optInt("schema", SCHEMA) > SCHEMA) throw new IOException(Texts.s("err_index_newer"));
             arr = root.optJSONArray("addons");
         } catch (Json.Error e) {
-            throw new IOException(Lang.s(R.string.err_index_broken));
+            throw new IOException(Texts.s("err_index_broken"));
         }
         List<Model.Item> out = new ArrayList<>();
         Map<String, Json.Obj> repos = new HashMap<>();

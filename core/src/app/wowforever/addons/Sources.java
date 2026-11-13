@@ -84,11 +84,11 @@ final class Sources {
             boolean pinnedTag = false;
             if (module != null) {
                 tag = groupTag(repo, module);
-                if (tag == null) throw new IOException(Lang.s(R.string.err_gh_no_published, id));
+                if (tag == null) throw new IOException(Texts.s("err_gh_no_published", id));
                 pinnedTag = true;
             } else {
                 try { tag = latestTag(repo); } catch (Http.HttpException e) {
-                    if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_no_releases, repo));
+                    if (e.code == 404) throw new IOException(Texts.s("err_gh_repo_no_releases", repo));
                 }
                 if (tag != null && !Modules.group(tag, repoName(repo)).isEmpty()) {
                     String core = groupTag(repo, "");
@@ -123,7 +123,7 @@ final class Sources {
                         if (score > bestScore && score >= 0) { bestScore = score; pick = rel; }
                     }
                 }
-                if (pick == null) throw new IOException(Lang.s(R.string.err_gh_no_forever_build, repo));
+                if (pick == null) throw new IOException(Texts.s("err_gh_no_forever_build", repo));
                 r.fileName = pick.optString("filename");
                 r.version = pick.optString("version", "");
                 if (r.version.isEmpty()) r.version = versionFromFile(r.fileName);
@@ -138,11 +138,11 @@ final class Sources {
                 rel = new Json.Obj(Http.get("https://api.github.com/repos/" + repo + "/releases/"
                         + (pinnedTag ? "tags/" + encPath(tag) : "latest"), apiHeaders()));
             } catch (Http.HttpException e) {
-                if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_no_published, repo));
-                if (e.code == 403 || e.code == 429) throw new IOException(Lang.s(R.string.err_gh_rate_limit));
+                if (e.code == 404) throw new IOException(Texts.s("err_gh_no_published", repo));
+                if (e.code == 403 || e.code == 429) throw new IOException(Texts.s("err_gh_rate_limit"));
                 throw e;
             } catch (Json.Error e) {
-                throw new IOException(Lang.s(R.string.err_gh_unexpected));
+                throw new IOException(Texts.s("err_gh_unexpected"));
             }
             Json.Arr assets = rel.optJSONArray("assets");
             Json.Obj pick = null;
@@ -194,10 +194,10 @@ final class Sources {
             try {
                 rels = new Json.Arr(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100", apiHeaders()));
             } catch (Http.HttpException e) {
-                if (e.code == 403 || e.code == 429) throw new IOException(Lang.s(R.string.err_gh_rate_limit));
+                if (e.code == 403 || e.code == 429) throw new IOException(Texts.s("err_gh_rate_limit"));
                 throw e;
             } catch (Json.Error e) {
-                throw new IOException(Lang.s(R.string.err_gh_unexpected));
+                throw new IOException(Texts.s("err_gh_unexpected"));
             }
             List<String> tags = new ArrayList<>();
             List<Boolean> pre = new ArrayList<>();
@@ -227,7 +227,7 @@ final class Sources {
                 it.downloads = -1;
                 it.updated = parseIso(o.optString("pushed_at"));
             } catch (Http.HttpException e) {
-                if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_not_found, repo));
+                if (e.code == 404) throw new IOException(Texts.s("err_gh_repo_not_found", repo));
                 // rate limit: keep the bare card
             } catch (Json.Error ignored) {
             }
@@ -334,7 +334,7 @@ final class Sources {
                 }
                 r.endArray();
             } catch (Json.Error e) {
-                throw new IOException(Lang.s(R.string.err_wowi_list));
+                throw new IOException(Texts.s("err_wowi_list"));
             } finally {
                 r.close();
             }
@@ -365,17 +365,17 @@ final class Sources {
                 Json.Arr arr = new Json.Arr(Http.get(DETAILS + id + ".json"));
                 d = arr.optJSONObject(0);
             } catch (Json.Error e) {
-                throw new IOException(Lang.s(R.string.err_wowi_unexpected));
+                throw new IOException(Texts.s("err_wowi_unexpected"));
             }
-            if (d == null) throw new IOException(Lang.s(R.string.err_wowi_not_found));
-            if ("1".equals(d.optString("UIPending"))) throw new IOException(Lang.s(R.string.err_wowi_pending));
+            if (d == null) throw new IOException(Texts.s("err_wowi_not_found"));
+            if ("1".equals(d.optString("UIPending"))) throw new IOException(Texts.s("err_wowi_pending"));
             Model.Release r = new Model.Release();
             r.version = d.optString("UIVersion");
             r.fileName = d.optString("UIFileName", "addon.zip");
             r.url = d.optString("UIDownload");
             r.md5 = d.optString("UIMD5", null);
             r.guessed = true;
-            if (r.url == null || r.url.isEmpty()) throw new IOException(Lang.s(R.string.err_no_download));
+            if (r.url == null || r.url.isEmpty()) throw new IOException(Texts.s("err_no_download"));
             return r;
         }
 

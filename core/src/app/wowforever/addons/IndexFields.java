@@ -26,10 +26,10 @@ final class IndexFields {
             String u = shots.optString(i, "");
             if (isHttps(u)) it.screenshots.add(u);
         }
-        int cat = categoryRes(str(a, "category"));
-        if (cat != 0 && (it.category == null || it.category.isEmpty())) {   // a catalog category wins
-            it.category = Lang.s(cat);
-            it.categoryKey = Categories.key(str(a, "category"));
+        String cat = Categories.key(str(a, "category"));
+        if (!cat.isEmpty() && (it.category == null || it.category.isEmpty())) {   // a catalog category wins
+            it.category = Texts.s(Categories.nameKey(cat));
+            it.categoryKey = cat;
         }
         it.tags.clear();
         Json.Arr tags = a.optJSONArray("tags");
@@ -82,19 +82,6 @@ final class IndexFields {
         String id = Modules.id(repo, module);
         if (module != null && id.equals(repo)) return null;
         return Model.SRC_GITHUB + ":" + id;
-    }
-
-    /** The index's category keys, mapped onto the app's own categories; 0 when unknown. */
-    static int categoryRes(String key) {
-        switch (key.toLowerCase(Locale.ROOT)) {
-            case "quests": return R.string.cat_quests;
-            case "ui": return R.string.cat_ui;
-            case "combat": return R.string.cat_combat;
-            case "bags": return R.string.cat_bags;
-            case "map": return R.string.cat_map;
-            case "tools": return R.string.cat_tools;
-            default: return 0;
-        }
     }
 
     /** A relative path inside the index site, or an absolute https URL; anything else is dropped. */
