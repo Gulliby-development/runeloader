@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -199,15 +200,17 @@ private fun ItemCard(app: AppState, it: Model.Item) {
         Text(it.summary, color = Palette.text2, fontSize = 12.5.sp, lineHeight = 18.sp, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val stats = listOfNotNull(
-                if (it.downloads > 0) "↓ " + formatCount(it.downloads) else null,
-                if (it.stars > 0) "★ " + formatCount(it.stars) else null,
-            ).joinToString("  ")
-            if (stats.isNotEmpty()) { Text(stats, color = Palette.text3, fontFamily = Fonts.mono, fontSize = 11.5.sp, maxLines = 1); Spacer(Modifier.width(8.dp)) }
-            if (it.source == Model.SRC_WOWI) Tag("WoWI", Palette.blue, Palette.blueSoft) else Tag("GitHub")
-            if (it.tags.contains(Categories.GAMEPAD)) { Spacer(Modifier.width(5.dp)); Tag(t("tag_gamepad"), Palette.rune, Palette.runeSoft) }
-            if (it.isDiscontinued) { Spacer(Modifier.width(5.dp)); Tag(t("tag_discontinued"), Palette.danger, Palette.dangerSoft) }
-            Spacer(Modifier.weight(1f))
+            // The action keeps its full width; the stats and tags give way and are cut at the edge.
+            Row(Modifier.weight(1f).clipToBounds(), verticalAlignment = Alignment.CenterVertically) {
+                val stats = listOfNotNull(
+                    if (it.downloads > 0) "↓ " + formatCount(it.downloads) else null,
+                    if (it.stars > 0) "★ " + formatCount(it.stars) else null,
+                ).joinToString("  ")
+                if (stats.isNotEmpty()) { Text(stats, color = Palette.text3, fontFamily = Fonts.mono, fontSize = 11.5.sp, maxLines = 1, softWrap = false); Spacer(Modifier.width(8.dp)) }
+                if (it.source == Model.SRC_WOWI) Tag("WoWI", Palette.blue, Palette.blueSoft) else Tag("GitHub")
+                if (it.tags.contains(Categories.GAMEPAD)) { Spacer(Modifier.width(5.dp)); Tag(t("tag_gamepad"), Palette.rune, Palette.runeSoft) }
+                if (it.isDiscontinued) { Spacer(Modifier.width(5.dp)); Tag(t("tag_discontinued"), Palette.danger, Palette.dangerSoft) }
+            }
             Spacer(Modifier.width(8.dp))
             CardAction(app, it)
         }

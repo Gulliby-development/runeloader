@@ -9,6 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
@@ -78,14 +80,25 @@ fun rememberUrlImage(url: String?): ImageBitmap? {
 fun AddonIcon(url: String?, name: String?, size: Dp = 40.dp) {
     val img = rememberUrlImage(url)
     val shape = RoundedCornerShape(size * 0.26f)
-    Box(Modifier.size(size).clip(shape).background(Palette.surface3).border(1.dp, Palette.stroke, shape), contentAlignment = Alignment.Center) {
-        if (img != null) Image(img, null, Modifier.size(size), contentScale = ContentScale.Crop)
-        else {
-            val letter = name?.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar() ?: '?'
-            Text(letter.toString(), color = Palette.gold, fontSize = (size.value * 0.45f).sp, fontWeight = FontWeight.Bold)
+    if (img != null) {
+        Box(Modifier.size(size).clip(shape).background(Palette.surface3).border(1.dp, Palette.stroke, shape)) {
+            Image(img, null, Modifier.size(size), contentScale = ContentScale.Crop)
         }
+        return
+    }
+    val letter = name?.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar() ?: '?'
+    val tint = LETTER_TINTS[Math.floorMod((name ?: "").hashCode(), LETTER_TINTS.size)]
+    Box(Modifier.size(size).clip(shape).background(Brush.verticalGradient(listOf(tint, tint.copy(alpha = 0.82f)))),
+        contentAlignment = Alignment.Center) {
+        Text(letter.toString(), color = Palette.bg, fontFamily = Fonts.display, fontSize = (size.value * 0.44f).sp, fontWeight = FontWeight.Bold)
     }
 }
+
+/** Soft tints of the letter icons, as in the design; a name always gets the same one. */
+private val LETTER_TINTS = listOf(
+    Color(0xFFE3A83F), Color(0xFF7FB2E5), Color(0xFFE8685A), Color(0xFF6EE0C4), Color(0xFFA9C98A),
+    Color(0xFFC9A3F0), Color(0xFFEBC27E), Color(0xFF8FB0E8), Color(0xFFE8968A), Color(0xFFE8914A),
+)
 
 /** The icon of a Browse category tile (cat_<key>.png, shared with Android). */
 @Composable

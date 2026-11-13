@@ -280,6 +280,8 @@ fun RowDetail(app: AppState, r: Model.Installed?) {
         if (busy == null && managed && !e.updateAvailable && !r.missing) Button(t("action_reinstall"), icon = "ic_download") { app.update(e) }
         val page = e?.pageUrl ?: r.catalogMatch?.pageUrl ?: r.main()?.website
         if (page != null) Button(t("action_page"), Kind.GHOST, icon = "ic_open") { openUrl(page) }
+        val dir = r.main()?.folder?.let { f -> app.store.addonsDir()?.let { java.io.File(it, f) } }
+        if (dir != null && !r.missing) Button(t("action_open_folder"), Kind.GHOST, icon = "ic_folder") { openFolder(dir) }
         Button(t(if (r.isPackage) "action_remove_all" else "action_remove"), Kind.DANGER, icon = "ic_delete") { app.confirmRemove = r }
     }
 

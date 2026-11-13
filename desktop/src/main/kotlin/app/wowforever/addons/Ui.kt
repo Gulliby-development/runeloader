@@ -93,7 +93,7 @@ fun Label(text: String, modifier: Modifier = Modifier, color: Color = Palette.te
 @Composable
 fun Tag(text: String, fg: Color = Palette.text2, bg: Color = Palette.surface3) {
     Box(Modifier.clip(RoundedCornerShape(5.dp)).background(bg).padding(horizontal = 7.dp, vertical = 2.dp)) {
-        Text(text, color = fg, fontFamily = Fonts.mono, fontSize = 10.5.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+        Text(text, color = fg, fontFamily = Fonts.mono, fontSize = 10.5.sp, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
     }
 }
 

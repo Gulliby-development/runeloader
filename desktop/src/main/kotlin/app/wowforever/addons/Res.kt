@@ -55,6 +55,11 @@ fun pickZip(): java.io.File? {
     return if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) chooser.selectedFile else null
 }
 
+/** Shows a folder in the system file manager. */
+fun openFolder(dir: java.io.File) {
+    try { if (dir.isDirectory && java.awt.Desktop.isDesktopSupported()) java.awt.Desktop.getDesktop().open(dir) } catch (e: Exception) { }
+}
+
 fun openUrl(url: String) {
     try { if (java.awt.Desktop.isDesktopSupported()) java.awt.Desktop.getDesktop().browse(java.net.URI(url)) } catch (e: Exception) { }
 }

@@ -92,7 +92,8 @@ private fun LibraryList(app: AppState) {
     if (lines.isEmpty()) { Empty("ic_search", t("nothing_found"), t("favorites_no_match")); return }
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
         val cols = when {
-            maxWidth >= 640.dp -> Cols(150.dp, 92.dp, 128.dp)
+            maxWidth >= 700.dp -> Cols(150.dp, 92.dp, 128.dp)
+            maxWidth >= 570.dp -> Cols(124.dp, 80.dp, 116.dp)
             maxWidth >= 500.dp -> Cols(130.dp, 0.dp, 116.dp)
             else -> Cols(0.dp, 0.dp, 110.dp)
         }
