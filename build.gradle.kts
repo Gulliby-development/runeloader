@@ -1,6 +1,6 @@
 // Single-module Android app. No dependencies: plain Java + the Android SDK.
 plugins {
-    id("com.android.application") version "8.8.0"
+    id("com.android.application") version "9.5.1"
 }
 
 android {
