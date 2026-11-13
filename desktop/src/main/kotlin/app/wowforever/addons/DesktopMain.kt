@@ -1,6 +1,12 @@
 package app.wowforever.addons
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
@@ -34,10 +40,20 @@ fun main(args: Array<String>) {
             state = state,
             title = Texts.s("app_name"),
             icon = painterResource("icon.png"),
+            undecorated = true,
         ) {
             window.minimumSize = Dimension(900, 600)
             val app = remember { AppState(store).also { it.start() } }
-            RuneloaderTheme { Shell(app) }
+            val chrome = remember { Chrome(window) }
+            RuneloaderTheme {
+                Box(Modifier.fillMaxSize().border(1.dp, if (chrome.maximized) Palette.rail else Palette.stroke)) {
+                    Column(Modifier.fillMaxSize().padding(if (chrome.maximized) 0.dp else 1.dp)) {
+                        TitleBar(chrome)
+                        Box(Modifier.weight(1f)) { Shell(app) }
+                    }
+                    ResizeEdges(chrome)
+                }
+            }
             if (smoke != null) LaunchedEffect(Unit) {
                 withTimeout(60_000) { while (!app.scanned) delay(100) }
                 delay(1000)
