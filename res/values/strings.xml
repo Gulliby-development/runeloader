@@ -376,6 +376,7 @@
         <item quantity="other">%1$s and %2$d modules</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="action_track">Track</string>
     <string name="action_open_folder">Open folder</string>
     <string name="col_addon">Addon</string>
     <string name="col_version">Version</string>

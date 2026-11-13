@@ -134,21 +134,28 @@ public final class Library {
      * What an install of the item brings. A package core that is not installed yet brings every module
      * with it: people want the whole addon and turn parts off in the game, or remove a module later.
      */
-    static List<Model.Item> parts(Store store, Model.Item item) {
+    static List<Model.Item> parts(Store store, Model.Item item) { return parts(store, item, false); }
+
+    /** @param alone only the item and its dependencies: taking over an addon installed by hand must not add modules. */
+    static List<Model.Item> parts(Store store, Model.Item item, boolean alone) {
         List<Model.Item> parts = new ArrayList<>();
         parts.add(item);
-        if (store.entry(item.key()) == null && Model.SRC_GITHUB.equals(item.source))
+        if (!alone && store.entry(item.key()) == null && Model.SRC_GITHUB.equals(item.source))
             for (Model.Item m : Index.modulesOf(item.id)) if (store.entry(m.key()) == null) parts.add(m);
         return parts;
     }
 
     /** Installs the item and what it brings; returns the names installed. Call off the UI thread. */
     static List<String> install(Store store, Model.Item item, Updater.Progress progress) throws IOException {
+        return install(store, item, false, progress);
+    }
+
+    static List<String> install(Store store, Model.Item item, boolean alone, Updater.Progress progress) throws IOException {
         File addons = store.addonsDir();
         List<String> done = new ArrayList<>();
         Set<String> seen = new HashSet<>();
         Updater updater = new Updater(store);
-        for (Model.Item part : parts(store, item)) updater.installWithDeps(part, addons, done, seen, 0, progress);
+        for (Model.Item part : parts(store, item, alone)) updater.installWithDeps(part, addons, done, seen, 0, progress);
         return done;
     }
 
@@ -226,6 +233,33 @@ public final class Library {
     static int updates(Store store) {
         int n = 0;
         for (Model.Entry x : store.list()) if (x.updateAvailable) n++;
+        return n;
+    }
+
+    /**
+     * The newer version the index or the catalog offers for an addon Runeloader does not manage yet
+     * (the modules of a package installed by hand), or null. Installing that item updates it and
+     * makes Runeloader manage it.
+     */
+    static String untrackedUpdate(Model.Installed r) {
+        if (r == null || r.entry != null || r.missing || r.catalogMatch == null) return null;
+        String v = r.catalogMatch.version;
+        return v != null && AppVersion.newer(v, r.version) ? v : null;
+    }
+
+    /** Whether one row (not its modules) has an update, managed or not. */
+    static boolean needsUpdate(Model.Installed r) {
+        if (r == null) return false;
+        return r.entry != null ? r.entry.updateAvailable && !r.missing : untrackedUpdate(r) != null;
+    }
+
+    /** Rows with an update, counting each module of a package. */
+    static int updates(List<Model.Installed> rows) {
+        int n = 0;
+        for (Model.Installed r : rows) {
+            if (needsUpdate(r)) n++;
+            for (Model.Installed m : r.modules) if (needsUpdate(m)) n++;
+        }
         return n;
     }
 

@@ -40,18 +40,30 @@ final class Modules {
     }
 
     /**
-     * Tags newest first. The newest published tag of a group ("" for the core), or null when the repo
-     * does not release by module (fewer than two groups) or that group has no published release.
+     * The newest published tag of a group ("" for the core), or null when the repo does not release by
+     * module (fewer than two groups) or that group has no published release. "Newest" is the highest
+     * version: GitHub does not list releases in version order (Core-v1.9.1 can come before Core-v1.12.0).
+     * Equal versions keep the earlier tag.
      */
     static String tagOf(List<String> tags, List<Boolean> prerelease, String repoName, String group) {
         Set<String> groups = new HashSet<>();
         for (String t : tags) groups.add(group(t, repoName).toLowerCase(Locale.ROOT));
         if (groups.size() < 2) return null;
         String want = group == null ? "" : group.toLowerCase(Locale.ROOT);
-        for (int i = 0; i < tags.size(); i++)
-            if (!Boolean.TRUE.equals(prerelease.get(i)) && group(tags.get(i), repoName).toLowerCase(Locale.ROOT).equals(want))
-                return tags.get(i);
-        return null;
+        String best = null;
+        for (int i = 0; i < tags.size(); i++) {
+            String t = tags.get(i);
+            if (Boolean.TRUE.equals(prerelease.get(i)) || !group(t, repoName).toLowerCase(Locale.ROOT).equals(want)) continue;
+            if (best == null || AppVersion.compare(versionOf(t), versionOf(best)) > 0) best = t;
+        }
+        return best;
+    }
+
+    /** The version part of a release tag: "Wheel-v0.10.0" gives "v0.10.0", a plain "v1.2" stays. */
+    static String versionOf(String tag) {
+        if (tag == null) return null;
+        String m = of(tag);
+        return m == null ? tag : tag.substring(m.length() + 1);
     }
 
     static String coreTag(List<String> tags, List<Boolean> prerelease, String repoName) {

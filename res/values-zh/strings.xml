@@ -353,6 +353,7 @@
         <item quantity="other">%1$s 和 %2$d 个模块</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="action_track">关联</string>
     <string name="action_open_folder">打开文件夹</string>
     <string name="col_addon">插件</string>
     <string name="col_version">版本</string>

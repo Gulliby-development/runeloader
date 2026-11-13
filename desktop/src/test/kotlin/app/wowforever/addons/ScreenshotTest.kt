@@ -87,6 +87,7 @@ class ScreenshotTest {
             all.firstOrNull { it.isPackage }?.let { app.expanded[rowId(it)] = true }
             app.selectedRow = all.firstOrNull { it.title == "Questie" }
         }
+        shot("library-full") { app.tab = Tab.LIBRARY; app.selectedRow = null }
         shot("browse") { app.tab = Tab.BROWSE; app.selectedItem = null }
         shot("browse-detail") { app.tab = Tab.BROWSE; app.selectedItem = items[2] }
         shot("settings") { app.tab = Tab.SETTINGS }

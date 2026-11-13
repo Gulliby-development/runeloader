@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -190,24 +191,50 @@ final class Sources {
 
         /** The newest published tag of a release group ("" for the core) of a module repo, or null. */
         static String groupTag(String repo, String group) throws IOException {
-            Json.Arr rels;
-            try {
-                rels = new Json.Arr(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100", apiHeaders()));
-            } catch (Http.HttpException e) {
-                if (e.code == 403 || e.code == 429) throw new IOException(Texts.s("err_gh_rate_limit"));
-                throw e;
-            } catch (Json.Error e) {
-                throw new IOException(Texts.s("err_gh_unexpected"));
-            }
-            List<String> tags = new ArrayList<>();
+            List<String>[] rel = releaseTags(repo);
             List<Boolean> pre = new ArrayList<>();
-            for (int i = 0; i < rels.length(); i++) {
-                Json.Obj r = rels.optJSONObject(i);
-                if (r == null || r.optBoolean("draft")) continue;
-                tags.add(r.optString("tag_name", ""));
-                pre.add(r.optBoolean("prerelease"));
+            for (String p : rel[1]) pre.add("1".equals(p));
+            return Modules.tagOf(rel[0], pre, repoName(repo), group);
+        }
+
+        private static final int TAG_PAGES = 5;
+        private static final long TAG_CACHE_MS = 10 * 60 * 1000L;
+        private static final Map<String, Object[]> TAG_CACHE = new HashMap<>();
+
+        /**
+         * Tags and prerelease flags ("1"/"0") of every published release, up to 500. A module repo has
+         * hundreds of releases, so one page misses groups; the list is kept for ten minutes, so checking
+         * every module of a package costs a few API calls, not one per module.
+         */
+        @SuppressWarnings("unchecked")
+        static List<String>[] releaseTags(String repo) throws IOException {
+            String key = repo.toLowerCase(Locale.ROOT);
+            synchronized (TAG_CACHE) {
+                Object[] c = TAG_CACHE.get(key);
+                if (c != null && System.currentTimeMillis() - (Long) c[0] < TAG_CACHE_MS) return (List<String>[]) c[1];
             }
-            return Modules.tagOf(tags, pre, repoName(repo), group);
+            List<String> tags = new ArrayList<>(), pre = new ArrayList<>();
+            for (int page = 1; page <= TAG_PAGES; page++) {
+                Json.Arr rels;
+                try {
+                    rels = new Json.Arr(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100&page=" + page, apiHeaders()));
+                } catch (Http.HttpException e) {
+                    if (e.code == 403 || e.code == 429) throw new IOException(Texts.s("err_gh_rate_limit"));
+                    throw e;
+                } catch (Json.Error e) {
+                    throw new IOException(Texts.s("err_gh_unexpected"));
+                }
+                for (int i = 0; i < rels.length(); i++) {
+                    Json.Obj r = rels.optJSONObject(i);
+                    if (r == null || r.optBoolean("draft")) continue;
+                    tags.add(r.optString("tag_name", ""));
+                    pre.add(r.optBoolean("prerelease") ? "1" : "0");
+                }
+                if (rels.length() < 100) break;
+            }
+            List<String>[] out = new List[]{tags, pre};
+            synchronized (TAG_CACHE) { TAG_CACHE.put(key, new Object[]{System.currentTimeMillis(), out}); }
+            return out;
         }
 
         /** Repository card for a user-entered owner/repo. */
