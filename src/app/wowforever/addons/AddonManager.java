@@ -10,12 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,18 +29,10 @@ final class AddonManager {
         MainActivity.net.execute(() -> {
             List<Model.LocalAddon> locals = addons.isDirectory() ? Toc.scan(addons) : new ArrayList<Model.LocalAddon>();
             Index.loadCached();
-            final List<Model.Installed> rows = group(locals);
+            final List<Model.Installed> rows = Library.rows(app.store, locals);
             app.main.post(() -> {
                 if (app.isDestroyed()) return;
-                // carry over update-check results
-                for (Model.Installed r : all(rows)) {
-                    if (r.entry == null) continue;
-                    for (Model.Installed o : all(app.installed)) if (o.entry != null && o.entry.key.equals(r.entry.key) && o.entry != r.entry) {
-                        r.entry.latest = o.entry.latest;
-                        r.entry.checkError = o.entry.checkError;
-                        r.entry.updateAvailable = UpdatePolicy.isNewer(o.entry.latest, r.entry.version);
-                    }
-                }
+                Library.carryOver(app.installed, rows);
                 app.installed = rows;
                 app.scanned = true;
                 if (app.tab == MainActivity.TAB_INSTALLED) { app.render(); }
@@ -54,100 +42,12 @@ final class AddonManager {
         });
     }
 
-    private List<Model.Installed> group(List<Model.LocalAddon> locals) {
-        Map<String, Model.LocalAddon> byFolder = new HashMap<>();
-        for (Model.LocalAddon a : locals) byFolder.put(a.folder.toLowerCase(Locale.ROOT), a);
-        List<Model.Installed> rows = new ArrayList<>();
-        Set<String> owned = new HashSet<>();
-        for (Model.Entry e : app.store.list()) {
-            Model.Installed r = new Model.Installed();
-            r.entry = e;
-            for (String f : e.folders) {
-                Model.LocalAddon a = byFolder.get(f.toLowerCase(Locale.ROOT));
-                owned.add(f.toLowerCase(Locale.ROOT));
-                if (a != null) r.folders.add(a);
-            }
-            // put the folder that matches the name first
-            Collections.sort(r.folders, (x, y) -> x.folder.length() - y.folder.length());
-            r.missing = r.folders.isEmpty();
-            r.title = e.name;
-            Model.LocalAddon m = r.main();
-            r.version = e.version;
-            r.author = e.author.isEmpty() && m != null ? m.author : e.author;
-            r.notes = m != null ? m.notes : "";
-            r.compatible = m == null || anyForever(r.folders);
-            rows.add(r);
-        }
-        Map<String, Model.Installed> catalogGroups = new LinkedHashMap<>();
-        List<Model.LocalAddon> rest = new ArrayList<>();
-        for (Model.LocalAddon a : locals) {
-            if (owned.contains(a.folder.toLowerCase(Locale.ROOT))) continue;
-            Model.Item c = Catalog.byFolder(a.folder);
-            if (c == null) c = Index.byFolder(a.folder);
-            if (c != null) {
-                Model.Installed g = catalogGroups.get(c.key());
-                if (g == null) { g = new Model.Installed(); g.catalogMatch = c; catalogGroups.put(c.key(), g); }
-                g.folders.add(a);
-            } else rest.add(a);
-        }
-        for (Model.Installed g : catalogGroups.values()) {
-            Collections.sort(g.folders, (x, y) -> {
-                int ix = g.catalogMatch.folders.indexOf(x.folder), iy = g.catalogMatch.folders.indexOf(y.folder);
-                return ix - iy;
-            });
-            Model.LocalAddon m = g.main();
-            g.title = g.catalogMatch.name;
-            g.version = m.version;
-            g.author = m.author.isEmpty() ? g.catalogMatch.author : m.author;
-            g.notes = m.notes.isEmpty() ? g.catalogMatch.summary : m.notes;
-            g.compatible = anyForever(g.folders);
-            rows.add(g);
-        }
-        // group "Addon_Options", "Addon-Module" under "Addon"
-        Collections.sort(rest, (x, y) -> x.folder.length() - y.folder.length());
-        Map<String, Model.Installed> parents = new LinkedHashMap<>();
-        for (Model.LocalAddon a : rest) {
-            Model.Installed parent = null;
-            String lower = a.folder.toLowerCase(Locale.ROOT);
-            for (Map.Entry<String, Model.Installed> p : parents.entrySet()) {
-                if (lower.startsWith(p.getKey() + "_") || lower.startsWith(p.getKey() + "-")) { parent = p.getValue(); break; }
-            }
-            if (parent != null) { parent.folders.add(a); continue; }
-            Model.Installed g = new Model.Installed();
-            g.folders.add(a);
-            g.title = a.title;
-            g.version = a.version;
-            g.author = a.author;
-            g.notes = a.notes;
-            parents.put(lower, g);
-        }
-        for (Model.Installed g : parents.values()) {
-            g.compatible = anyForever(g.folders);
-            rows.add(g);
-        }
-        return Packages.fold(rows);
-    }
-
     /** Every Library row, the modules of packages included. */
-    static List<Model.Installed> all(List<Model.Installed> rows) {
-        List<Model.Installed> l = new ArrayList<>();
-        for (Model.Installed r : rows) l.addAll(r.withModules());
-        return l;
-    }
-
-    private static boolean anyForever(List<Model.LocalAddon> folders) {
-        if (folders.isEmpty()) return true;
-        // the first folder is the main one; libraries without TOC metadata are fine
-        Model.LocalAddon m = folders.get(0);
-        if (m.tocFile.isEmpty()) return true;
-        for (Model.LocalAddon a : folders) if (a.foreverToc) return true;
-        return false;
-    }
+    static List<Model.Installed> all(List<Model.Installed> rows) { return Library.all(rows); }
 
     void checkUpdates(final boolean manual) {
         if (app.checking) return;
-        final List<Model.Entry> list = new ArrayList<>();
-        for (Model.Entry e : app.store.list()) if (!Model.SRC_ZIP.equals(e.source)) list.add(e);
+        final List<Model.Entry> list = Library.checkable(app.store);
         if (list.isEmpty()) { if (manual) app.snack(app.getString(R.string.no_managed_addons)); return; }
         app.checking = true;
         app.renderIfTab(MainActivity.TAB_INSTALLED);
@@ -177,18 +77,11 @@ final class AddonManager {
 
     private void finishCheck(Model.Entry e, String latest, String changelog, String err, AtomicInteger left, boolean manual) {
         if (app.isDestroyed()) return;
-        e.checkError = err;
-        if (latest != null) {
-            if (!sameVersion(latest, e.latest)) e.changelog = null;
-            e.latest = latest;
-            e.updateAvailable = UpdatePolicy.isNewer(latest, e.version);
-            if (changelog != null && !changelog.isEmpty()) e.changelog = changelog;
-        }
+        Library.applyCheck(e, latest, changelog, err);
         if (left.decrementAndGet() == 0) {
             app.checking = false;
             app.store.setLastCheck(System.currentTimeMillis());
-            int n = 0;
-            for (Model.Entry x : app.store.list()) if (x.updateAvailable) n++;
+            int n = Library.updates(app.store);
             if (manual || n > 0) app.snack(n == 0 ? app.getString(R.string.all_up_to_date) : app.getResources().getQuantityString(R.plurals.updates_available, n, n));
         }
         if (app.tab == MainActivity.TAB_INSTALLED) app.render();
@@ -243,10 +136,7 @@ final class AddonManager {
      */
     void install(final Model.Item item, final Runnable after) {
         if (!requireGame()) return;
-        final List<Model.Item> parts = new ArrayList<>();
-        parts.add(item);
-        if (app.store.entry(item.key()) == null && Model.SRC_GITHUB.equals(item.source))
-            for (Model.Item m : Index.modulesOf(item.id)) if (app.store.entry(m.key()) == null) parts.add(m);
+        final List<Model.Item> parts = Library.parts(app.store, item);
         if (app.busy.containsKey(item.key())) return;
         app.busy.put(item.key(), app.getString(R.string.queued));
         queued.incrementAndGet();
@@ -340,27 +230,15 @@ final class AddonManager {
 
     /** Removes a row; the core of a package takes its modules with it, since they cannot run without it. */
     void confirmRemove(final Model.Installed r) {
-        final List<String> folders = new ArrayList<>();
-        final List<String> keys = new ArrayList<>();
-        for (Model.Installed m : r.withModules()) {
-            for (Model.LocalAddon a : m.folders) if (!containsIgnoreCase(folders, a.folder)) folders.add(a.folder);
-            if (m.entry != null) {
-                keys.add(m.entry.key);
-                for (String f : m.entry.folders) if (!containsIgnoreCase(folders, f)) folders.add(f);
-            }
-        }
+        final List<String> folders = Library.removeFolders(r);
         app.confirm(app.getString(R.string.remove_title, r.title), app.getString(R.string.remove_text, DetailPanel.joinShort(folders, 10)), app.getString(R.string.action_remove), () -> {
-            final File addons = app.store.addonsDir();
             app.selected = null;
             if (!app.layout.docked) app.detail.closeDetailSheet(); else app.detail.renderDetail();
             app.snack(app.getString(R.string.removing, r.title));
             MainActivity.ops.execute(() -> {
                 String err = null;
                 try {
-                    synchronized (Updater.LOCK) {
-                        Installer.remove(addons, folders);
-                        for (String k : keys) app.store.remove(k);
-                    }
+                    Library.remove(app.store, r);
                 } catch (IOException e) {
                     err = MainActivity.friendly(e);
                 }

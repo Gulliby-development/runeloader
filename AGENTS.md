@@ -41,6 +41,8 @@ Runeloader is coming to Windows, Linux and macOS (#95) as a Compose Desktop app 
 - Texts and icons are the Android resources: the build copies `res/values*/strings.xml` and `res/drawable/*.xml` into the jar, `DesktopTexts` reads the strings (same Android escaping, English fallback) and `drawable(name)` the vector icons. Put no UI text in Kotlin: a desktop-only text is a new string in every `values-<lang>` file, as for Android. A new language is a new entry in `DesktopTexts.LANGUAGES` too.
 - The colours are `Palette` in `Theme.kt`, the same values as `Ui.java`; a brand colour changes in both.
 - The installer version is `appVersion` in `desktop/build.gradle.kts`. CI builds and tests the app on Linux and builds the Windows installer (`runeloader-desktop-windows` artifact).
+- The Library rules (rows, what an install brings, remove, update check results) live in `core/Library.java`; Android's `AddonManager` and the desktop `AppState` only run them on their threads and show the result. A new Library rule goes there with a case in `core/test/LibraryTest.java`.
+- Desktop releases: bump `appVersion` in a pull request, merge it, then start **Desktop release** (`.github/workflows/desktop-release.yml`) on `main` from the Actions tab (with `publish` when the owner asked for a release), or push the tag `desktop-v<appVersion>`. It builds `runeloader-desktop-<version>.msi` with its SHA-256 and creates the release with `--latest=false`, so Android `SelfUpdate` keeps reading only Android releases.
 
 ## Task workflow
 
@@ -122,7 +124,7 @@ A new secret for the app build (for example an API key) goes into both `ci.yml` 
 - `stubs/`: lambda bootstrap stubs for `javac` with a trimmed `android.jar` (used only by `build.sh`).
 - `test/`: JVM tests of Android-side classes (`LayoutSpec`, the network check).
 - `AndroidManifest.xml`, `build.gradle.kts`, `build.sh`: the manifest and the two build paths.
-- `.github/workflows/`: CI (`ci.yml`) and releases (`release.yml`).
+- `.github/workflows/`: CI (`ci.yml`), Android releases (`release.yml`) and desktop releases (`desktop-release.yml`).
 - `scripts/`: helper scripts for CI (`apk-summary.sh`) and verification (`screenshots.sh`, every tab at each screen ratio).
 
 ## Verification

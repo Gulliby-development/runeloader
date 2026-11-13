@@ -85,7 +85,7 @@ public final class Model {
     }
 
     /** One folder found in Interface/AddOns. */
-    static final class LocalAddon {
+    public static final class LocalAddon {
         String folder;
         String title;
         String version = "";
@@ -100,7 +100,7 @@ public final class Model {
     }
 
     /** A row of the Installed screen: a managed entry or a group of unmanaged folders. */
-    static final class Installed {
+    public static final class Installed {
         Entry entry;                       // null when installed by hand
         List<LocalAddon> folders = new ArrayList<>();
         String title;

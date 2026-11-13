@@ -1,0 +1,108 @@
+name: Desktop release
+
+# Build the Windows installer and attach it to a GitHub Release tagged desktop-v<version>
+# (the appVersion in desktop/build.gradle.kts). Start it by pushing that tag, or with
+# "Run workflow" on main, which tags the commit it built. A manual run with "publish" set
+# publishes the release at once instead of leaving a draft.
+# A desktop release is never the "latest" release: Android SelfUpdate reads /releases/latest.
+on:
+  push:
+    tags: ["desktop-v*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish the release instead of leaving a draft"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write   # tag and create the release
+    defaults:
+      run:
+        shell: bash
+    env:
+      EVENT: ${{ github.event_name }}
+      REF_NAME: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Tag matches the desktop version
+        run: |
+          version=$(sed -nE 's/^val appVersion = "([^"]+)".*/\1/p' desktop/build.gradle.kts)
+          echo "appVersion: $version, ref: $REF_NAME ($EVENT)"
+          if [ -z "$version" ]; then echo "::error::No appVersion in desktop/build.gradle.kts."; exit 1; fi
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ "$REF_NAME" != "main" ]; then echo "::error::Run the desktop release on main, not $REF_NAME."; exit 1; fi
+          elif [ "$REF_NAME" != "desktop-v$version" ]; then
+            echo "::error::Tag $REF_NAME does not match appVersion $version. Tag the release desktop-v$version."; exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "TAG=desktop-v$version" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Test and build the installer
+        run: ./gradlew -p desktop build packageMsi
+
+      - name: Collect the files
+        run: |
+          mkdir -p dist
+          msi=$(ls desktop/build/compose/binaries/main/msi/*.msi | head -n 1)
+          cp "$msi" "dist/runeloader-desktop-$VERSION.msi"
+          (cd dist && sha256sum "runeloader-desktop-$VERSION.msi" > "runeloader-desktop-$VERSION.msi.sha256")
+          cat dist/*.sha256
+
+      # A tag made with the workflow token starts no new workflow run, so nothing is built twice.
+      - name: Tag the commit (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if existing=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" -q .object.sha 2>/dev/null); then
+            if [ "$existing" != "$GITHUB_SHA" ]; then
+              echo "::error::Tag $TAG already points at $existing. Bump appVersion for a new release."; exit 1
+            fi
+          else
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$TAG" -f sha="$GITHUB_SHA" > /dev/null
+          fi
+
+      - name: Draft GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if draft=$(gh release view "$TAG" --json isDraft -q .isDraft --repo "$GITHUB_REPOSITORY" 2>/dev/null); then
+            if [ "$draft" != "true" ]; then
+              echo "::error::Release $TAG is already published. Bump appVersion for a new release."; exit 1
+            fi
+            gh release upload "$TAG" dist/* --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            printf '%s\n' "Runeloader for Windows $VERSION." "" \
+              "Download runeloader-desktop-$VERSION.msi and run it. It installs for your user only, no admin rights needed." \
+              "The installer is not signed yet, so Windows SmartScreen may warn: choose More info, then Run anyway." \
+              > notes.md
+            gh release create "$TAG" dist/* --draft --verify-tag --latest=false \
+              --title "Runeloader for Windows $VERSION" --notes-file notes.md --repo "$GITHUB_REPOSITORY"
+          fi
+
+      - name: Publish the release (manual run with publish)
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$TAG" --draft=false --latest=false --repo "$GITHUB_REPOSITORY"

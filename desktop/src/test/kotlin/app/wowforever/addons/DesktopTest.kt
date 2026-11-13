@@ -18,6 +18,17 @@ class DesktopTest {
         assertNotEquals(en.get("nav_settings"), DesktopTexts("ru").get("nav_settings"))
     }
 
+    @Test fun pluralsFollowTheLanguage() {
+        assertEquals("1 update available", DesktopTexts("en").q("updates_available", 1))
+        assertEquals("3 updates available", DesktopTexts("en").q("updates_available", 3))
+        assertEquals("few", DesktopTexts.quantity("ru", 22))
+        assertEquals("many", DesktopTexts.quantity("ru", 11))
+        assertEquals("one", DesktopTexts.quantity("ru", 21))
+        assertEquals("many", DesktopTexts.quantity("pl", 5))
+        assertEquals("one", DesktopTexts.quantity("fr", 0))
+        assertNotEquals("updates_available", DesktopTexts("ru").q("updates_available", 5))
+    }
+
     @Test fun androidEscapes() {
         assertEquals("It's \"here\"\nnext", DesktopTexts.unescape("It\\'s \\\"here\\\"\\nnext"))
         assertEquals("a b", DesktopTexts.unescape("  a\n   b "))

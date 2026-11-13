@@ -8,15 +8,25 @@ import org.w3c.dom.Element
  * Reads the Android string resources (res/values-<lang>/strings.xml, copied into the jar by the build),
  * so both apps share one set of translations. English is the fallback for a missing key.
  */
-class DesktopTexts(lang: String = systemLanguage()) : Texts.Source {
+class DesktopTexts(private val lang: String = systemLanguage()) : Texts.Source {
     private val base = load("values")
-    private val local = if (lang == "en") emptyMap() else load("values-$lang")
+    private val local = if (lang == "en") Strings() else load("values-$lang")
     private val loc: Locale = Locale.forLanguageTag(lang)
 
     override fun get(key: String, vararg args: Any?): String {
-        val raw = local[key] ?: base[key] ?: return key
-        return if (args.isEmpty()) raw else try { String.format(loc, raw, *args) } catch (e: Exception) { raw }
+        val raw = local.strings[key] ?: base.strings[key] ?: return key
+        return format(raw, args)
     }
+
+    /** A counted text from <plurals>, with the language's plural rule; n is also the first argument unless args are given. */
+    fun q(key: String, n: Int, vararg args: Any?): String {
+        val forms = local.plurals[key] ?: base.plurals[key] ?: return key
+        val form = forms[quantity(if (local.plurals.containsKey(key)) lang else "en", n)] ?: forms["other"] ?: return key
+        return format(form, if (args.isEmpty()) arrayOf(n) else args)
+    }
+
+    private fun format(raw: String, args: Array<out Any?>): String =
+        if (args.isEmpty()) raw else try { String.format(loc, raw, *args) } catch (e: Exception) { raw }
 
     override fun locale(): Locale = loc
 
@@ -26,8 +36,31 @@ class DesktopTexts(lang: String = systemLanguage()) : Texts.Source {
 
         fun systemLanguage(): String = Locale.getDefault().language.takeIf { it in LANGUAGES } ?: "en"
 
-        private fun load(folder: String): Map<String, String> {
-            val stream = DesktopTexts::class.java.getResourceAsStream("/res/$folder/strings.xml") ?: return emptyMap()
+        /** The CLDR plural category of n for the languages the app has. */
+        fun quantity(lang: String, n: Int): String {
+            val m10 = n % 10
+            val m100 = n % 100
+            return when (lang) {
+                "ru" -> when {
+                    m10 == 1 && m100 != 11 -> "one"
+                    m10 in 2..4 && m100 !in 12..14 -> "few"
+                    else -> "many"
+                }
+                "pl" -> when {
+                    n == 1 -> "one"
+                    m10 in 2..4 && m100 !in 12..14 -> "few"
+                    else -> "many"
+                }
+                "fr", "pt" -> if (n == 0 || n == 1) "one" else "other"
+                "zh" -> "other"
+                else -> if (n == 1) "one" else "other"
+            }
+        }
+
+        private class Strings(val strings: Map<String, String> = emptyMap(), val plurals: Map<String, Map<String, String>> = emptyMap())
+
+        private fun load(folder: String): Strings {
+            val stream = DesktopTexts::class.java.getResourceAsStream("/res/$folder/strings.xml") ?: return Strings()
             val f = DocumentBuilderFactory.newInstance()
             f.isNamespaceAware = false
             f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
@@ -38,7 +71,19 @@ class DesktopTexts(lang: String = systemLanguage()) : Texts.Source {
                 val e = nodes.item(i) as Element
                 out[e.getAttribute("name")] = unescape(e.textContent)
             }
-            return out
+            val plurals = HashMap<String, Map<String, String>>()
+            val pl = doc.getElementsByTagName("plurals")
+            for (i in 0 until pl.length) {
+                val e = pl.item(i) as Element
+                val forms = HashMap<String, String>()
+                val items = e.getElementsByTagName("item")
+                for (j in 0 until items.length) {
+                    val it = items.item(j) as Element
+                    forms[it.getAttribute("quantity")] = unescape(it.textContent)
+                }
+                plurals[e.getAttribute("name")] = forms
+            }
+            return Strings(out, plurals)
         }
 
         /** Android resource escaping: \n, \t, \', \", \@, \uXXXX, and a value in double quotes kept as is. */
