@@ -44,7 +44,7 @@ compose.desktop {
             packageVersion = appVersion.split(".").let { "${it[0].toInt() + 1}.${it[1]}.${it[2]}" }
             description = "Install and update World of Warcraft addons"
             vendor = "Gulliby"
-            modules("java.net.http", "java.naming", "java.xml", "jdk.crypto.ec")
+            includeAllModules = true
             windows {
                 iconFile.set(project.file("icons/runeloader.ico"))
                 perUserInstall = true
