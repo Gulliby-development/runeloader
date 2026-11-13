@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 
 /** What core needs from the app it runs in: folders, saved settings and where to look for the game. */
-interface Platform {
+public interface Platform {
 
     /** Private folder for files the app keeps (the addon list, favorites). */
     File filesDir();

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Plain data types shared by sources, installer and UI. */
-final class Model {
+public final class Model {
 
     static final String SRC_CATALOG = "github";   // curated catalog entries are GitHub sources
     static final String SRC_GITHUB = "github";
@@ -13,7 +13,7 @@ final class Model {
     static final String SRC_ZIP = "zip";
 
     /** Something that can be installed: a catalog entry or a search result. */
-    static final class Item {
+    public static final class Item {
         String source;        // github | wowi
         String id;            // owner/repo (owner/repo#Module for one module) | numeric id
         String name;
@@ -65,7 +65,7 @@ final class Model {
     }
 
     /** One addon this app installed (persisted). */
-    static final class Entry {
+    public static final class Entry {
         String key;           // source:id
         String source;
         String id;

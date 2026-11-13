@@ -19,7 +19,7 @@ sourceSets["main"].java.srcDir("../core/src")
 
 dependencies {
     implementation(compose.desktop.currentOs)
-    implementation(compose.material3)
+    implementation("org.jetbrains.compose.material3:material3:1.9.0")
     testImplementation(kotlin("test"))
 }
 
