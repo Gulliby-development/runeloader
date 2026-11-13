@@ -59,7 +59,7 @@ final class Search {
                     add(all, w, keys, folders, names);
                 }
             } catch (IOException e) {
-                p.warning = MainActivity.friendly(e);
+                p.warning = Texts.friendly(e);
             }
         }
         // Without a query the list is the most popular addons; a query keeps its relevance order.
@@ -72,7 +72,7 @@ final class Search {
         if (verifiedOnly) all = verified(all);
         if (indexError != null) {
             if (all.isEmpty()) throw indexError;
-            if (p.warning == null) p.warning = MainActivity.friendly(indexError);
+            if (p.warning == null) p.warning = Texts.friendly(indexError);
         }
         if (from < all.size()) p.items.addAll(all.subList(from, Math.min(all.size(), from + count)));
         p.more = from + count < all.size();

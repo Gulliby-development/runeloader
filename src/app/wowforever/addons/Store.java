@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -137,11 +135,11 @@ final class Store {
         File src = gs != null && gs.exists() ? gs : appState;
         if (!src.exists()) return;
         try {
-            JSONObject o = new JSONObject(Sources.readText(src));
-            JSONArray arr = o.optJSONArray("addons");
+            Json.Obj o = new Json.Obj(Sources.readText(src));
+            Json.Arr arr = o.optJSONArray("addons");
             if (arr == null) return;
             for (int i = 0; i < arr.length(); i++) {
-                JSONObject j = arr.optJSONObject(i);
+                Json.Obj j = arr.optJSONObject(i);
                 if (j == null) continue;
                 Model.Entry e = new Model.Entry();
                 e.source = j.optString("source");
@@ -154,7 +152,7 @@ final class Store {
                 e.pageUrl = j.isNull("page") ? null : j.optString("page", null);
                 e.installedAt = j.optLong("installedAt");
                 e.pinned = j.optBoolean("pinned", false);
-                JSONArray fs = j.optJSONArray("folders");
+                Json.Arr fs = j.optJSONArray("folders");
                 if (fs != null) for (int k = 0; k < fs.length(); k++) e.folders.add(fs.optString(k));
                 entries.put(e.key, e);
             }
@@ -164,9 +162,9 @@ final class Store {
 
     synchronized void save() {
         try {
-            JSONArray arr = new JSONArray();
+            Json.Arr arr = new Json.Arr();
             for (Model.Entry e : entries.values()) {
-                JSONObject j = new JSONObject();
+                Json.Obj j = new Json.Obj();
                 j.put("source", e.source);
                 j.put("id", e.id);
                 j.put("name", e.name);
@@ -176,12 +174,12 @@ final class Store {
                 if (e.pageUrl != null) j.put("page", e.pageUrl);
                 j.put("installedAt", e.installedAt);
                 if (e.pinned) j.put("pinned", true);
-                JSONArray fs = new JSONArray();
+                Json.Arr fs = new Json.Arr();
                 for (String f : e.folders) fs.put(f);
                 j.put("folders", fs);
                 arr.put(j);
             }
-            JSONObject o = new JSONObject();
+            Json.Obj o = new Json.Obj();
             o.put("format", "wow-addons-android");
             o.put("schema", 1);
             o.put("flavor", "wowf");
@@ -235,9 +233,9 @@ final class Store {
         favorites = new LinkedHashMap<>();
         if (!favoritesFile.exists()) return favorites;
         try {
-            JSONArray arr = new JSONObject(Sources.readText(favoritesFile)).optJSONArray("addons");
+            Json.Arr arr = new Json.Obj(Sources.readText(favoritesFile)).optJSONArray("addons");
             if (arr != null) for (int i = 0; i < arr.length(); i++) {
-                JSONObject j = arr.optJSONObject(i);
+                Json.Obj j = arr.optJSONObject(i);
                 if (j == null || j.optString("id").isEmpty()) continue;
                 Model.Item it = new Model.Item();
                 it.source = j.optString("source", Model.SRC_GITHUB);
@@ -264,15 +262,15 @@ final class Store {
         return favorites;
     }
 
-    private static void strings(JSONArray a, List<String> out) {
+    private static void strings(Json.Arr a, List<String> out) {
         if (a != null) for (int i = 0; i < a.length(); i++) out.add(a.optString(i));
     }
 
     private void saveFavorites() {
         try {
-            JSONArray arr = new JSONArray();
+            Json.Arr arr = new Json.Arr();
             for (Model.Item it : favorites.values()) {
-                JSONObject j = new JSONObject();
+                Json.Obj j = new Json.Obj();
                 j.put("source", it.source);
                 j.put("id", it.id);
                 j.put("name", it.name);
@@ -287,12 +285,12 @@ final class Store {
                 j.put("downloads", it.downloads);
                 j.put("updated", it.updated);
                 j.put("verified", it.foreverVerified);
-                j.put("tags", new JSONArray(it.tags));
-                j.put("folders", new JSONArray(it.folders));
-                j.put("deps", new JSONArray(it.deps));
+                j.put("tags", new Json.Arr(it.tags));
+                j.put("folders", new Json.Arr(it.folders));
+                j.put("deps", new Json.Arr(it.deps));
                 arr.put(j);
             }
-            JSONObject o = new JSONObject();
+            Json.Obj o = new Json.Obj();
             o.put("schema", 1);
             o.put("addons", arr);
             Sources.writeText(favoritesFile, o.toString(2));

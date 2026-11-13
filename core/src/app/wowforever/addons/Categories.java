@@ -5,7 +5,7 @@ import java.util.Locale;
 /**
  * The addon categories of the Browse grid. The keys match the index's `category` values; an addon
  * without a known category falls into OTHER. A new category needs a key here, a `cat_<key>` string
- * in every language and a `cat_<key>` drawable.
+ * in every language and a `cat_<key>` icon (CategoryIcons on Android).
  *
  * GAMEPAD is a tag, not a category: it comes from the index's `tags` list and holds addons from any
  * category. A new tag tile goes into TAGS and into the same three places.
@@ -52,30 +52,10 @@ final class Categories {
         return of(it).equals(category);
     }
 
-    static int nameRes(String key) {
-        switch (key) {
-            case "quests": return R.string.cat_quests;
-            case "ui": return R.string.cat_ui;
-            case "combat": return R.string.cat_combat;
-            case "bags": return R.string.cat_bags;
-            case "map": return R.string.cat_map;
-            case "tools": return R.string.cat_tools;
-            case GAMEPAD: return R.string.cat_gamepad;
-            default: return R.string.cat_other;
-        }
-    }
-
-    static int iconRes(String key) {
-        switch (key) {
-            case "quests": return R.drawable.cat_quests;
-            case "ui": return R.drawable.cat_ui;
-            case "combat": return R.drawable.cat_combat;
-            case "bags": return R.drawable.cat_bags;
-            case "map": return R.drawable.cat_map;
-            case "tools": return R.drawable.cat_tools;
-            case GAMEPAD: return R.drawable.cat_gamepad;
-            default: return R.drawable.cat_other;
-        }
+    /** The string name of a category or tag tile: cat_<key>, cat_other for anything unknown. */
+    static String nameKey(String key) {
+        for (String k : KEYS) if (k.equals(key)) return "cat_" + k;
+        return "cat_" + OTHER;
     }
 
     private Categories() {}

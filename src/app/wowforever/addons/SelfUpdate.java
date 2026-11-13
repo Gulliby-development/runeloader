@@ -16,8 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -95,7 +93,7 @@ final class SelfUpdate {
 
     /** The latest release when it is newer than {@code installed} and has the APK, else null. */
     static Release latest(String installed) throws Exception {
-        JSONObject rel = new JSONObject(Http.get("https://api.github.com/repos/" + REPO + "/releases/latest",
+        Json.Obj rel = new Json.Obj(Http.get("https://api.github.com/repos/" + REPO + "/releases/latest",
                 Http.headers("Accept", "application/vnd.github+json")));
         String version = AppVersion.clean(rel.optString("tag_name", ""));
         if (version == null || !AppVersion.newer(version, installed)) return null;
@@ -105,9 +103,9 @@ final class SelfUpdate {
         r.page = rel.optString("html_url", "https://github.com/" + REPO + "/releases/latest");
         String notes = rel.optString("body", "").trim();
         r.notes = notes.length() > 4000 ? notes.substring(0, 4000) + "…" : notes;
-        JSONArray assets = rel.optJSONArray("assets");
+        Json.Arr assets = rel.optJSONArray("assets");
         for (int i = 0; assets != null && i < assets.length(); i++) {
-            JSONObject a = assets.getJSONObject(i);
+            Json.Obj a = assets.getJSONObject(i);
             String name = a.optString("name", "");
             if (name.equals(apk)) { r.apkUrl = a.optString("browser_download_url", null); r.size = a.optLong("size", 0); }
             else if (name.equals(apk + ".sha256")) r.shaUrl = a.optString("browser_download_url", null);

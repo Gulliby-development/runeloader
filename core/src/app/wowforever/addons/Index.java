@@ -1,9 +1,5 @@
 package app.wowforever.addons;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -27,10 +23,10 @@ final class Index {
     private static final long FRESH_MS = 6L * 3600 * 1000;
 
     private static List<Model.Item> items;
-    private static Map<String, JSONObject> byRepo = new HashMap<>();
+    private static Map<String, Json.Obj> byRepo = new HashMap<>();
     private static Map<String, Model.Item> byFolder = new HashMap<>();
     /** owner/repo (lower case) of a module repo to its module entries, in index order. */
-    private static Map<String, List<JSONObject>> modules = new HashMap<>();
+    private static Map<String, List<Json.Obj>> modules = new HashMap<>();
     private static long loadedAt;
 
     /** All index entries, most popular first (see Popularity). Uses the disk cache when fresh or when offline. */
@@ -46,7 +42,7 @@ final class Index {
             } catch (IOException e) {
                 if (!f.exists()) {
                     if (e instanceof Http.HttpException && ((Http.HttpException) e).code == 404)
-                        throw new IOException(Lang.s(R.string.err_index_missing));
+                        throw new IOException(Texts.s("err_index_missing"));
                     throw e;
                 }
             }
@@ -78,10 +74,10 @@ final class Index {
             if (code >= 400) throw new Http.HttpException(code, URL, Http.readAll(c.getErrorStream()));
             String body = Http.readAll(c.getInputStream());
             try {
-                JSONObject probe = new JSONObject(body);
-                if (probe.optJSONArray("addons") == null) throw new IOException(Lang.s(R.string.err_index_broken));
-            } catch (JSONException e) {
-                throw new IOException(Lang.s(R.string.err_index_broken));
+                Json.Obj probe = new Json.Obj(body);
+                if (probe.optJSONArray("addons") == null) throw new IOException(Texts.s("err_index_broken"));
+            } catch (Json.Error e) {
+                throw new IOException(Texts.s("err_index_broken"));
             }
             Sources.writeText(f, body);
             String newTag = c.getHeaderField("ETag");
@@ -92,27 +88,27 @@ final class Index {
     }
 
     private static void parse(String body) throws IOException {
-        JSONArray arr;
+        Json.Arr arr;
         try {
-            JSONObject root = new JSONObject(body);
-            if (root.optInt("schema", SCHEMA) > SCHEMA) throw new IOException(Lang.s(R.string.err_index_newer));
+            Json.Obj root = new Json.Obj(body);
+            if (root.optInt("schema", SCHEMA) > SCHEMA) throw new IOException(Texts.s("err_index_newer"));
             arr = root.optJSONArray("addons");
-        } catch (JSONException e) {
-            throw new IOException(Lang.s(R.string.err_index_broken));
+        } catch (Json.Error e) {
+            throw new IOException(Texts.s("err_index_broken"));
         }
         List<Model.Item> out = new ArrayList<>();
-        Map<String, JSONObject> repos = new HashMap<>();
+        Map<String, Json.Obj> repos = new HashMap<>();
         Map<String, Model.Item> folders = new HashMap<>();
-        Map<String, List<JSONObject>> mods = new HashMap<>();
+        Map<String, List<Json.Obj>> mods = new HashMap<>();
         if (arr != null) for (int i = 0; i < arr.length(); i++) {
-            JSONObject a = arr.optJSONObject(i);
+            Json.Obj a = arr.optJSONObject(i);
             Model.Item it = toItem(a);
             if (it == null) continue;
             out.add(it);
             repos.put(it.id.toLowerCase(Locale.ROOT), a);
             if (Modules.moduleOf(it.id) != null) {
                 String core = Modules.repoOf(it.id).toLowerCase(Locale.ROOT);
-                List<JSONObject> l = mods.get(core);
+                List<Json.Obj> l = mods.get(core);
                 if (l == null) mods.put(core, l = new ArrayList<>());
                 l.add(a);
             }
@@ -128,7 +124,7 @@ final class Index {
         modules = mods;
     }
 
-    static Model.Item toItem(JSONObject a) {
+    static Model.Item toItem(Json.Obj a) {
         if (a == null) return null;
         String repo = Sources.GitHub.normalize(a.optString("repo", ""));
         if (repo == null) return null;
@@ -147,7 +143,7 @@ final class Index {
         it.foreverVerified = a.optBoolean("verified", false);
         it.pageUrl = "https://github.com/" + repo;
         it.iconUrl = "https://github.com/" + owner + ".png?size=96";
-        JSONArray fs = a.optJSONArray("folders");
+        Json.Arr fs = a.optJSONArray("folders");
         if (fs != null) for (int i = 0; i < fs.length(); i++) {
             String d = fs.optString(i, "");
             if (!d.isEmpty() && !it.folders.contains(d)) it.folders.add(d);
@@ -165,20 +161,20 @@ final class Index {
         return it;
     }
 
-    private static String str(JSONObject a, String k, String def) {
+    private static String str(Json.Obj a, String k, String def) {
         if (!a.has(k) || a.isNull(k)) return def;
         String s = a.optString(k, "").trim();
         return s.isEmpty() ? def : s;
     }
 
     /** The raw index entry of owner/repo (or owner/repo#Module) from the last loaded index, or null. */
-    static synchronized JSONObject addon(String repo) {
+    static synchronized Json.Obj addon(String repo) {
         return repo == null ? null : byRepo.get(repo.toLowerCase(Locale.ROOT));
     }
 
     /** The index item for owner/repo (or owner/repo#Module) from the last loaded index, or null. */
     static synchronized Model.Item item(String repo) {
-        JSONObject a = addon(repo);
+        Json.Obj a = addon(repo);
         return a == null ? null : toItem(a);
     }
 
@@ -188,16 +184,16 @@ final class Index {
      */
     static synchronized List<Model.Item> modulesOf(String repo) {
         List<Model.Item> out = new ArrayList<>();
-        List<JSONObject> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
+        List<Json.Obj> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
         if (l == null || byRepo.get(repo.toLowerCase(Locale.ROOT)) == null) return out;
-        for (JSONObject a : l) { Model.Item it = toItem(a); if (it != null) out.add(it); }
+        for (Json.Obj a : l) { Model.Item it = toItem(a); if (it != null) out.add(it); }
         Collections.sort(out, (x, y) -> x.name.compareToIgnoreCase(y.name));
         return out;
     }
 
     /** How many modules the package owner/repo has; 0 for an ordinary addon or a repo the index lacks. */
     static synchronized int moduleCount(String repo) {
-        List<JSONObject> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
+        List<Json.Obj> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
         return l == null || byRepo.get(repo.toLowerCase(Locale.ROOT)) == null ? 0 : l.size();
     }
 

@@ -1,8 +1,5 @@
 package app.wowforever.addons;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.Locale;
 
 /**
@@ -18,29 +15,29 @@ final class IndexFields {
     static final int MAX_TAGS = 10;
 
     /** @param base the index URL's directory, ending in "/", for relative icon paths. */
-    static void fill(JSONObject a, String base, Model.Item it) {
+    static void fill(Json.Obj a, String base, Model.Item it) {
         if (a == null || it == null) return;
         String icon = resolve(base, str(a, "icon"));
         if (icon != null) it.iconUrl = icon;
         it.description = cap(str(a, "description"));
         it.screenshots.clear();
-        JSONArray shots = a.optJSONArray("screenshots");
+        Json.Arr shots = a.optJSONArray("screenshots");
         if (shots != null) for (int i = 0; i < shots.length() && it.screenshots.size() < MAX_SCREENSHOTS; i++) {
             String u = shots.optString(i, "");
             if (isHttps(u)) it.screenshots.add(u);
         }
-        int cat = categoryRes(str(a, "category"));
-        if (cat != 0 && (it.category == null || it.category.isEmpty())) {   // a catalog category wins
-            it.category = Lang.s(cat);
-            it.categoryKey = Categories.key(str(a, "category"));
+        String cat = Categories.key(str(a, "category"));
+        if (!cat.isEmpty() && (it.category == null || it.category.isEmpty())) {   // a catalog category wins
+            it.category = Texts.s(Categories.nameKey(cat));
+            it.categoryKey = cat;
         }
         it.tags.clear();
-        JSONArray tags = a.optJSONArray("tags");
+        Json.Arr tags = a.optJSONArray("tags");
         if (tags != null) for (int i = 0; i < tags.length() && it.tags.size() < MAX_TAGS; i++) {
             String t = tags.optString(i, "").trim().toLowerCase(Locale.ROOT);
             if (!t.isEmpty() && !it.tags.contains(t)) it.tags.add(t);
         }
-        JSONArray req = a.optJSONArray("requires");
+        Json.Arr req = a.optJSONArray("requires");
         if (req != null) for (int i = 0; i < req.length() && i < MAX_TAGS; i++) {
             String d = requirement(req.optString(i, ""));
             if (d != null && !d.equalsIgnoreCase(it.key()) && !it.deps.contains(d)) it.deps.add(d);
@@ -53,15 +50,15 @@ final class IndexFields {
         if (a.has("stars")) it.stars = a.optLong("stars", -1);
         it.changelog = cap(str(a, "changelog"));
         it.releases.clear();
-        JSONArray rels = a.optJSONArray("releases");
+        Json.Arr rels = a.optJSONArray("releases");
         if (rels != null) for (int i = 0; i < rels.length() && it.releases.size() < MAX_RELEASES; i++) {
-            JSONObject r = rels.optJSONObject(i);
+            Json.Obj r = rels.optJSONObject(i);
             if (r != null) it.releases.add(release(r, Modules.repoOf(it.id)));
         }
         if (it.changelog.isEmpty() && !it.releases.isEmpty()) it.changelog = it.releases.get(0).changelog;
     }
 
-    static Model.Release release(JSONObject r, String repo) {
+    static Model.Release release(Json.Obj r, String repo) {
         Model.Release x = new Model.Release();
         x.tag = str(r, "tag");
         x.version = str(r, "version");
@@ -87,19 +84,6 @@ final class IndexFields {
         return Model.SRC_GITHUB + ":" + id;
     }
 
-    /** The index's category keys, mapped onto the app's own categories; 0 when unknown. */
-    static int categoryRes(String key) {
-        switch (key.toLowerCase(Locale.ROOT)) {
-            case "quests": return R.string.cat_quests;
-            case "ui": return R.string.cat_ui;
-            case "combat": return R.string.cat_combat;
-            case "bags": return R.string.cat_bags;
-            case "map": return R.string.cat_map;
-            case "tools": return R.string.cat_tools;
-            default: return 0;
-        }
-    }
-
     /** A relative path inside the index site, or an absolute https URL; anything else is dropped. */
     static String resolve(String base, String path) {
         if (path == null || path.isEmpty()) return null;
@@ -112,7 +96,7 @@ final class IndexFields {
         return u != null && u.regionMatches(true, 0, "https://", 0, 8) && u.length() > 8;
     }
 
-    private static String str(JSONObject o, String k) {
+    private static String str(Json.Obj o, String k) {
         if (o.isNull(k)) return "";
         String s = o.optString(k, "");
         return s == null ? "" : s.trim();

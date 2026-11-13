@@ -37,6 +37,7 @@ final class Lang {
         Context app = base.getApplicationContext() != null ? base.getApplicationContext() : base;
         res = tag.isEmpty() ? app : withLocale(app, l);
         Installer.texts = INSTALLER;
+        Texts.source = CORE;
         return tag.isEmpty() ? base : withLocale(base, l);
     }
 
@@ -72,6 +73,25 @@ final class Lang {
         Context c = res;
         return c == null ? String.valueOf(n) : c.getResources().getQuantityString(id, n, n);
     }
+
+    /** Texts of the shared core, looked up by resource name. */
+    static final Texts.Source CORE = new Texts.Source() {
+        private final java.util.Map<String, Integer> ids = new java.util.concurrent.ConcurrentHashMap<>();
+
+        @Override public String get(String key, Object... args) {
+            Context c = res;
+            if (c == null) return "";
+            Integer id = ids.get(key);
+            if (id == null) {
+                id = c.getResources().getIdentifier(key, "string", c.getPackageName());
+                ids.put(key, id);
+            }
+            if (id == 0) return key;
+            return args.length == 0 ? c.getString(id) : c.getString(id, args);
+        }
+
+        @Override public java.util.Locale locale() { return Lang.locale(); }
+    };
 
     /** Installer messages from the string resources. */
     static final Installer.Texts INSTALLER = new Installer.Texts() {
