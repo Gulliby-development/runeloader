@@ -1,11 +1,6 @@
 package app.wowforever.addons;
 
-import android.util.JsonReader;
-import android.util.JsonToken;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -101,23 +96,23 @@ final class Sources {
                 }
             }
             String base = "https://github.com/" + repo + "/releases/" + (tag == null ? "latest/download/" : "download/" + encPath(tag) + "/");
-            JSONObject rj = null;
+            Json.Obj rj = null;
             try {
-                rj = new JSONObject(Http.get(base + "release.json"));
+                rj = new Json.Obj(Http.get(base + "release.json"));
             } catch (Http.HttpException e) {
                 if (e.code != 404) throw e;
-            } catch (org.json.JSONException ignored) {
+            } catch (Json.Error ignored) {
             }
             Model.Release r = new Model.Release();
             if (rj != null) {
-                JSONArray rels = rj.optJSONArray("releases");
-                JSONObject pick = null;
+                Json.Arr rels = rj.optJSONArray("releases");
+                Json.Obj pick = null;
                 int bestScore = -1;
                 if (rels != null) {
                     for (int i = 0; i < rels.length(); i++) {
-                        JSONObject rel = rels.optJSONObject(i);
+                        Json.Obj rel = rels.optJSONObject(i);
                         if (rel == null) continue;
-                        JSONArray meta = rel.optJSONArray("metadata");
+                        Json.Arr meta = rel.optJSONArray("metadata");
                         int score = -1;
                         if (meta != null) for (int j = 0; j < meta.length(); j++) {
                             String fl = meta.optJSONObject(j) == null ? "" : meta.optJSONObject(j).optString("flavor");
@@ -138,33 +133,33 @@ final class Sources {
                 return r;
             }
             // No release.json: ask the API for the asset list and pick by name.
-            JSONObject rel;
+            Json.Obj rel;
             try {
-                rel = new JSONObject(Http.get("https://api.github.com/repos/" + repo + "/releases/"
+                rel = new Json.Obj(Http.get("https://api.github.com/repos/" + repo + "/releases/"
                         + (pinnedTag ? "tags/" + encPath(tag) : "latest"), apiHeaders()));
             } catch (Http.HttpException e) {
                 if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_no_published, repo));
                 if (e.code == 403 || e.code == 429) throw new IOException(Lang.s(R.string.err_gh_rate_limit));
                 throw e;
-            } catch (org.json.JSONException e) {
+            } catch (Json.Error e) {
                 throw new IOException(Lang.s(R.string.err_gh_unexpected));
             }
-            JSONArray assets = rel.optJSONArray("assets");
-            JSONObject pick = null;
+            Json.Arr assets = rel.optJSONArray("assets");
+            Json.Obj pick = null;
             boolean guessed = false;
-            List<JSONObject> zips = new ArrayList<>();
+            List<Json.Obj> zips = new ArrayList<>();
             if (assets != null) for (int i = 0; i < assets.length(); i++) {
-                JSONObject a = assets.optJSONObject(i);
+                Json.Obj a = assets.optJSONObject(i);
                 if (a != null && a.optString("name").toLowerCase(Locale.ROOT).endsWith(".zip")
                         && !AssetName.isAppBinary(a.optString("name"))) zips.add(a);
             }
-            for (JSONObject a : zips) {
+            for (Json.Obj a : zips) {
                 String n = a.optString("name").toLowerCase(Locale.ROOT);
                 if (n.contains("forever") || n.contains("camelot")) { pick = a; break; }
             }
             if (pick == null) {
-                List<JSONObject> plain = new ArrayList<>();
-                for (JSONObject a : zips) {
+                List<Json.Obj> plain = new ArrayList<>();
+                for (Json.Obj a : zips) {
                     String n = a.optString("name").toLowerCase(Locale.ROOT);
                     boolean other = false;
                     for (String m : OTHER_FLAVOR_MARKS) if (n.contains("-" + m) || n.contains("_" + m)) other = true;
@@ -195,19 +190,19 @@ final class Sources {
 
         /** The newest published tag of a release group ("" for the core) of a module repo, or null. */
         static String groupTag(String repo, String group) throws IOException {
-            JSONArray rels;
+            Json.Arr rels;
             try {
-                rels = new JSONArray(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100", apiHeaders()));
+                rels = new Json.Arr(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100", apiHeaders()));
             } catch (Http.HttpException e) {
                 if (e.code == 403 || e.code == 429) throw new IOException(Lang.s(R.string.err_gh_rate_limit));
                 throw e;
-            } catch (org.json.JSONException e) {
+            } catch (Json.Error e) {
                 throw new IOException(Lang.s(R.string.err_gh_unexpected));
             }
             List<String> tags = new ArrayList<>();
             List<Boolean> pre = new ArrayList<>();
             for (int i = 0; i < rels.length(); i++) {
-                JSONObject r = rels.optJSONObject(i);
+                Json.Obj r = rels.optJSONObject(i);
                 if (r == null || r.optBoolean("draft")) continue;
                 tags.add(r.optString("tag_name", ""));
                 pre.add(r.optBoolean("prerelease"));
@@ -225,7 +220,7 @@ final class Sources {
             it.pageUrl = "https://github.com/" + repo;
             it.iconUrl = "https://github.com/" + it.author + ".png?size=96";
             try {
-                JSONObject o = new JSONObject(Http.get("https://api.github.com/repos/" + repo, apiHeaders()));
+                Json.Obj o = new Json.Obj(Http.get("https://api.github.com/repos/" + repo, apiHeaders()));
                 it.name = o.optString("name", it.name);
                 String d = o.optString("description", "");
                 it.summary = "null".equals(d) ? "" : d;
@@ -234,7 +229,7 @@ final class Sources {
             } catch (Http.HttpException e) {
                 if (e.code == 404) throw new IOException(Lang.s(R.string.err_gh_repo_not_found, repo));
                 // rate limit: keep the bare card
-            } catch (org.json.JSONException ignored) {
+            } catch (Json.Error ignored) {
             }
             Model.Item c = Catalog.byKey(it.key());
             return c != null ? c : it;
@@ -284,7 +279,7 @@ final class Sources {
 
         private static List<Model.Item> parse(File f) throws IOException {
             List<Model.Item> out = new ArrayList<>();
-            JsonReader r = new JsonReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8));
+            Json.Reader r = new Json.Reader(new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)));
             try {
                 r.beginArray();
                 while (r.hasNext()) {
@@ -293,7 +288,7 @@ final class Sources {
                     r.beginObject();
                     while (r.hasNext()) {
                         String k = r.nextName();
-                        if (r.peek() == JsonToken.NULL) { r.skipValue(); continue; }
+                        if (r.peek() == Json.Token.NULL) { r.skipValue(); continue; }
                         switch (k) {
                             case "UID": it.id = r.nextString(); break;
                             case "UIName": it.name = r.nextString(); break;
@@ -303,21 +298,21 @@ final class Sources {
                             case "UIFileInfoURL": it.pageUrl = r.nextString(); break;
                             case "UIDownloadTotal": it.downloads = parseLong(r.nextString()); break;
                             case "UIDir":
-                                if (r.peek() == JsonToken.BEGIN_ARRAY) {
+                                if (r.peek() == Json.Token.BEGIN_ARRAY) {
                                     r.beginArray();
                                     while (r.hasNext()) it.folders.add(r.nextString());
                                     r.endArray();
                                 } else r.skipValue();
                                 break;
                             case "UICompatibility":
-                                if (r.peek() == JsonToken.BEGIN_ARRAY) {
+                                if (r.peek() == Json.Token.BEGIN_ARRAY) {
                                     r.beginArray();
                                     while (r.hasNext()) {
-                                        if (r.peek() != JsonToken.BEGIN_OBJECT) { r.skipValue(); continue; }
+                                        if (r.peek() != Json.Token.BEGIN_OBJECT) { r.skipValue(); continue; }
                                         r.beginObject();
                                         while (r.hasNext()) {
                                             String ck = r.nextName();
-                                            if ("version".equals(ck) && r.peek() == JsonToken.STRING) {
+                                            if ("version".equals(ck) && r.peek() == Json.Token.STRING) {
                                                 String v = r.nextString();
                                                 if (v.startsWith("1.6")) it.foreverVerified = true;
                                             } else r.skipValue();
@@ -338,7 +333,7 @@ final class Sources {
                     }
                 }
                 r.endArray();
-            } catch (IllegalStateException e) {
+            } catch (Json.Error e) {
                 throw new IOException(Lang.s(R.string.err_wowi_list));
             } finally {
                 r.close();
@@ -365,11 +360,11 @@ final class Sources {
         }
 
         static Model.Release latest(String id) throws IOException {
-            JSONObject d;
+            Json.Obj d;
             try {
-                JSONArray arr = new JSONArray(Http.get(DETAILS + id + ".json"));
+                Json.Arr arr = new Json.Arr(Http.get(DETAILS + id + ".json"));
                 d = arr.optJSONObject(0);
-            } catch (org.json.JSONException e) {
+            } catch (Json.Error e) {
                 throw new IOException(Lang.s(R.string.err_wowi_unexpected));
             }
             if (d == null) throw new IOException(Lang.s(R.string.err_wowi_not_found));
@@ -386,8 +381,8 @@ final class Sources {
 
         static String description(String id) {
             try {
-                JSONArray arr = new JSONArray(Http.get(DETAILS + id + ".json"));
-                JSONObject d = arr.optJSONObject(0);
+                Json.Arr arr = new Json.Arr(Http.get(DETAILS + id + ".json"));
+                Json.Obj d = arr.optJSONObject(0);
                 if (d == null) return null;
                 String s = d.optString("UIDescription", "");
                 s = s.replaceAll("\\[/?[a-zA-Z*][^\\]]*\\]", "").replaceAll("\\r", "").replaceAll("\\n{3,}", "\n\n").trim();
