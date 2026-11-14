@@ -36,5 +36,19 @@ public class ModulesTest {
                 && "o/R".equals(Modules.repoOf("o/R")) && Modules.moduleOf("o/R") == null && Modules.moduleOf("o/R#") == null, "ids");
         check("o/R#Wheel".equals(Modules.id("o/R", "Wheel")) && "o/R".equals(Modules.id("o/R", null))
                 && "o/R".equals(Modules.id("o/R", "../x")), "module ids");
+        check(Modules.groups(Arrays.asList("Core-v2", "Legacy-v1.1.0", "Attune-v3", "Legacy-v1.0.0", "Beta-v9", "Wheel-v1"),
+                Arrays.asList(false, false, false, false, false, true), "kit").equals(Arrays.asList("Legacy", "Attune")),
+                "groups: modules once each, no core, channel or pre-release");
+        check(Modules.groups(Arrays.asList("v1", "v2"), Arrays.asList(false, false), "x").isEmpty(), "no groups in a plain repo");
+
+        // a module released after the index: found in the tags, named like the listed modules
+        Model.Item core = new Model.Item(); core.author = "Gulliby-development";
+        Model.Item att = new Model.Item(); att.id = "o/kit#Attune"; att.name = "Gulli-Attune";
+        java.util.List<Model.Item> found = Updater.newModules("o/kit",
+                Arrays.asList("Legacy-v1.0.0", "Core-v1.12.0", "Attune-v1.8.0", "Legacy-v1.1.0"),
+                Arrays.asList(false, false, false, false), core, Arrays.asList(att));
+        check(found.size() == 1 && "o/kit#Legacy".equals(found.get(0).id) && "Gulli-Legacy".equals(found.get(0).name)
+                && "1.1.0".equals(found.get(0).version) && "github".equals(found.get(0).source)
+                && "Gulliby-development".equals(found.get(0).author), "new module from the tags");
     }
 }

@@ -1,5 +1,6 @@
 package app.wowforever.addons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,23 @@ final class Modules {
             if (best == null || AppVersion.compare(versionOf(t), versionOf(best)) > 0) best = t;
         }
         return best;
+    }
+
+    /**
+     * The module groups (not the core) that have a published release, in the case their tags use, in
+     * tag order; empty when the repo does not release by module.
+     */
+    static List<String> groups(List<String> tags, List<Boolean> prerelease, String repoName) {
+        List<String> out = new ArrayList<>();
+        Set<String> seen = new HashSet<>(), all = new HashSet<>();
+        for (String t : tags) all.add(group(t, repoName).toLowerCase(Locale.ROOT));
+        if (all.size() < 2) return out;
+        for (int i = 0; i < tags.size(); i++) {
+            String g = group(tags.get(i), repoName);
+            if (g.isEmpty() || Boolean.TRUE.equals(prerelease.get(i)) || !seen.add(g.toLowerCase(Locale.ROOT))) continue;
+            out.add(g);
+        }
+        return out;
     }
 
     /** The version part of a release tag: "Wheel-v0.10.0" gives "v0.10.0", a plain "v1.2" stays. */

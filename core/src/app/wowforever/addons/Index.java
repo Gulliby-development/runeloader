@@ -27,6 +27,8 @@ final class Index {
     private static Map<String, Model.Item> byFolder = new HashMap<>();
     /** owner/repo (lower case) of a module repo to its module entries, in index order. */
     private static Map<String, List<Json.Obj>> modules = new HashMap<>();
+    /** owner/repo (lower case) of a package to modules found in its GitHub releases that the index lacks yet. */
+    private static Map<String, List<Model.Item>> found = new HashMap<>();
     private static long loadedAt;
 
     /** All index entries, most popular first (see Popularity). Uses the disk cache when fresh or when offline. */
@@ -187,14 +189,24 @@ final class Index {
         List<Json.Obj> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
         if (l == null || byRepo.get(repo.toLowerCase(Locale.ROOT)) == null) return out;
         for (Json.Obj a : l) { Model.Item it = toItem(a); if (it != null) out.add(it); }
+        List<Model.Item> extra = found.get(repo.toLowerCase(Locale.ROOT));
+        if (extra != null) for (Model.Item x : extra) if (byRepo.get(x.id.toLowerCase(Locale.ROOT)) == null) out.add(x);
         Collections.sort(out, (x, y) -> x.name.compareToIgnoreCase(y.name));
         return out;
+    }
+
+    /**
+     * Notes the modules a package released on GitHub after the index was built (see
+     * Updater.discoverModules), so the package lists them and installs them until the index has them.
+     */
+    static synchronized void setFound(String repo, List<Model.Item> mods) {
+        found.put(repo.toLowerCase(Locale.ROOT), new ArrayList<>(mods));
     }
 
     /** How many modules the package owner/repo has; 0 for an ordinary addon or a repo the index lacks. */
     static synchronized int moduleCount(String repo) {
         List<Json.Obj> l = repo == null || Modules.moduleOf(repo) != null ? null : modules.get(repo.toLowerCase(Locale.ROOT));
-        return l == null || byRepo.get(repo.toLowerCase(Locale.ROOT)) == null ? 0 : l.size();
+        return l == null || byRepo.get(repo.toLowerCase(Locale.ROOT)) == null ? 0 : modulesOf(repo).size();
     }
 
     /** The core of a module entry when the index lists that core, else the item itself: Browse shows one row per package. */

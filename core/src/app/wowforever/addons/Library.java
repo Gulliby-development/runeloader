@@ -226,6 +226,7 @@ public final class Library {
                 applyCheck(e, null, null, Texts.friendly(ex));
             }
         }
+        Updater.discoverModules(store);
         store.setLastCheck(System.currentTimeMillis());
     }
 
