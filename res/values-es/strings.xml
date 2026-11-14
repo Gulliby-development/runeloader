@@ -364,6 +364,16 @@
         <item quantity="other">%1$s y %2$d módulos</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="err_gh_rate_limit_reset">Se alcanzó el límite de peticiones de GitHub. Se reinicia a las %1$s. Un token de GitHub en Ajustes sube el límite.</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_text">Sin token, GitHub permite 60 peticiones por hora desde tu ordenador, y una biblioteca grande puede agotarlas. Un token personal sube el límite a 5000. Créalo sin ningún permiso: solo lee repositorios públicos.</string>
+    <string name="github_token_hint">Token de acceso personal</string>
+    <string name="action_create_token">Crear un token</string>
+    <string name="github_token_saved">Token guardado. Límite: %1$d peticiones por hora.</string>
+    <string name="github_token_invalid">GitHub no aceptó el token. Revísalo en Ajustes.</string>
+    <string name="github_token_removed">Token eliminado.</string>
+    <string name="github_token_set">Token guardado</string>
+    <string name="github_requests_left">Quedan %1$d de %2$d peticiones esta hora</string>
     <string name="action_track">Vincular</string>
     <string name="action_open_folder">Abrir carpeta</string>
     <string name="col_addon">Addon</string>

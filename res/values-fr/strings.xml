@@ -364,6 +364,16 @@
         <item quantity="other">%1$s et %2$d modules</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="err_gh_rate_limit_reset">Limite de requêtes GitHub atteinte. Elle se réinitialise à %1$s. Un jeton GitHub dans les Réglages relève la limite.</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_text">Sans jeton, GitHub autorise 60 requêtes par heure depuis votre ordinateur, et une grande bibliothèque peut les épuiser. Un jeton personnel relève la limite à 5000. Créez-le sans aucune permission : il ne lit que les dépôts publics.</string>
+    <string name="github_token_hint">Jeton d’accès personnel</string>
+    <string name="action_create_token">Créer un jeton</string>
+    <string name="github_token_saved">Jeton enregistré. Limite : %1$d requêtes par heure.</string>
+    <string name="github_token_invalid">GitHub n’a pas accepté le jeton. Vérifiez-le dans les Réglages.</string>
+    <string name="github_token_removed">Jeton supprimé.</string>
+    <string name="github_token_set">Jeton enregistré</string>
+    <string name="github_requests_left">Il reste %1$d requêtes sur %2$d cette heure</string>
     <string name="action_track">Suivre</string>
     <string name="action_open_folder">Ouvrir le dossier</string>
     <string name="col_addon">Addon</string>

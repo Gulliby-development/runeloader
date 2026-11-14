@@ -51,6 +51,9 @@ final class Texts {
         if (e instanceof Http.HttpException) {
             int c = ((Http.HttpException) e).code;
             if (c == 404) return s("err_http_404");
+            boolean github = String.valueOf(e.getMessage()).contains("api.github.com");
+            if (c == 401 && github) return s("github_token_invalid");
+            if ((c == 403 || c == 429) && github) return Http.rateLimitText();
             if (c == 403 || c == 429) return s("err_rate_limited", c);
         }
         String m = e.getMessage();

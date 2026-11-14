@@ -353,6 +353,16 @@
         <item quantity="other">%1$s 和 %2$d 个模块</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="err_gh_rate_limit_reset">已达到 GitHub 请求上限，将于 %1$s 重置。在设置中添加 GitHub 令牌可提高上限。</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_text">没有令牌时，GitHub 每小时只允许你的电脑发出 60 个请求，插件较多时可能用完。个人令牌可将上限提高到 5000。创建时不要勾选任何权限：它只读取公开仓库。</string>
+    <string name="github_token_hint">个人访问令牌</string>
+    <string name="action_create_token">创建令牌</string>
+    <string name="github_token_saved">令牌已保存。上限：每小时 %1$d 个请求。</string>
+    <string name="github_token_invalid">GitHub 未接受该令牌，请在设置中检查。</string>
+    <string name="github_token_removed">令牌已删除。</string>
+    <string name="github_token_set">令牌已保存</string>
+    <string name="github_requests_left">本小时剩余 %1$d / %2$d 个请求</string>
     <string name="action_track">关联</string>
     <string name="action_open_folder">打开文件夹</string>
     <string name="col_addon">插件</string>

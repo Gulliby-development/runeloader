@@ -376,6 +376,16 @@
         <item quantity="other">%1$s i %2$d modułu</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="err_gh_rate_limit_reset">Osiągnięto limit zapytań GitHub. Odnowi się o %1$s. Token GitHub w Ustawieniach podnosi limit.</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_text">Bez tokena GitHub pozwala na 60 zapytań na godzinę z twojego komputera, a duża biblioteka może je wyczerpać. Osobisty token podnosi limit do 5000. Utwórz go bez żadnych uprawnień: czyta tylko publiczne repozytoria.</string>
+    <string name="github_token_hint">Osobisty token dostępu</string>
+    <string name="action_create_token">Utwórz token</string>
+    <string name="github_token_saved">Token zapisany. Limit: %1$d zapytań na godzinę.</string>
+    <string name="github_token_invalid">GitHub nie przyjął tokena. Sprawdź go w Ustawieniach.</string>
+    <string name="github_token_removed">Token usunięty.</string>
+    <string name="github_token_set">Token zapisany</string>
+    <string name="github_requests_left">Zostało %1$d z %2$d zapytań w tej godzinie</string>
     <string name="action_track">Podłącz</string>
     <string name="action_open_folder">Otwórz folder</string>
     <string name="col_addon">Dodatek</string>

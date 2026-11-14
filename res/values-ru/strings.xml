@@ -376,6 +376,16 @@
         <item quantity="other">%1$s и %2$d модуля</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="err_gh_rate_limit_reset">Лимит запросов GitHub исчерпан. Он обновится в %1$s. Токен GitHub в настройках поднимает лимит.</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_text">Без токена GitHub даёт 60 запросов в час с вашего компьютера, и большая библиотека может их исчерпать. Личный токен поднимает лимит до 5000. Создайте его без каких-либо прав: он только читает открытые репозитории.</string>
+    <string name="github_token_hint">Личный токен доступа</string>
+    <string name="action_create_token">Создать токен</string>
+    <string name="github_token_saved">Токен сохранён. Лимит: %1$d запросов в час.</string>
+    <string name="github_token_invalid">GitHub не принял токен. Проверьте его в настройках.</string>
+    <string name="github_token_removed">Токен удалён.</string>
+    <string name="github_token_set">Токен сохранён</string>
+    <string name="github_requests_left">Осталось %1$d из %2$d запросов в этот час</string>
     <string name="action_track">Подключить</string>
     <string name="action_open_folder">Открыть папку</string>
     <string name="col_addon">Аддон</string>

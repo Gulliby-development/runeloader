@@ -376,6 +376,16 @@
         <item quantity="other">%1$s and %2$d modules</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="err_gh_rate_limit_reset">GitHub request limit reached. It resets at %1$s. A GitHub token in Settings raises the limit.</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_text">Without a token GitHub allows 60 requests an hour from your computer, and a big Library can use them up. A personal token raises the limit to 5000. Create one without any permissions: it only reads public repositories.</string>
+    <string name="github_token_hint">Personal access token</string>
+    <string name="action_create_token">Create a token</string>
+    <string name="github_token_saved">Token saved. Limit: %1$d requests an hour.</string>
+    <string name="github_token_invalid">GitHub did not accept the token. Check it in Settings.</string>
+    <string name="github_token_removed">Token removed.</string>
+    <string name="github_token_set">Token saved</string>
+    <string name="github_requests_left">%1$d of %2$d requests left this hour</string>
     <string name="action_track">Track</string>
     <string name="action_open_folder">Open folder</string>
     <string name="col_addon">Addon</string>

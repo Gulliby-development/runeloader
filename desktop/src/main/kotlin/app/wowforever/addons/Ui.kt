@@ -30,6 +30,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -154,16 +156,20 @@ fun <T> Segmented(options: List<T>, selected: T, label: (T) -> String, icon: (T)
 
 /** A text field with a leading icon; big for the Browse search. */
 @Composable
-fun Field(value: String, hint: String, modifier: Modifier = Modifier, big: Boolean = false, onChange: (String) -> Unit) {
+fun Field(value: String, hint: String, modifier: Modifier = Modifier, big: Boolean = false, icon: String? = "ic_search",
+          secret: Boolean = false, onChange: (String) -> Unit) {
     Row(modifier.height(if (big) 44.dp else 34.dp).glass(if (big) 11.dp else 9.dp).padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Icon(drawable("ic_search"), null, Modifier.size(if (big) 18.dp else 16.dp), tint = Palette.text3)
-        Spacer(Modifier.width(9.dp))
+        if (icon != null) {
+            Icon(drawable(icon), null, Modifier.size(if (big) 18.dp else 16.dp), tint = Palette.text3)
+            Spacer(Modifier.width(9.dp))
+        }
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
             val size = if (big) 15.sp else 13.5.sp
             if (value.isEmpty()) Text(hint, color = Palette.text3, fontSize = size, maxLines = 1, overflow = TextOverflow.Ellipsis)
             BasicTextField(value, onChange, singleLine = true, cursorBrush = SolidColor(Palette.gold),
-                textStyle = TextStyle(color = Palette.text, fontSize = size, fontFamily = Fonts.body), modifier = Modifier.fillMaxWidth())
+                textStyle = TextStyle(color = Palette.text, fontSize = size, fontFamily = if (secret) Fonts.mono else Fonts.body),
+                visualTransformation = if (secret) PasswordVisualTransformation() else VisualTransformation.None, modifier = Modifier.fillMaxWidth())
         }
         if (value.isNotEmpty()) Icon(drawable("ic_close"), null, Modifier.size(16.dp).clip(RoundedCornerShape(4.dp))
             .pointerHoverIcon(PointerIcon.Hand).clickable { onChange("") }, tint = Palette.text3)

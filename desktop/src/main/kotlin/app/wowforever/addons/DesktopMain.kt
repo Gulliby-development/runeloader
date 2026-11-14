@@ -32,6 +32,7 @@ fun main(args: Array<String>) {
     logErrors(smoke)
     try { javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName()) } catch (e: Exception) { }
     val platform = DesktopPlatform()
+    Http.githubToken = GithubToken.load()
     val lang = platform.prefs().getString(AppState.LANG_KEY, "") ?: ""
     Texts.source = DesktopTexts(lang.ifEmpty { DesktopTexts.systemLanguage() })
     val store = Store.get(platform)
