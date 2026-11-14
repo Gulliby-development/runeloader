@@ -140,7 +140,7 @@ final class Sources {
                         + (pinnedTag ? "tags/" + encPath(tag) : "latest"), apiHeaders()));
             } catch (Http.HttpException e) {
                 if (e.code == 404) throw new IOException(Texts.s("err_gh_no_published", repo));
-                if (e.code == 403 || e.code == 429) throw new IOException(Texts.s("err_gh_rate_limit"));
+                if (e.code == 403 || e.code == 429) throw new IOException(Http.rateLimitText());
                 throw e;
             } catch (Json.Error e) {
                 throw new IOException(Texts.s("err_gh_unexpected"));
@@ -219,7 +219,7 @@ final class Sources {
                 try {
                     rels = new Json.Arr(Http.get("https://api.github.com/repos/" + repo + "/releases?per_page=100&page=" + page, apiHeaders()));
                 } catch (Http.HttpException e) {
-                    if (e.code == 403 || e.code == 429) throw new IOException(Texts.s("err_gh_rate_limit"));
+                    if (e.code == 403 || e.code == 429) throw new IOException(Http.rateLimitText());
                     throw e;
                 } catch (Json.Error e) {
                     throw new IOException(Texts.s("err_gh_unexpected"));

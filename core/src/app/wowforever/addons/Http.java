@@ -18,6 +18,26 @@ final class Http {
 
     interface Progress { void on(long done, long total); }
 
+    /**
+     * A personal GitHub token the user entered (desktop Settings), or null. It goes only to
+     * api.github.com, never to github.com downloads or the signed URLs they redirect to.
+     */
+    static volatile String githubToken;
+    /** What api.github.com last said about the hourly limit; -1 until it answered. Reset is epoch seconds. */
+    static volatile int rateLimit = -1, rateRemaining = -1;
+    static volatile long rateReset = -1;
+
+    private static void noteRate(HttpURLConnection c) {
+        try {
+            String l = c.getHeaderField("X-RateLimit-Limit"), r = c.getHeaderField("X-RateLimit-Remaining"), t = c.getHeaderField("X-RateLimit-Reset");
+            if (l == null || r == null) return;
+            rateLimit = Integer.parseInt(l.trim());
+            rateRemaining = Integer.parseInt(r.trim());
+            if (t != null) rateReset = Long.parseLong(t.trim());
+        } catch (RuntimeException ignored) {
+        }
+    }
+
     static final class HttpException extends IOException {
         final int code;
         HttpException(int code, String url, String body) {
@@ -51,11 +71,18 @@ final class Http {
             c.setConnectTimeout(20000);
             c.setReadTimeout(45000);
             c.setRequestProperty("User-Agent", UA);
+            boolean auth = false;
             if (headers != null) {
                 for (Map.Entry<String, String> e : headers.entrySet()) {
-                    if (secretAllowed(e.getKey(), u.getHost())) c.setRequestProperty(e.getKey(), e.getValue());
+                    if (secretAllowed(e.getKey(), u.getHost())) {
+                        c.setRequestProperty(e.getKey(), e.getValue());
+                        if (e.getKey().equalsIgnoreCase("authorization")) auth = true;
+                    }
                 }
             }
+            String token = githubToken;
+            if (!auth && token != null && !token.isEmpty() && u.getHost().equals("api.github.com"))
+                c.setRequestProperty("Authorization", "Bearer " + token);
             if (body != null && hop == 0) {
                 c.setRequestMethod(method);
                 c.setDoOutput(true);
@@ -66,6 +93,7 @@ final class Http {
                 c.setRequestMethod(method);
             }
             int code = c.getResponseCode();
+            if (u.getHost().equals("api.github.com")) noteRate(c);
             if (code >= 300 && code < 400 && code != 304) {
                 String loc = c.getHeaderField("Location");
                 c.disconnect();
@@ -90,6 +118,14 @@ final class Http {
     }
 
     static String get(String url) throws IOException { return get(url, null); }
+
+    /** The message for a refused GitHub API call: when the limit resets, if GitHub said so. */
+    static String rateLimitText() {
+        long reset = rateReset;
+        if (reset <= 0) return Texts.s("err_gh_rate_limit");
+        String at = new java.text.SimpleDateFormat("HH:mm").format(new java.util.Date(reset * 1000L));
+        return Texts.s("err_gh_rate_limit_reset", at);
+    }
 
     /** Returns the Location header of the first hop (no follow), or null. */
     static String redirectTarget(String url, Map<String, String> headers) throws IOException {

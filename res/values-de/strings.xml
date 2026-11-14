@@ -360,6 +360,16 @@
         <item quantity="other">%1$s und %2$d Module</item>
     </plurals>
     <!-- Desktop app -->
+    <string name="err_gh_rate_limit_reset">GitHub-Anfragelimit erreicht. Es wird um %1$s zurückgesetzt. Ein GitHub-Token in den Einstellungen hebt das Limit an.</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_text">Ohne Token erlaubt GitHub 60 Anfragen pro Stunde von deinem Computer, und eine große Bibliothek kann sie aufbrauchen. Ein persönlicher Token hebt das Limit auf 5000. Erstelle ihn ohne Berechtigungen: Er liest nur öffentliche Repositories.</string>
+    <string name="github_token_hint">Persönlicher Zugriffstoken</string>
+    <string name="action_create_token">Token erstellen</string>
+    <string name="github_token_saved">Token gespeichert. Limit: %1$d Anfragen pro Stunde.</string>
+    <string name="github_token_invalid">GitHub hat den Token nicht akzeptiert. Prüfe ihn in den Einstellungen.</string>
+    <string name="github_token_removed">Token entfernt.</string>
+    <string name="github_token_set">Token gespeichert</string>
+    <string name="github_requests_left">%1$d von %2$d Anfragen in dieser Stunde übrig</string>
     <string name="action_track">Verfolgen</string>
     <string name="action_open_folder">Ordner öffnen</string>
     <string name="col_addon">Addon</string>

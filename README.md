@@ -69,7 +69,7 @@ That's it. Open **Browse**, find an addon and tap **Install**. Restart the game 
 2. **Run** it. It installs for your user only. Windows may say the app is not recognized: click **More info**, then **Run anyway**.
 3. **Start Runeloader**, click **Find automatically** or **Choose folder**, and pick your game folder.
 
-The Windows app does everything the Android app does: search with categories and favorites, install, update one addon, a whole package or everything at once, reinstall, remove, and install from a ZIP file. Background updates and the tray icon come later.
+The Windows app does everything the Android app does: search with categories and favorites, install, update one addon, a whole package or everything at once, reinstall, remove, and install from a ZIP file. If GitHub says the request limit is reached, add a GitHub token in **Settings** (it needs no permissions). Background updates and the tray icon come later.
 
 ## FAQ
 

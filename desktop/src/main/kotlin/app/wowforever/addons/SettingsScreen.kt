@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import java.io.File
 
-private enum class SettingsPart(val label: String) { GAME("settings_game_folder"), BROWSE("nav_browse"), LANGUAGE("settings_language"), ABOUT("settings_about") }
+private enum class SettingsPart(val label: String) { GAME("settings_game_folder"), BROWSE("nav_browse"), GITHUB("settings_github"), LANGUAGE("settings_language"), ABOUT("settings_about") }
 
 /** Settings as in the design: anchors on the left, groups of rows on the right, using the full width. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -85,6 +85,10 @@ fun SettingsScreen(app: AppState) {
                         }
                     }
 
+                    Group(t("settings_github"), Modifier.anchor(SettingsPart.GITHUB)) {
+                        GithubGroup(app)
+                    }
+
                     Group(t("settings_language"), Modifier.anchor(SettingsPart.LANGUAGE)) {
                         Text(t("settings_language_text"), color = Palette.text3, fontSize = 12.5.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
                         FlowRow(Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 14.dp),
@@ -136,5 +140,27 @@ private fun SettingRow(icon: String?, title: String, sub: String?, mono: Boolean
         }
         Spacer(Modifier.width(14.dp))
         Row(verticalAlignment = Alignment.CenterVertically, content = trailing)
+    }
+}
+
+/** The user's own GitHub token: the field, save and remove, and what GitHub said about the limit. */
+@Composable
+private fun ColumnScope.GithubGroup(app: AppState) {
+    var token by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) { app.refreshRate() }
+    Text(t("settings_github_text"), color = Palette.text3, fontSize = 12.5.sp, lineHeight = 18.sp,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
+    SettingRow("ic_link", if (app.hasToken) t("github_token_set") else t("github_token_hint"),
+        if (app.rateLimit > 0) t("github_requests_left", app.rateLeft.coerceAtLeast(0), app.rateLimit) else null) {
+        if (app.hasToken) Button(t("action_remove"), Kind.DANGER, icon = "ic_delete", small = true) { app.removeToken() }
+    }
+    Row(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+        Field(token, t("github_token_hint"), Modifier.weight(1f), icon = null, secret = true) { token = it.trim() }
+        Spacer(Modifier.width(8.dp))
+        Button(t("action_save"), Kind.PRIMARY, small = true, enabled = token.isNotEmpty() && !app.tokenBusy) { app.saveToken(token); token = "" }
+        Spacer(Modifier.width(8.dp))
+        Button(t("action_create_token"), Kind.GHOST, icon = "ic_open", small = true) {
+            openUrl("https://github.com/settings/personal-access-tokens/new?name=Runeloader&description=Runeloader+addon+updates")
+        }
     }
 }

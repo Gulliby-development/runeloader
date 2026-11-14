@@ -301,6 +301,52 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
         revision++
     }
 
+    /** Whether a GitHub token is in use, and what GitHub last said about the hourly limit. */
+    var hasToken by mutableStateOf(Http.githubToken != null)
+    var rateLeft by mutableStateOf(Http.rateRemaining)
+    var rateLimit by mutableStateOf(Http.rateLimit)
+    var tokenBusy by mutableStateOf(false)
+
+    fun refreshRate() { rateLeft = Http.rateRemaining; rateLimit = Http.rateLimit }
+
+    /** Saves the token after GitHub accepted it; asks GitHub for the limit it gives. */
+    fun saveToken(token: String) {
+        val tk = token.trim()
+        if (tk.isEmpty() || tokenBusy) return
+        tokenBusy = true
+        scope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                try {
+                    Http.get("https://api.github.com/rate_limit", Http.headers("Authorization", "Bearer $tk", "Accept", "application/vnd.github+json"))
+                    true
+                } catch (e: Http.HttpException) {
+                    if (e.code == 401) false else null
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            tokenBusy = false
+            refreshRate()
+            when (ok) {
+                false -> message = t("github_token_invalid")
+                else -> {
+                    GithubToken.save(tk)
+                    Http.githubToken = tk
+                    hasToken = true
+                    message = if (ok == true && Http.rateLimit > 0) t("github_token_saved", Http.rateLimit) else t("github_token_set")
+                }
+            }
+        }
+    }
+
+    fun removeToken() {
+        GithubToken.save(null)
+        Http.githubToken = null
+        hasToken = false
+        rateLeft = -1; rateLimit = -1
+        message = t("github_token_removed")
+    }
+
     fun clearCache() {
         val cache = File(DesktopPlatform.appHome(), "cache")
         for (name in listOf("dl", "wowi-filelist.json", "index.json", "index.etag")) Installer.deleteRecursive(File(cache, name))
