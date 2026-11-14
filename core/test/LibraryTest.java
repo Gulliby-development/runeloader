@@ -112,6 +112,22 @@ public class LibraryTest {
         eq("entry forgotten", null, store.entry(e.key));
         eq("others stay", true, new File(addons, "HandMade").isDirectory());
 
+        // a package (a repo with module entries) is asked on GitHub even when the index agrees with the install
+        Map<String, Model.Item> ix = new HashMap<>();
+        for (String id : new String[] {"o/kit", "o/kit#Attune", "o/plain"}) {
+            Model.Item it = new Model.Item();
+            it.source = Model.SRC_GITHUB; it.id = id; it.version = "1.0.0";
+            ix.put(it.key().toLowerCase(), it);
+        }
+        Model.Entry pe = new Model.Entry();
+        pe.source = Model.SRC_GITHUB; pe.version = "1.0.0";
+        pe.id = "o/kit"; pe.key = "github:o/kit";
+        eq("package core asks GitHub", null, Updater.indexHit(ix, pe));
+        pe.id = "o/kit#Attune"; pe.key = "github:o/kit#Attune";
+        eq("package module asks GitHub", null, Updater.indexHit(ix, pe));
+        pe.id = "o/plain"; pe.key = "github:o/plain";
+        eq("plain repo trusts the index", "1.0.0", Updater.indexHit(ix, pe) == null ? null : Updater.indexHit(ix, pe).version);
+
         // a module installed by byHand that the index has in a newer version
         Model.Installed byHand = new Model.Installed();
         byHand.version = "1.6.2";

@@ -46,8 +46,20 @@ final class Updater {
     static Model.Item indexHit(Map<String, Model.Item> index, Model.Entry e) {
         Model.Item ix = index.get(e.key.toLowerCase(Locale.ROOT));
         if (ix == null || ix.version == null || ix.version.isEmpty()) return null;
+        // a package releases its parts many times a day, more often than the nightly index: ask GitHub,
+        // which answers every part of one repo from one cached list of tags
+        if (inPackage(index, e)) return null;
         // the index can be a day behind a release installed from GitHub: ask the source instead
         return UpdatePolicy.older(ix.version, e.version) ? null : ix;
+    }
+
+    /** Whether a GitHub entry is the core or a module of a repo that releases each module on its own tag. */
+    static boolean inPackage(Map<String, Model.Item> index, Model.Entry e) {
+        if (!Model.SRC_GITHUB.equals(e.source) || e.id == null) return false;
+        if (Modules.moduleOf(e.id) != null) return true;
+        String prefix = (e.source + ":" + Modules.repoOf(e.id) + "#").toLowerCase(Locale.ROOT);
+        for (String k : index.keySet()) if (k.startsWith(prefix)) return true;
+        return false;
     }
 
     /** Installs an item and its missing dependencies; adds the installed names to done. */
