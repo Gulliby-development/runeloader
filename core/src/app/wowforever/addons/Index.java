@@ -89,7 +89,7 @@ final class Index {
         }
     }
 
-    private static void parse(String body) throws IOException {
+    static void parse(String body) throws IOException {
         Json.Arr arr;
         try {
             Json.Obj root = new Json.Obj(body);

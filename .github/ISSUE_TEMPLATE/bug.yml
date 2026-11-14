@@ -1,0 +1,31 @@
+name: Bug
+description: Something in Runeloader does not work as it should.
+type: Bug
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Runeloader version
+      description: Shown in Settings, About.
+      placeholder: "0.0.13"
+    validations:
+      required: true
+  - type: dropdown
+    id: app
+    attributes:
+      label: App
+      options: [Android, Windows, Linux, macOS]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you saw instead. Name the addon when it is about one.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and game client
+      placeholder: Retroid Pocket 5, Android 13, WoW Forever
