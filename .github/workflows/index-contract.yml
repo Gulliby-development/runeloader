@@ -1,0 +1,55 @@
+name: Index contract
+
+# Every night after the index run: read the real index.json with the app's own parser
+# (core/test/IndexCheck.java). A problem goes into one open issue labelled index-contract,
+# which closes itself when the index reads fine again.
+on:
+  schedule:
+    - cron: "0 6 * * *"   # daily, 06:00 UTC (the index runs at 03:17)
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths: ["core/src/app/wowforever/addons/Index*.java", "core/test/IndexCheck.java", ".github/workflows/index-contract.yml"]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read today's index with the app's parser
+        id: check
+        run: |
+          set +e
+          curl -sSfL -o index.json https://raw.githubusercontent.com/Gulliby-development/runeloader-index/gh-pages/index.json
+          mkdir -p /tmp/core
+          javac -nowarn -Xlint:-options --release 8 -encoding UTF-8 -d /tmp/core $(find core/src -name '*.java') core/test/*.java
+          java -cp /tmp/core app.wowforever.addons.IndexCheck index.json > report.txt 2>&1
+          rc=$?
+          cat report.txt
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          { echo '```'; tail -n 60 report.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
+
+      - name: Open, update or close the index-contract issue
+        if: always() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RC: ${{ steps.check.outputs.rc }}
+        run: |
+          gh label create index-contract --color d93f0b --description "The app cannot read the index" 2>/dev/null || true
+          num=$(gh issue list --label index-contract --state open --json number --jq '.[0].number')
+          if [ "$RC" != "0" ]; then
+            { echo "Priority: P0"; echo; echo "The app's parser rejects today's index.json:"; echo; echo '```'; grep -v '^warning' report.txt | tail -n 60; echo '```'; } > body.md
+            if [ -n "$num" ]; then gh issue edit "$num" --body-file body.md
+            else gh issue create --title "Index contract: the app cannot read today's index" --label index-contract --body-file body.md
+            fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --reason completed --comment "Today's index reads fine again."
+          fi
