@@ -62,6 +62,58 @@ final class Updater {
         return false;
     }
 
+    /**
+     * Asks GitHub for the modules of every package in the store that the index does not list yet (a
+     * module released after the nightly run), and adds them to the package (Index.setFound). It reuses
+     * the tag list the update check just fetched. Errors only leave the index's list as it is.
+     */
+    static void discoverModules(Store store) {
+        Set<String> repos = new java.util.LinkedHashSet<>();
+        for (Model.Entry e : store.list())
+            if (Model.SRC_GITHUB.equals(e.source) && e.id != null && Modules.moduleOf(e.id) == null && Index.moduleCount(e.id) > 0)
+                repos.add(e.id);
+        for (String repo : repos) {
+            try {
+                List<String>[] rel = Sources.GitHub.releaseTags(repo);
+                List<Boolean> pre = new ArrayList<>();
+                for (String p : rel[1]) pre.add("1".equals(p));
+                Index.setFound(repo, newModules(repo, rel[0], pre, Index.item(repo), Index.modulesOf(repo)));
+            } catch (Exception ignored) {
+                // offline or rate limited: the package keeps the modules the index lists
+            }
+        }
+    }
+
+    /** Items for the module groups of a repo's releases that are not among the known modules. */
+    static List<Model.Item> newModules(String repo, List<String> tags, List<Boolean> pre, Model.Item core, List<Model.Item> known) {
+        String repoName = repo.substring(repo.indexOf('/') + 1);
+        Set<String> have = new java.util.HashSet<>();
+        String prefix = "";
+        for (Model.Item k : known) {
+            String m = Modules.moduleOf(k.id);
+            if (m == null) continue;
+            have.add(m.toLowerCase(Locale.ROOT));
+            // name new modules like the listed ones ("Gulli-Attune" for Attune gives "Gulli-")
+            if (k.name != null && k.name.toLowerCase(Locale.ROOT).endsWith(m.toLowerCase(Locale.ROOT)))
+                prefix = k.name.substring(0, k.name.length() - m.length());
+        }
+        List<Model.Item> out = new ArrayList<>();
+        for (String g : Modules.groups(tags, pre, repoName)) {
+            if (have.contains(g.toLowerCase(Locale.ROOT)) || !g.matches("[A-Za-z][A-Za-z0-9_]*")) continue;
+            String tag = Modules.tagOf(tags, pre, repoName, g);
+            Model.Item it = new Model.Item();
+            it.source = Model.SRC_GITHUB;
+            it.id = repo + "#" + g;
+            it.name = prefix + g;
+            String v = Modules.versionOf(tag);
+            it.version = v != null && v.startsWith("v") ? v.substring(1) : v;
+            it.pageUrl = "https://github.com/" + repo + "/releases/tag/" + tag;
+            if (core != null) { it.author = core.author; it.categoryKey = core.categoryKey; it.category = core.category; }
+            out.add(it);
+        }
+        return out;
+    }
+
     /** Installs an item and its missing dependencies; adds the installed names to done. */
     void installWithDeps(Model.Item item, File addons, List<String> done, Set<String> seen, int depth, Progress p) throws IOException {
         synchronized (LOCK) {

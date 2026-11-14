@@ -8,7 +8,7 @@ plugins {
 }
 
 /** The desktop app's own version; desktop releases are tagged desktop-v<version>. */
-val appVersion = "0.2.3"
+val appVersion = "0.2.4"
 
 kotlin {
     jvmToolchain(21)

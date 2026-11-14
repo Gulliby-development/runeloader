@@ -72,6 +72,9 @@ final class AddonManager {
                     app.main.post(() -> finishCheck(e, fl, null, fe, left, manual));
                 });
             }
+            // modules a package released after the index was built
+            Updater.discoverModules(app.store);
+            app.main.post(() -> { if (!app.isDestroyed()) app.renderIfTab(MainActivity.TAB_INSTALLED); });
         });
     }
 
