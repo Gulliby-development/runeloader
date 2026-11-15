@@ -289,7 +289,7 @@ fun RowDetail(app: AppState, r: Model.Installed?) {
             managed && r.withModules().any { Library.needsUpdate(it) } ->
                 Button(if (e.updateAvailable) t("action_update_to", clip(e.latest, 22)) else t("action_update"), Kind.PRIMARY, icon = "ic_upgrade") { app.updateRow(r) }
             managed && r.missing -> Button(t("action_install_again"), Kind.PRIMARY, icon = "ic_download") { app.update(e) }
-            managed -> Button(t("action_check_update"), icon = "ic_refresh") { app.checkOne(e) }
+            managed -> Button(t("action_check_update"), icon = "ic_refresh") { app.checkRow(r) }
             e == null && r.withModules().any { Library.needsUpdate(it) } ->
                 Button(Library.untrackedUpdate(r)?.let { t("action_update_to", clip(it, 22)) } ?: t("action_update"), Kind.PRIMARY, icon = "ic_upgrade") { app.updateRow(r) }
             e == null && r.catalogMatch != null -> Button(t("action_track_catalog"), Kind.PRIMARY, icon = "ic_link") { app.install(r.catalogMatch, alone = true) }

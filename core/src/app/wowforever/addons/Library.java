@@ -216,6 +216,8 @@ public final class Library {
 
     /** Checks every entry: one index download answers the GitHub addons it lists, the rest are asked one by one. */
     static void checkAll(Store store, boolean refreshIndex) {
+        // a manual check must see a module released minutes ago, not the tag list of the last check
+        if (refreshIndex) Sources.GitHub.forgetTags(null);
         Map<String, Model.Item> index = Updater.indexByKey(refreshIndex);
         for (Model.Entry e : checkable(store)) {
             Model.Item ix = Updater.indexHit(index, e);
@@ -228,6 +230,37 @@ public final class Library {
         }
         Updater.discoverModules(store);
         store.setLastCheck(System.currentTimeMillis());
+    }
+
+    /** The managed entries one Library row stands for: a package's core and every module under it. */
+    static List<Model.Entry> checkable(Model.Installed r) {
+        List<Model.Entry> list = new ArrayList<>();
+        if (r == null) return list;
+        for (Model.Installed m : r.withModules())
+            if (m.entry != null && !Model.SRC_ZIP.equals(m.entry.source)) list.add(m.entry);
+        return list;
+    }
+
+    /**
+     * Checks one row on the source, with fresh release tags: for a package that is the core and every
+     * module, and modules released after the index run join it. Returns the first error, or null.
+     */
+    static String checkRow(Store store, Model.Installed r) {
+        String first = null;
+        for (Model.Entry e : checkable(r)) {
+            if (Model.SRC_GITHUB.equals(e.source) && e.id != null) Sources.GitHub.forgetTags(Modules.repoOf(e.id));
+        }
+        for (Model.Entry e : checkable(r)) {
+            try {
+                applyCheck(e, Updater.latestVersion(e), null, null);
+            } catch (Exception ex) {
+                String err = Texts.friendly(ex);
+                applyCheck(e, null, null, err);
+                if (first == null) first = err;
+            }
+        }
+        if (r != null && r.isPackage()) Updater.discoverModules(store);
+        return first;
     }
 
     /** The number of entries with an update. */

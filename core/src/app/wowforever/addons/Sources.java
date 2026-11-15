@@ -206,6 +206,13 @@ final class Sources {
          * hundreds of releases, so one page misses groups; the list is kept for ten minutes, so checking
          * every module of a package costs a few API calls, not one per module.
          */
+        /** Drops the kept tag list of a repo, or of every repo for null, so the next ask reads GitHub. */
+        static void forgetTags(String repo) {
+            synchronized (TAG_CACHE) {
+                if (repo == null) TAG_CACHE.clear(); else TAG_CACHE.remove(repo.toLowerCase(Locale.ROOT));
+            }
+        }
+
         @SuppressWarnings("unchecked")
         static List<String>[] releaseTags(String repo) throws IOException {
             String key = repo.toLowerCase(Locale.ROOT);

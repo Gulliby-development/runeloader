@@ -54,6 +54,8 @@ final class AddonManager {
         final AtomicInteger left = new AtomicInteger(list.size());
         MainActivity.net.execute(() -> {
             // One index download answers every GitHub addon it lists; the rest are asked one by one.
+            // a manual check must see a module released minutes ago, not the tag list of the last check
+            if (manual) Sources.GitHub.forgetTags(null);
             Map<String, Model.Item> index = Updater.indexByKey(manual);
             for (final Model.Entry e : list) {
                 final Model.Item ix = Updater.indexHit(index, e);
@@ -90,17 +92,24 @@ final class AddonManager {
         if (app.tab == MainActivity.TAB_INSTALLED) app.render();
     }
 
-    void checkOne(final Model.Entry e) {
+    /** Asks the source for the latest version of one row: a package's core and every module under it. */
+    void checkRow(final Model.Installed r) {
+        final Model.Entry e = r.entry;
+        if (e == null) return;
         app.snack(app.getString(R.string.checking_one, e.name));
         MainActivity.net.execute(() -> {
-            String latest = null, err = null;
-            try { latest = Updater.latestVersion(e); } catch (Exception ex) { err = MainActivity.friendly(ex); }
-            final String fl = latest, fe = err;
+            final String err = Library.checkRow(app.store, r);
             app.main.post(() -> {
-                e.checkError = fe;
-                if (fl != null) { e.latest = fl; e.updateAvailable = UpdatePolicy.isNewer(fl, e.version); }
-                app.snack(fe != null ? fe : (e.updateAvailable ? app.getString(R.string.version_available, fl) : app.getString(R.string.latest_installed)));
-                if (app.tab == MainActivity.TAB_INSTALLED) app.render();
+                if (app.isDestroyed()) return;
+                int n = 0;
+                for (Model.Entry x : Library.checkable(r)) if (x.updateAvailable) n++;
+                String text;
+                if (n == 1 && e.updateAvailable) text = app.getString(R.string.version_available, e.latest);
+                else if (n > 0) text = app.getResources().getQuantityString(R.plurals.updates_available, n, n);
+                else if (err != null) text = err;
+                else text = app.getString(R.string.latest_installed);
+                app.snack(text);
+                if (r.isPackage()) rescan(); else if (app.tab == MainActivity.TAB_INSTALLED) app.render();
             });
         });
     }
