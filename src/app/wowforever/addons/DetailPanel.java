@@ -320,7 +320,7 @@ final class DetailPanel extends Screen {
             } else if (r.missing) {
                 primary = Ui.button(app, s(R.string.action_install_again), R.drawable.ic_download, Ui.Kind.PRIMARY, v -> app.manager.update(e));
             } else {
-                primary = Ui.button(app, s(R.string.action_check_update), R.drawable.ic_refresh, Ui.Kind.SECONDARY, v -> app.manager.checkOne(e));
+                primary = Ui.button(app, s(R.string.action_check_update), R.drawable.ic_refresh, Ui.Kind.SECONDARY, v -> app.manager.checkRow(r));
             }
         } else if (e == null && r.catalogMatch != null) {
             primary = Ui.button(app, s(R.string.action_track_catalog), R.drawable.ic_link, Ui.Kind.PRIMARY, v -> app.manager.install(r.catalogMatch, null));

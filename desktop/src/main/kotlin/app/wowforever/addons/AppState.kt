@@ -135,16 +135,22 @@ class AppState(val store: Store, private val prefs: Platform.Prefs) {
         }
     }
 
-    /** Asks for the latest version of one addon. */
-    fun checkOne(e: Model.Entry) {
+    /** Asks the source for the latest version of one row: a package's core and every module under it. */
+    fun checkRow(r: Model.Installed) {
+        val e = r.entry ?: return
         message = t("checking_one", e.name)
         scope.launch {
-            val (latest, err) = withContext(Dispatchers.IO) {
-                try { Updater.latestVersion(e) to null } catch (x: Exception) { null to Texts.friendly(x) }
-            }
-            Library.applyCheck(e, latest, null, err)
+            val err = withContext(Dispatchers.IO) { Library.checkRow(store, r) }
+            val n = Library.checkable(r).count { it.updateAvailable }
             revision++
-            message = err ?: if (e.updateAvailable) t("version_available", latest) else t("latest_installed")
+            message = when {
+                n > 1 -> q("updates_available", n)
+                n == 1 && e.updateAvailable -> t("version_available", e.latest)
+                n == 1 -> q("updates_available", n)
+                err != null -> err
+                else -> t("latest_installed")
+            }
+            if (r.isPackage) rescan()
         }
     }
 

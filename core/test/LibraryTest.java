@@ -46,6 +46,12 @@ public class LibraryTest {
         };
     }
 
+    static List<String> keys(List<Model.Entry> l) {
+        List<String> out = new ArrayList<>();
+        for (Model.Entry e : l) out.add(e.key);
+        return out;
+    }
+
     public static void main(String[] a) throws Exception {
         File t = Files.createTempDirectory("library").toFile();
         File game = new File(t, "Game");
@@ -144,6 +150,18 @@ public class LibraryTest {
         pkg.modules.add(byHand);
         byHand.catalogMatch.version = "1.8.0";
         eq("package counts core and modules", "2", String.valueOf(Library.updates(java.util.Arrays.asList(pkg))));
+
+        // checking a package row asks about the core and every managed module, not the core alone
+        Model.Installed coreRow = new Model.Installed();
+        coreRow.entry = new Model.Entry();
+        coreRow.entry.source = Model.SRC_GITHUB; coreRow.entry.id = "o/kit"; coreRow.entry.key = "github:o/kit";
+        Model.Installed modRow = new Model.Installed();
+        modRow.entry = new Model.Entry();
+        modRow.entry.source = Model.SRC_GITHUB; modRow.entry.id = "o/kit#DungeonPrep"; modRow.entry.key = "github:o/kit#DungeonPrep";
+        coreRow.modules.add(modRow);
+        coreRow.modules.add(byHand);
+        eq("row check covers modules", Arrays.asList("github:o/kit", "github:o/kit#DungeonPrep"), keys(Library.checkable(coreRow)));
+        eq("module row checks itself", Arrays.asList("github:o/kit#DungeonPrep"), keys(Library.checkable(modRow)));
 
         if (fails > 0) { System.out.println(fails + " failed"); System.exit(1); }
         System.out.println("LibraryTest: ok");
