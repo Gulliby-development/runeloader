@@ -77,6 +77,7 @@ public final class Model {
         List<String> folders = new ArrayList<>();
         long installedAt;
         boolean pinned;       // the background auto-update skips it
+        List<String> modules; // a package core: the modules it had at its last install (null: not noted yet)
         // runtime only
         String latest;
         boolean updateAvailable;

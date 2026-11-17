@@ -140,9 +140,66 @@ public final class Library {
     static List<Model.Item> parts(Store store, Model.Item item, boolean alone) {
         List<Model.Item> parts = new ArrayList<>();
         parts.add(item);
-        if (!alone && store.entry(item.key()) == null && Model.SRC_GITHUB.equals(item.source))
+        if (!alone && store.entry(item.key()) == null && Model.SRC_GITHUB.equals(item.source)) {
             for (Model.Item m : Index.modulesOf(item.id)) if (store.entry(m.key()) == null) parts.add(m);
+        } else if (!alone) {
+            parts.addAll(newModules(store, store.entry(item.key())));
+        }
         return parts;
+    }
+
+    /** The module names (owner/repo#Name gives Name) of a list of items. */
+    static List<String> moduleNames(List<Model.Item> mods) {
+        List<String> out = new ArrayList<>();
+        for (Model.Item m : mods) { String n = Modules.moduleOf(m.id); if (n != null) out.add(n); }
+        return out;
+    }
+
+    static List<Model.Item> newModules(Store store, Model.Entry core) {
+        if (core == null || !Model.SRC_GITHUB.equals(core.source) || core.id == null || Modules.moduleOf(core.id) != null)
+            return new ArrayList<>();
+        return newModules(store, core, Index.modulesOf(core.id));
+    }
+
+    /**
+     * The modules a package released after its core was installed: an update of the core brings them, like
+     * the first install brought the rest. A module the player removed was known by then, so it stays away.
+     * A core installed before the app noted its modules counts the installed ones as known.
+     */
+    static List<Model.Item> newModules(Store store, Model.Entry core, List<Model.Item> mods) {
+        List<Model.Item> out = new ArrayList<>();
+        Set<String> known = new HashSet<>();
+        if (core.modules != null) {
+            for (String m : core.modules) known.add(m.toLowerCase(Locale.ROOT));
+        } else {
+            for (Model.Entry x : store.list()) {
+                String m = Model.SRC_GITHUB.equals(x.source) && x.id != null ? Modules.moduleOf(x.id) : null;
+                if (m != null && Modules.repoOf(x.id).equalsIgnoreCase(core.id)) known.add(m.toLowerCase(Locale.ROOT));
+            }
+        }
+        for (Model.Item m : mods) {
+            String name = Modules.moduleOf(m.id);
+            if (name != null && store.entry(m.key()) == null && !known.contains(name.toLowerCase(Locale.ROOT))) out.add(m);
+        }
+        return out;
+    }
+
+    /**
+     * Marks each package core with new modules as having an update, so Update installs them. A core
+     * without a noted module list notes the installed ones now, so a module removed later stays away.
+     */
+    static void markNewModules(Store store) {
+        for (Model.Entry e : store.list()) {
+            if (!Model.SRC_GITHUB.equals(e.source) || e.id == null || Modules.moduleOf(e.id) != null || Index.moduleCount(e.id) == 0) continue;
+            List<Model.Item> fresh = newModules(store, e);
+            if (e.modules == null) {
+                List<String> known = moduleNames(Index.modulesOf(e.id));
+                known.removeAll(moduleNames(fresh));
+                e.modules = known;
+                store.put(e);
+            }
+            if (!fresh.isEmpty()) e.updateAvailable = true;
+        }
     }
 
     /** Installs the item and what it brings; returns the names installed. Call off the UI thread. */
@@ -229,6 +286,7 @@ public final class Library {
             }
         }
         Updater.discoverModules(store);
+        markNewModules(store);
         store.setLastCheck(System.currentTimeMillis());
     }
 
@@ -259,7 +317,7 @@ public final class Library {
                 if (first == null) first = err;
             }
         }
-        if (r != null && r.isPackage()) Updater.discoverModules(store);
+        if (r != null && r.isPackage()) { Updater.discoverModules(store); markNewModules(store); }
         return first;
     }
 

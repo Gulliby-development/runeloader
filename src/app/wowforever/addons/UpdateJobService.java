@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** The periodic background check: finds addon updates and, in install mode, installs them. */
 public class UpdateJobService extends JobService {
@@ -67,6 +68,11 @@ public class UpdateJobService extends JobService {
                 e.checkError = MainActivity.friendly(ex);
             }
         }
+        // a package core whose repo released a module since its install brings that module with the update
+        Updater.discoverModules(store);
+        Library.markNewModules(store);
+        for (Model.Entry e : UpdatePolicy.candidates(store.list()))
+            if (e.updateAvailable && !found.contains(e)) found.add(e);
         store.setLastCheck(now);
         if (found.isEmpty()) { store.setAutoLastRun(now, 0, 0, null); return; }
 
@@ -84,7 +90,8 @@ public class UpdateJobService extends JobService {
         for (Model.Entry e : found) {
             if (stopped) break;
             try {
-                updater.installWithDeps(Sources.itemFor(e), addons, done, new HashSet<String>(), 0, null);
+                Set<String> seen = new HashSet<>();
+                for (Model.Item part : Library.parts(store, Sources.itemFor(e))) updater.installWithDeps(part, addons, done, seen, 0, null);
             } catch (Exception ex) {
                 failed.add(e.name + ": " + MainActivity.friendly(ex));
             }

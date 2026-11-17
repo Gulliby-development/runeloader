@@ -76,7 +76,11 @@ final class AddonManager {
             }
             // modules a package released after the index was built
             Updater.discoverModules(app.store);
-            app.main.post(() -> { if (!app.isDestroyed()) app.renderIfTab(MainActivity.TAB_INSTALLED); });
+            app.main.post(() -> {
+                if (app.isDestroyed()) return;
+                Library.markNewModules(app.store);
+                app.renderIfTab(MainActivity.TAB_INSTALLED);
+            });
         });
     }
 
@@ -85,6 +89,7 @@ final class AddonManager {
         Library.applyCheck(e, latest, changelog, err);
         if (left.decrementAndGet() == 0) {
             app.checking = false;
+            Library.markNewModules(app.store);
             app.store.setLastCheck(System.currentTimeMillis());
             int n = Library.updates(app.store);
             if (manual || n > 0) app.snack(n == 0 ? app.getString(R.string.all_up_to_date) : app.getResources().getQuantityString(R.plurals.updates_available, n, n));

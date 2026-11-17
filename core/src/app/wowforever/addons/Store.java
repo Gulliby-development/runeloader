@@ -147,6 +147,8 @@ public final class Store {
                 e.pinned = j.optBoolean("pinned", false);
                 Json.Arr fs = j.optJSONArray("folders");
                 if (fs != null) for (int k = 0; k < fs.length(); k++) e.folders.add(fs.optString(k));
+                Json.Arr ms = j.optJSONArray("modules");
+                if (ms != null) { e.modules = new ArrayList<>(); strings(ms, e.modules); }
                 entries.put(e.key, e);
             }
         } catch (Exception ignored) {
@@ -170,6 +172,11 @@ public final class Store {
                 Json.Arr fs = new Json.Arr();
                 for (String f : e.folders) fs.put(f);
                 j.put("folders", fs);
+                if (e.modules != null) {
+                    Json.Arr ms = new Json.Arr();
+                    for (String m : e.modules) ms.put(m);
+                    j.put("modules", ms);
+                }
                 arr.put(j);
             }
             Json.Obj o = new Json.Obj();
