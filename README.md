@@ -28,7 +28,7 @@ Installing addons on a phone usually means zip files, file managers and long fol
 - **See before you install.** Logos, descriptions, screenshots and changelogs for each addon.
 - **Know when an addon is over.** If its author stopped it, the addon gets a **Discontinued** tag in **Browse** and **Installed**, and its page shows the addon to use instead.
 - **One-tap install.** The app finds the right folder and the right files for you. If an addon needs another addon, or comes in parts (a core and modules), Runeloader installs what it needs too.
-- **Addons with many parts stay one addon.** Some addons come as a core and many modules. Runeloader shows them as one package: one tap installs it all. In your list, open the package to see its modules and remove the ones you do not need.
+- **Addons with many parts stay one addon.** Some addons come as a core and many modules. Runeloader shows them as one package: one tap installs it all. In your list, open the package to see its modules and remove the ones you do not need. When the author adds a new module, it comes with the next update of the package; a module you removed stays removed.
 - **Updates.** See which addons are out of date and update them all at once. Something wrong with an addon? Open it in **Installed** and tap **Reinstall** for a clean copy.
 - **Updates itself.** When a new Runeloader comes out, the app tells you. Tap **Update**, and Android installs it.
 - **Auto-update.** Turn it on in **Settings**, and Runeloader checks for updates in the background, even when the app is closed. It can tell you, or install the updates for you.
@@ -126,7 +126,7 @@ The app picks the TOC file the same way the game does: `_Forever`, then `_Camelo
 2. Addon folders are found by their `.toc` files.
 3. Each folder is swapped into `AddOns` in one step, so the old version stays until the new one is ready.
 
-Some addons release each part on its own tag (`Core-v1`, `Wheel-v2`). Runeloader treats them as one package: Browse shows the core only, with the number of modules, and installing it installs the core and every module. The Library shows the package as one row that opens into its core and modules; each module can be added or removed on its own, and removing the core removes the whole package. Each part installs and updates from the newest release of its own tag, and the core goes first when a module needs it.
+Some addons release each part on its own tag (`Core-v1`, `Wheel-v2`). Runeloader treats them as one package: Browse shows the core only, with the number of modules, and installing it installs the core and every module. The Library shows the package as one row that opens into its core and modules; each module can be added or removed on its own, and removing the core removes the whole package. Each part installs and updates from the newest release of its own tag, and the core goes first when a module needs it. A module released after the package was installed comes with the core's next update, unless the player removed it before.
 
 Runeloader needs no GitHub account or token. Most lookups read `release.json` through plain github.com links, which do not count against the API limit; the API (60 requests per hour) is used only for repositories without one. Installs always take the asset from GitHub directly, because the index can be a day old.
 </details>

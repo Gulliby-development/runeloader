@@ -46,6 +46,12 @@ public class LibraryTest {
         };
     }
 
+    static List<String> names(List<Model.Item> l) {
+        List<String> out = new ArrayList<>();
+        for (Model.Item it : l) out.add(it.name);
+        return out;
+    }
+
     static List<String> keys(List<Model.Entry> l) {
         List<String> out = new ArrayList<>();
         for (Model.Entry e : l) out.add(e.key);
@@ -162,6 +168,33 @@ public class LibraryTest {
         coreRow.modules.add(byHand);
         eq("row check covers modules", Arrays.asList("github:o/kit", "github:o/kit#DungeonPrep"), keys(Library.checkable(coreRow)));
         eq("module row checks itself", Arrays.asList("github:o/kit#DungeonPrep"), keys(Library.checkable(modRow)));
+
+        // a module the package released after the core was installed comes with the core's update
+        Model.Entry kit = new Model.Entry();
+        kit.source = Model.SRC_GITHUB; kit.id = "o/kit"; kit.key = "github:o/kit"; kit.name = "Kit"; kit.version = "1.0.0";
+        store.put(kit);
+        Model.Entry att = new Model.Entry();
+        att.source = Model.SRC_GITHUB; att.id = "o/kit#Attune"; att.key = "github:o/kit#Attune"; att.name = "Kit-Attune";
+        store.put(att);
+        List<Model.Item> mods = new ArrayList<>();
+        for (String m : new String[] {"Attune", "Farm", "Gone"}) {
+            Model.Item it = new Model.Item();
+            it.source = Model.SRC_GITHUB; it.id = "o/kit#" + m; it.name = "Kit-" + m;
+            mods.add(it);
+        }
+        eq("names of modules", Arrays.asList("Attune", "Farm", "Gone"), Library.moduleNames(mods));
+        eq("without a noted list the installed modules are known", Arrays.asList("Kit-Farm", "Kit-Gone"),
+                names(Library.newModules(store, kit, mods)));
+        kit.modules = new ArrayList<>(Arrays.asList("Attune", "Gone"));
+        eq("a module known at install and removed stays away", Arrays.asList("Kit-Farm"), names(Library.newModules(store, kit, mods)));
+        kit.modules.add("farm");
+        eq("names match in any case", 0, Library.newModules(store, kit, mods).size());
+        store.put(kit);
+        Store.get(null).load();
+        eq("the noted list is saved", Arrays.asList("Attune", "Gone", "farm"), store.entry(kit.key).modules);
+        eq("a module is no package core", 0, Library.newModules(store, att).size());
+        store.remove(kit.key);
+        store.remove(att.key);
 
         if (fails > 0) { System.out.println(fails + " failed"); System.exit(1); }
         System.out.println("LibraryTest: ok");

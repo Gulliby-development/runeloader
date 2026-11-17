@@ -174,6 +174,8 @@ final class Updater {
         e.latest = e.version;
         e.updateAvailable = false;
         e.pinned = old != null && old.pinned;
+        if (Model.SRC_GITHUB.equals(e.source) && Modules.moduleOf(e.id) == null && Index.moduleCount(e.id) > 0)
+            e.modules = Library.moduleNames(Index.modulesOf(e.id));
         store.put(e);
         done.add(item.name);
     }
